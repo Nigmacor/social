@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% block title %}{{ user.get_full_name }}{% endblock %}
+{% block content %}
+  <h1>{{ user.get_full_name }}</h1>
+  <div class="profile-info">
+    <a href="{{ user.profile.photo.url }}">
+    {%thumbnail user.profile.photo "180x180" crop="100%" format="PNG" as im%}
+      <img src="{{ im.url }}" class="user-detail">
+    {% endthumbnail %}
+    </a>
+  </div>
+  {% with total_professions=user.profile.professions.count total_followers=user.followers.count %}
+  <span class="count">
+    навыки:
+    <span class="total_prof">{{ total_professions }}</span>
+  </span>
+  <span class="count">
+    подписчиков:
+    <span class="total">{{ total_followers }}</span>
+  </span>
+  <a href="#" data-id="{{ user.id }}"
+    data-action="{% if request.user in user.followers.all %}un{% endif %}follow"
+    class="follow button">
+    {% if request.user not in user.followers.all %}
+      Подписаться
+    {% else %}
+      Отписаться
+    {% endif %}
+  </a>
+  {% endwith %}
+  <div id="image-list" class="image-container">
+    {% include "images/image/list_ajax.html" with images=user.images_created.all %}
+  </div>
+{% endblock %}
+
+
+{% block domready %}
+  {% include "images/image/ajax_reloader.html" %}
+  $('a.follow').click(function(e){
+    e.preventDefault();
+    $.post('{% url "user_follow" %}',
+      {
+        id: $(this).data('id'),
+        action: $(this).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok') {
+          var previous_action = $('a.follow').attr('data-action');
+
+          // смена data-action
+          $('a.follow').attr('data-action',
+            previous_action == 'follow' ? 'unfollow' : 'follow');
+          // смена link text
+          $('a.follow').text(
+            previous_action == 'follow' ? 'Отписаться' : 'Подписаться');
+
+          // пересчет total followers
+          var previous_followers = parseInt(
+            $('span.count .total').text());
+          $('span.count .total').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
+        }
+      }
+    );
+  });
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//   $('a.follow').click(function(e){
+//      e.preventDefault();
+//      var args = {id: $(this).attr('data-id'), action: $(this).attr('data-action')}
+//      console.log(data);
+//      $.post('{% url "user_follow" %}', args,
+//        function(data){
+//          if (data['status'] == 'ok') {
+//            var previous_action = $('a.follow').data('action');
+//            $('a.follow').data('action',
+//              previous_action == 'follow' ? 'unfollow' : 'follow');
+//            $('a.follow').text(
+//              previous_action == 'follow' ? 'Unfollow' : 'Follow');
+//            var previous_followers = parseInt(
+//              $('span.count .total').text());
+//            $('span.count .total').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
+//          }
+//        }
+//      );
+//    });
