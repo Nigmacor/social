@@ -27,7 +27,7 @@ class ProfileToProfession(models.Model):
     profession = models.ForeignKey(Profession, related_name='rel_to_worker',
                                    on_delete=models.CASCADE)
     confirmed = models.BooleanField(default=False)
-
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
 
 class Contact(models.Model):
     user_from = models.ForeignKey('auth.User',

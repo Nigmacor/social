@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Профессии{% endblock %}
+{% block content %}
+  <h1>Список профессий</h1>
+
+  <div id="professions-list">
+    <table>
+      {% with my_professions=request.user.profile.professions %}
+        <tr>
+          <th>Все професии</th>
+          <th>Мои професии</th>
+        </tr>
+        <tr>
+          <td>
+            <ul>
+              {% for profession in professions %}
+                <a href="#" data-id="{{ profession.id }}"
+                  data-action="{% if profession in my_professions.all %}Un{% endif %}True"
+                  class="profession">
+                  <li>{{ profession.title }}</li>
+                </a>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <ul>
+              {% for profession in my_professions.all %}
+                {% if profession.confirmed %}
+                  <li>{{ profession.title }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+      {% endwith %}
+    </table>
+  </div>
+{% endblock %}
+
+{% block domready %}
+  $('a.profession').click(function(e){
+    e.preventDefault();
+    $.post('{% url "add_profession" %}',
+      {
+        id: $(this).data('id'),
+        action: $(this).data('action')
+      },
+    );
+  });
+{% endblock %}
