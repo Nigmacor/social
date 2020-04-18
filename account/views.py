@@ -9,7 +9,7 @@ from common.mixin import image_list_mixin
 from common.decorators import ajax_required
 from actions.utils import create_action
 
-from .models import Profile, Contact
+from .models import Profile, Contact, Profession, ProfileToProfession
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from actions.models import Action
 #from django.contrib.auth import authenticate, login
@@ -31,6 +31,32 @@ def dashboard(request):
     actions = actions.select_related('user', 'user__profile').prefetch_related('target')[:10]
     return render(request, 'account/dashboard.html',
                   {'section': 'dashboard', 'actions': actions})
+
+@login_required
+def professions(request):
+    professions = Profession.objects.all()
+    return render(request, 'account/professions/professions.html',
+                  {'section': 'professions', 'professions': professions})
+
+@ajax_required
+@require_POST
+@login_required
+def add_profession(request):
+    profession_id = request.POST.get('id')
+    action = request.POST.get('action')
+    if profession_id and action:
+        try:
+            profession = Profession.objects.get(id=profession_id)
+            if action == 'True':
+                ProfileToProfession.objects.get_or_create(worker=request.user.profile,
+                                                          profession=profession)
+            else:
+                messages.info(request, 'У вас уже указанна эта профессия')
+            return JsonResponse({'status':'ok'})
+        except Profession.DoesNotExist:
+            return JsonResponse({'status':'ok'})
+    return JsonResponse({'status':'ok'})
+
 
 def register(request):
     if request.method == 'POST':
