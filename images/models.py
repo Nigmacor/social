@@ -26,3 +26,6 @@ class Image(models.Model):
         super(Image, self).save(*args, **kwargs)
     def get_absolute_url(self):
         return reverse('images:detail', kwargs={'id': self.id, 'slug': self.slug})
+
+    class Meta:
+        ordering = ['created']
