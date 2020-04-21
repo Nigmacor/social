@@ -11,5 +11,6 @@ class Action(models.Model):
     target_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
     target = GenericForeignKey('target_ct', 'target_id')
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    type = models.CharField(max_length=25, default='common')
     class Meta:
         ordering = ('-created',)

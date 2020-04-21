@@ -20,17 +20,19 @@ from actions.models import Action
 def dashboard(request):
     #По умолчанию отображаются действия всех пользователей
     actions = Action.objects.exclude(user=request.user)
+    work_actions = actions.exclude(type='common')
+    actions = actions.exclude(type='work')
     following_ids = request.user.following.values_list('id', flat=True)
     if following_ids:
         # Если текущий пользователь подписался на кого-то,
         # отображаем только действия этих пользователей.
-        actions = actions.filter(user_id__in=following_ids)
+        actions = actions.filter(user_id__in=following_ids, type='common')
     #select_related в запросе к юзеру возвращает и профиль, работает с
     #«один  ко  многим» и «один  к одному»
     #prefetch_related также но работает с «многие ко многим» и «многие к одному»
     actions = actions.select_related('user', 'user__profile').prefetch_related('target')[:10]
     return render(request, 'account/dashboard.html',
-                  {'section': 'dashboard', 'actions': actions})
+                  {'section': 'dashboard', 'actions': actions, 'work_actions': work_actions})
 
 @login_required
 def professions(request):

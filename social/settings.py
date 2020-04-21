@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'images.apps.ImagesConfig',
     'sorl.thumbnail',
     'actions.apps.ActionsConfig',
+    'mptt',
+    'shops.apps.ShopsConfig',
+    'cart.apps.CartConfig',
 ]
 
 MIDDLEWARE = [

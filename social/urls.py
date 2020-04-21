@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
     path('images/', include('images.urls', namespace='images')),
+    path('cart/', include('cart.urls')),
+    path('', include('shops.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()

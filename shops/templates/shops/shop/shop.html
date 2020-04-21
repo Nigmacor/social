@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load mptt_tags %}
+
+{% block title %}
+{% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% endblock %}
+
+{% block content %}
+<div id="sidebar">
+  <h3>Categories</h3>
+  <ul>
+    <li {% if not category %}class="selected"{% endif %}>
+      <a href="{% url "shop" %}">All</a>
+    </li>
+    {% recursetree categories %}
+        <li>
+            <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+            {% if not node.is_leaf_node %}
+                <ul class="children">
+                    <a href="{{ children.get_absolute_url }}">{{ children }}</a>
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+
+  </ul>
+</div>
+<h1>{% if category %}{{ category.name }}{% else %}Products{% endif %}</h1>
+
+<div class="card-deck" style="margin-left: 5%;">
+  <div class="mx-auto">
+    {% for product in products_list %}
+    <a href="{{ product.get_absolute_url }}">
+      <div class="card border-light mb-3" style="width:200px;float:left;margin-top: 3%">
+        <div class="div"></div>
+        <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
+        <!-- <img src="{% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %}" class="card-img-top rounded-top" alt="..."> -->
+        <div class="card-body">
+          <h5 class="card-title">{{product.title}}</h5>
+          <p class="card-text"><small class="text-muted">{{product.price}}</small></p>
+        </div></a>
+        <div class="card-footer">
+          <form id="form-{{ product.id }}" class="product-card-views" action="{% url "cart:cart_add" product.id %}" method="post" >
+            {{ cart_product_form.quantity }}
+            {{ cart_product_form.update }}
+            <input name="product_id" type="hidden" value="{{ product.id }}" >
+            {% csrf_token %}
+            <!-- <input type="hidden" name="product_id" value="{{ product.id }}" > -->
+          <button type="submit" name="submit_btn" class="btn btn-primary submit_btn" id="submit_btn_{{ product.id }}"
+              data-title ="{{product.title}}"
+              data-price ="{{ product.price }}">
+              в корзину
+          </button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+{% endblock %}

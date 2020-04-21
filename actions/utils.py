@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from .models import Action
 
-def create_action(user, verb, target=None):
+def create_action(user, verb, target=None, type='common'):
 # Поиск похожего действия, совершенного за последнюю минуту.
     now = timezone.now()
     last_minute = now - datetime.timedelta(seconds=60)
@@ -13,7 +13,7 @@ def create_action(user, verb, target=None):
         similar_actions = similar_actions.filter(target_ct=target_ct, target_id=target.id)
     if not similar_actions:
         # Похожее действие не найдено, создаем новое.
-        action = Action(user=user, verb=verb, target=target)
+        action = Action(user=user, verb=verb, target=target, type=type)
         action.save()
         return True
     return False
