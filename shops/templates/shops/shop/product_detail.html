@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}
-{% if category %}{{ category.title }}{% else %}Products{% endif %}
+  {% if category %}{{ category.title }}{% else %}Products{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -10,8 +11,12 @@
   {% for ans in product.category.get_ancestors %}
     <a href="{{ ans.get_absolute_url }}">{{ ans.name }}/</a>
   {% endfor %}
-  <img src="{% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %}">
   <h1>{{ product.title }}</h1>
+
+  <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div>
+  <div class="image-info">
+    <span class="count">просмотров: {{ total_views }}</span>
+  </div>
   <h2><a href="{{ product.category.get_absolute_url }}">{{ product.category }}</a></h2>
   <p class="price">${{ product.price }}</p>
   <form class="" action="{% url "cart:cart_add" product.id %}" method="post">

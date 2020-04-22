@@ -10,6 +10,7 @@ from common.decorators import ajax_required
 from actions.utils import create_action
 
 from .models import Profile, Contact, Profession, ProfileToProfession
+from images.models import Galary
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from actions.models import Action
 #from django.contrib.auth import authenticate, login
@@ -69,8 +70,9 @@ def register(request):
             # Задаем пользователю зашифрованный пароль.
             new_user.set_password(user_form.cleaned_data['password'])
             new_user.save()
-            # Создание профиля пользователя.
+            # Создание профиля и стандартной галереи пользователя.
             Profile.objects.create(user=new_user)
+            Galary.objects.create(user=new_user, )
             #добавляем новость в ленту
             create_action(new_user, 'зарегистрировался')
             # Сохраняем пользователя в базе данных.
