@@ -13,7 +13,8 @@
     <div class="image-info">
       <div>
         <span class="count">
-          <span class="total">нравится: {{ total_likes }}</span>
+          нравится: 
+          <span class="total">{{ total_likes }}</span>
         </span>
         <span class="count">просмотров: {{ total_views }}</span>
         <a href="#" data-id="{{ image.id }}" data-action="{% if request.user in users_like %}un{% endif %}like" class="like button">

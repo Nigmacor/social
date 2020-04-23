@@ -15,9 +15,9 @@ from .models import Image
 
 # Create your views here.
 #Подключаю redis
-r = redis.StrictRedis(host=settings.REDIS_HOST,
-                      port=settings.REDIS_PORT,
-                      db=settings.REDIS_DB)
+# r = redis.StrictRedis(host=settings.REDIS_HOST,
+#                       port=settings.REDIS_PORT,
+#                       db=settings.REDIS_DB)
 
 @login_required
 def image_create(request):
@@ -31,7 +31,6 @@ def image_create(request):
             #добавляем новость в ленту
             create_action(request.user, 'добавленно изображение', new_item)
             messages.success(request, 'Изображение успешно добавленно')
-            print(new_item.get_absolute_url())
             return redirect(new_item)
     else:
         form = ImageCreateForm(data=request.GET)
@@ -41,23 +40,24 @@ def image_create(request):
 def image_detail(request, id, slug):
     image = get_object_or_404(Image, id=id, slug=slug)
     #увеличение числа просмотров на 1
-    total_views = r.incr('image:{}:views'.format(image.id))
+    # total_views = r.incr('image:{}:views'.format(image.id))
     #увеличение рейтинга картинки на 1
-    r.zincrby('image_ranking', 1, image.id)
+    # r.zincrby('image_ranking', 1, image.id)
+    #выпилил из render 'total_views':total_views
     return render(request, 'images/image/detail.html',
-                  {'section': 'images', 'image': image, 'total_views':total_views})
+                  {'section': 'images', 'image': image})
 
-@login_required
-def image_ranking(request):
-    # Получение набора рейтингов картинок.
-    image_ranking = r.zrange('image_ranking', 0, -1, desc=True)[:10]
-    image_ranking_ids = [int(id) for id in image_ranking]
-    # Получение отсортированного списока самых популярных картинок.
-    # list() использую, чтоб юзать sort()
-    most_viewed = list(Image.objects.filter(id__in=image_ranking_ids))
-    most_viewed.sort(key=lambda x: image_ranking_ids.index(x.id))
-    return render(request,'images/image/ranking.html',
-                  {'section': 'images', 'most_viewed': most_viewed})
+# @login_required
+# def image_ranking(request):
+#     # Получение набора рейтингов картинок.
+#     image_ranking = r.zrange('image_ranking', 0, -1, desc=True)[:10]
+#     image_ranking_ids = [int(id) for id in image_ranking]
+#     # Получение отсортированного списока самых популярных картинок.
+#     # list() использую, чтоб юзать sort()
+#     most_viewed = list(Image.objects.filter(id__in=image_ranking_ids))
+#     most_viewed.sort(key=lambda x: image_ranking_ids.index(x.id))
+#     return render(request,'images/image/ranking.html',
+#                   {'section': 'images', 'most_viewed': most_viewed})
 
 @ajax_required
 @login_required
