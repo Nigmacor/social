@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load thumbnail %}
 
 {% block title %}
   {% if category %}{{ category.title }}{% else %}Products{% endif %}
@@ -12,8 +12,20 @@
     <a href="{{ ans.get_absolute_url }}">{{ ans.name }}/</a>
   {% endfor %}
   <h1>{{ product.title }}</h1>
+  <div class="image-container">
+    <a href="{{ product.product_galary.main_image }}">
+      <img src="{{ product.product_galary.main_image }}" class="image-detail">
+    </a>
 
-  <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div>
+    {% for image in product.product_galary.images.all %}
+    {% thumbnail image.image "30" as im %}
+    <a href="{{ im.url }}">
+      <img src="{{ im.url }}" class="image-detail">
+    </a>
+    {% endthumbnail %}
+    {% endfor %}
+  </div>
+  <!-- <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div> -->
   <div class="image-info">
     <span class="count">просмотров: {{ total_views }}</span>
   </div>

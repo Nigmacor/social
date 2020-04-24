@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+<link href="{% static "shops/css/base.css" %}" rel="stylesheet">
 
 {% block title %}
   Корзина
@@ -47,7 +48,7 @@
 </table>
 <p class="text-right">
   <a href="{% url "shop" %}" class="button light">Продолжить покупки</a>
-  
+
 
 
 </p>
