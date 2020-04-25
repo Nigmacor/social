@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'mptt',
     'shops.apps.ShopsConfig',
     'cart.apps.CartConfig',
+    'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [
