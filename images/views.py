@@ -31,7 +31,6 @@ def image_create(request):
             #добавляем новость в ленту
             create_action(request.user, 'добавленно изображение', new_item)
             messages.success(request, 'Изображение успешно добавленно')
-            print(new_item.get_absolute_url())
             return redirect(new_item)
     else:
         form = ImageCreateForm(data=request.GET)
@@ -44,6 +43,7 @@ def image_detail(request, id, slug):
     total_views = r.incr('image:{}:views'.format(image.id))
     #увеличение рейтинга картинки на 1
     r.zincrby('image_ranking', 1, image.id)
+    #выпилил из render 'total_views':total_views
     return render(request, 'images/image/detail.html',
                   {'section': 'images', 'image': image, 'total_views':total_views})
 

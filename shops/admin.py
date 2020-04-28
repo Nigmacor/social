@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Shop, Product, Category
+from .models import Shop, Product, ProductGalary, ProductImage, Category
 from mptt.admin import DraggableMPTTAdmin
 
 # Register your models here.
@@ -17,6 +17,14 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ('price', 'county', 'available')
     prepopulated_fields = {'slug':('title',)}
 
+
+@admin.register(ProductGalary)
+class ProductGalaryAdmin(admin.ModelAdmin):
+    list_display = ['product']
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'galary']
 
 class CategoryDraggableMPTTAdmin(DraggableMPTTAdmin):
     list_display = ['name', 'slug']

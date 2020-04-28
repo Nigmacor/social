@@ -6,6 +6,9 @@ from django.conf import settings
 from datetime import timedelta
 from time import time
 from mptt.models import MPTTModel, TreeForeignKey
+
+from images.models import Image
+
 # Create your models here.
 
 def gen_slug(s):
@@ -71,3 +74,26 @@ class Product(models.Model):
         return reverse('product_detail_url', kwargs={'id': self.id, 'slug': self.slug})
     def __str__(self):
         return self.title
+
+class ProductGalary(models.Model):
+    product = models.OneToOneField(Product,
+                                   on_delete=models.CASCADE,
+                                   related_name='product_galary')
+    main_image = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.product.title
+
+    class Meta:
+        verbose_name_plural = 'Галереи товаров'
+        verbose_name = 'Галерея товаров'
+
+class ProductImage(Image):
+    galary = models.ForeignKey(ProductGalary,
+                               on_delete=models.CASCADE,
+                               related_name='images')
+    is_main = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = 'Картинки'
+        verbose_name = 'Картинка'

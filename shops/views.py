@@ -36,7 +36,9 @@ def product_detail(request, id, slug):
 	product = get_object_or_404(Product, id=id, slug=slug, available=True)
 	cart_product_form = CartAddProductForm()
     #увеличение числа просмотров на 1
-	total_views = r.incr('shots:{}:views'.format(product.id))
+	total_views = r.incr('shops:{}:views'.format(product.id))
+	r.set('shops:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
+	#выпилил из render 'total_views': total_views}
 	return render(request, 'shops/shop/product_detail.html',
 				  context={'product': product,
 				  		   'cart_product_form': cart_product_form,

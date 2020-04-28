@@ -4,10 +4,13 @@
   <head>
     <title>{% block title %}{% endblock %}</title>
     <link href="{% static "css/base.css" %}" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
   </head>
   <body>
     <div id="header">
-      <span class="logo">Social</span>
+      <a href="{% url "shop" %}">
+        <span class="logo">Social</span>
+      </a>
       {% if request.user.is_authenticated %}
         <ul class="menu">
           <li {% if section == "dashboard" %} class="selected"{% endif %}>
@@ -32,6 +35,23 @@
         {% endif %}
       </span>
     </div>
+
+    <div id="subheader">
+      <div class="cart">
+        {% with total_items=cart|length %}
+          {% if cart|length > 0 %}
+            Корзина:
+            <a href="{% url "cart:cart_detail" %}">
+              {{ total_items }} шт.,
+              {{ cart.get_total_price }} руб.
+            </a>
+          {% else %}
+            Корзина пуста.
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+
     {% if messages %}
       <ul class="messages">
         {% for message in messages %}
