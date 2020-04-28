@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'shops.apps.ShopsConfig',
     'cart.apps.CartConfig',
     'orders.apps.OrdersConfig',
+    'payment.apps.PaymentConfig',
 ]
 
 MIDDLEWARE = [
@@ -156,9 +157,14 @@ REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
 
-#CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672'
-# CELERY_BROKER_URL = 'redis://localhost:6379'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TASK_SERIALIZER = 'json'
+# Настройки Braintree.
+BRAINTREE_MERCHANT_ID = 'ffxw2bbwttvc6mcw' # ID продавца.
+BRAINTREE_PUBLIC_KEY = '7yptkhk485xcd6xj' # Публичный ключ.
+BRAINTREE_PRIVATE_KEY = 'bfcf1c21ccf48bfdf91a0421e2152aab' # Секретный ключ.
+from braintree import Configuration, Environment
+Configuration.configure(
+    Environment.Sandbox,
+    BRAINTREE_MERCHANT_ID,
+    BRAINTREE_PUBLIC_KEY,
+    BRAINTREE_PRIVATE_KEY
+)
