@@ -375,3 +375,36 @@ td input[type="submit"] {
     font-size:12px;
     padding:4px 10px;
 }
+
+/* заказы */
+.order-form {
+    float:left;
+}
+
+.order-info {
+    float:right;
+    width:300px;
+    background:#efefef;
+    padding:10px 20px;
+    color:#333;
+    border-bottom:4px solid #5993bb;
+}
+
+.order-info h3 {
+    color:#5993bb;
+}
+
+.order-info ul li {
+    margin:0;
+    padding:0;
+    font-size:14px;
+}
+
+.order-info p {
+    font-weight:bold;
+    float:right;
+}
+
+.order-info span {
+    float:right;
+}

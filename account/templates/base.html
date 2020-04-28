@@ -37,8 +37,8 @@
     </div>
 
     <div id="subheader">
-    <div class="cart">
-      {% with total_items=cart|length %}
+      <div class="cart">
+        {% with total_items=cart|length %}
           {% if cart|length > 0 %}
             Корзина:
             <a href="{% url "cart:cart_detail" %}">
@@ -49,8 +49,8 @@
             Корзина пуста.
           {% endif %}
         {% endwith %}
+      </div>
     </div>
-  </div>
 
     {% if messages %}
       <ul class="messages">
