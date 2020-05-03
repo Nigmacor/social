@@ -20,6 +20,9 @@ def order_create(request):
             cd = form.cleaned_data
             order = form.save(commit=False)
             order.user = request.user
+            if cart.coupon:
+                order.coupon = cart.coupon
+                order.discount = cart.coupon.discount
             order.save()
             for item in cart:
                 OrderItem.objects.create(order=order,

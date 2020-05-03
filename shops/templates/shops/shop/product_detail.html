@@ -16,27 +16,47 @@
     <a href="{{ product.product_galary.main_image }}">
       <img src="{{ product.product_galary.main_image }}" class="image-detail">
     </a>
-
-    {% for image in product.product_galary.images.all %}
-    {% thumbnail image.image "30" as im %}
-    <a href="{{ im.url }}">
-      <img src="{{ im.url }}" class="image-detail">
-    </a>
-    {% endthumbnail %}
-    {% endfor %}
+    <div class="small-img">
+      {% for image in product.product_galary.images.all %}
+      {% thumbnail image.image "100" as im %}
+      <a href="{{ im.url }}">
+        <img src="{{ im.url }}" class="image-detail">
+      </a>
+      {% endthumbnail %}
+      {% endfor %}
+    </div>
   </div>
   <!-- <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div> -->
   <div class="image-info">
     <span class="count">просмотров: {{ total_views }}</span>
   </div>
   <h2><a href="{{ product.category.get_absolute_url }}">{{ product.category }}</a></h2>
-  <p class="price">${{ product.price }}</p>
+  <p class="price">{{ product.price }} руб.</p>
   <form class="" action="{% url "cart:cart_add" product.id %}" method="post">
     {{ cart_product_form }}
     {% csrf_token %}
     <button type="submit" class="btn btn-primary">в корзину</button>
   </form>
   {{ product.body|linebreaks }}
+  {% if recommended_products %}
+    <div class="recommendations">
+      <h3>С этим часто берут</h3>
+      {% for p in recommended_products %}
+        <div class="item">
+          <a href="{{ p.get_absolute_url }}">
+
+              <img src="{% if p.product_galary %}
+                          {{ p.product_galary.main_image }}
+                        {% else %}
+                          {% static "img/fiz.png" %}
+                        {% endif %}">
+
+          </a>
+          <p><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 </div>
 
 {% endblock %}

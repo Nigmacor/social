@@ -81,6 +81,7 @@ class ProductGalary(models.Model):
                                    related_name='product_galary')
     main_image = models.URLField(blank=True, null=True)
 
+
     def __str__(self):
         return self.product.title
 
