@@ -19,7 +19,7 @@
     <div class="small-img">
       {% for image in product.product_galary.images.all %}
       {% thumbnail image.image "100" as im %}
-      <a href="{{ im.url }}">
+      <a href="{{ image.image.url }}">
         <img src="{{ im.url }}" class="image-detail">
       </a>
       {% endthumbnail %}
