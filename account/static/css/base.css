@@ -19,6 +19,20 @@ a:hover {
     color:#00a74f;
 }
 
+a.button, input[type="submit"] {
+    color:#fff;
+    background:#12c064;
+    border-radius:4px;
+    padding:10px 20px;
+    font-size:14px;
+    border:0;
+}
+
+a.button.light {
+    color:#666;
+    background:#ededed;
+}
+
 h1, h2, h3, h4, h5 , h6 { font-family: 'Muli', sans-serif; font-weight:normal; }
 
 h1 {
@@ -112,6 +126,13 @@ ol {
 
 #sidebar ul li.selected a {
     color:#fff;
+}
+
+#main {
+    float:left;
+    width: 96%;
+    margin-right:-220px;
+    overflow:hidden;
 }
 
 /* forms */
@@ -267,6 +288,9 @@ a.like, a.follow { float:right; margin-top:-8px; }
     border-radius:50%;
 }
 
+.small-img {
+  width:100px;
+}
 /* users */
 #people-list img {
     width:180px;
@@ -280,7 +304,46 @@ a.like, a.follow { float:right; margin-top:-8px; }
     overflow:auto;
     padding:10px;
 }
+
 #people-list .info { text-align:center; }
+
+.product-list .item {
+    width:25%;
+    padding:10px 20px 10px 0;
+    float:left;
+    text-align:center;
+    line-height:1.2;
+}
+
+.product-list .item img {
+    width:100%;
+    margin-bottom:8px;
+}
+
+.product-detail {
+    text-align:justify;
+}
+
+.product-detail .price {
+    color:#333;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.product-detail img {
+    width:40%;
+    float:left;
+    padding:0 20px 20px 0;
+}
+
+.product-detail h1 {
+    margin-bottom:0;
+}
+
+.product-detail h2 {
+    margin-top:10px;
+}
+
 img.user-detail {
     border-radius:50%;
     float:left;
@@ -320,6 +383,20 @@ table th, table td {
     margin:0;
 }
 
+tbody tr:nth-child(odd) {
+    background:#efefef;
+}
+
+tbody tr.subtotal {
+    background:#ccc;
+}
+
+thead th, tbody tr.total {
+    background:#12c064;
+    color:#fff;
+    font-weight:bold;
+}
+
 table.cart {
     margin-bottom:40px;
 }
@@ -328,9 +405,29 @@ table.cart img {
     width:180px;
 }
 
+tbody td.num {
+    text-align:right;
+}
+
 #subheader .cart {
     float:right;
     padding-top:4px;
+}
+
+.recommendations {
+    clear:both;
+}
+
+.recommendations div {
+    float:left;
+}
+
+.recommendations img {
+    width:200px
+}
+
+.recommendations p {
+    clear:both;
 }
 
 .recommendations.cart {
@@ -407,4 +504,39 @@ td input[type="submit"] {
 
 .order-info span {
     float:right;
+}
+
+form p label, form p input {
+    float:left;
+    clear:both;
+}
+
+form p label {
+    font-size:14px;
+    padding-bottom:4px;
+}
+
+form p input {
+    width:300px;
+    font-size:13px;
+    margin-bottom:10px;
+    padding:10px 12px;
+    border:0;
+    background:#efefef;
+    color:#666;
+    border-radius:4px;
+}
+
+/* braintree hosted fields */
+form div.field {
+    font-size:13px;
+    color:#666;
+    width:300px;
+    height:22px;
+    margin-bottom:10px;
+    padding:6px 12px;
+    border:0;
+    background:#efefef;
+    color:#666;
+    border-radius:4px;
 }

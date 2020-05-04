@@ -2,11 +2,13 @@ from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 from django.conf import settings
 import redis
+from datetime import datetime
 
 #from django.views.generic import View
 
 from .models import Category, Product
 from cart.forms import CartAddProductForm
+from .recommender import Recommender
 
 # Create your views here.
 r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -35,6 +37,8 @@ def shop(request, category_slug=None):
 def product_detail(request, id, slug):
 	product = get_object_or_404(Product, id=id, slug=slug, available=True)
 	cart_product_form = CartAddProductForm()
+	recomm = Recommender()
+	recommended_products = recomm.suggest_products_for([product], 4)
     #увеличение числа просмотров на 1
 	total_views = r.incr('shops:{}:views'.format(product.id))
 	r.set('shops:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
@@ -42,4 +46,5 @@ def product_detail(request, id, slug):
 	return render(request, 'shops/shop/product_detail.html',
 				  context={'product': product,
 				  		   'cart_product_form': cart_product_form,
-						   'total_views': total_views})
+						   'total_views': total_views,
+						   'recommended_products': recommended_products})
