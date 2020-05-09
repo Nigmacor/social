@@ -6,7 +6,7 @@ from datetime import datetime
 
 #from django.views.generic import View
 
-from .models import Category, Product
+from .models import Category, Product, Shop
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 
@@ -40,11 +40,18 @@ def product_detail(request, id, slug):
 	recomm = Recommender()
 	recommended_products = recomm.suggest_products_for([product], 4)
     #увеличение числа просмотров на 1
-	total_views = r.incr('shops:{}:views'.format(product.id))
-	r.set('shops:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
+	total_views = r.incr('products:{}:views'.format(product.id))
+	r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
 	#выпилил из render 'total_views': total_views}
 	return render(request, 'shops/shop/product_detail.html',
 				  context={'product': product,
 				  		   'cart_product_form': cart_product_form,
 						   'total_views': total_views,
 						   'recommended_products': recommended_products})
+
+def shop_detail(request, id):
+	shop = get_object_or_404(Shop, id=id)
+	return render(request,
+				  'shops/shop/shop_detail.html',
+				  {'shop': shop}
+				  )

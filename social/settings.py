@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'payment.apps.PaymentConfig',
     'coupons.apps.CouponsConfig',
+    'projects.apps.ProjectsConfig',
 ]
 
 MIDDLEWARE = [

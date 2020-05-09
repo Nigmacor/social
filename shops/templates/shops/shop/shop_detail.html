@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+
+{% block title %}
+  {{shop.title}}
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+  {% for ans in shop.category.get_ancestors %}
+    <a href="{{ ans.get_absolute_url }}">{{ ans.name }}/</a>
+  {% endfor %}
+  <h1>{{ shop.title }}</h1>
+  {{ shop.description|linebreaks }}
+  <h1>Товары магазина</h1>
+  <table class="cart">
+    <thead>
+      <tr>
+        <th class="image">Изображение</th>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Стоимость единицы</th>
+        <th>Всего на складе</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in shop.products.all %}
+          <tr>
+            <td class="image">
+              <a href="{{ product.get_absolute_url }}">
+                <img src="{% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %}">
+              </a>
+            </td>
+            <td>{{ product.title }}</td>
+            <td>{{ product.description }}</td>
+            <td class="num">{{ product.price }}руб.</td>
+            <td class="num">{{ product.county }} шт.</td>
+          </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

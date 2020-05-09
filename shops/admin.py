@@ -1,11 +1,13 @@
 from django.contrib import admin
-from .models import Shop, Product, ProductGalary, ProductImage, Category
 from mptt.admin import DraggableMPTTAdmin
+
+from .models import Shop, Product, ProductGalary, ProductImage, Category
+from .models import Service, ServiceGalary, ServiceImage
 
 # Register your models here.
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'title')
+    list_display = ('id', 'name', 'user', 'title')
     prepopulated_fields = {'slug':('title',)}
 
 @admin.register(Product)
@@ -24,6 +26,25 @@ class ProductGalaryAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'galary']
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ('title', 'buy_counter', 'views', 'available', 'created', 'updated')
+    list_display_links = ('title',)
+    search_fields = ('title', 'buy_counter', 'views')
+    list_filter = ('available', 'buy_counter', 'views', 'created', 'updated', 'title')
+    list_editable = ('available',)
+    prepopulated_fields = {'slug':('title',)}
+
+
+@admin.register(ServiceGalary)
+class ServiceGalaryAdmin(admin.ModelAdmin):
+    list_display = ['service']
+
+@admin.register(ServiceImage)
+class ServiceImageAdmin(admin.ModelAdmin):
     list_display = ['title', 'galary']
 
 class CategoryDraggableMPTTAdmin(DraggableMPTTAdmin):

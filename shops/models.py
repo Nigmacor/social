@@ -75,6 +75,7 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+# переделать через ContentType
 class ProductGalary(models.Model):
     product = models.OneToOneField(Product,
                                    on_delete=models.CASCADE,
@@ -98,3 +99,62 @@ class ProductImage(Image):
     class Meta:
         verbose_name_plural = 'Картинки'
         verbose_name = 'Картинка'
+
+
+
+class Service(models.Model):
+    category = models.ForeignKey(Category, related_name='services', on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, related_name='services', on_delete=models.CASCADE)
+    title = models.CharField(max_length=50, db_index=True, verbose_name='название')
+    slug = models.SlugField(max_length=150, blank=True, unique=True)
+    short_description = models.CharField(max_length=200, blank=True)
+    description  = models.TextField(blank=True)
+    service_information = models.TextField(blank=True)
+    buy_counter = models.PositiveIntegerField(verbose_name='Покупок', default=0)
+    views = models.PositiveIntegerField(verbose_name='Просмотров', default=0)
+    available = models.BooleanField(default=True, verbose_name='Доступно')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Опубликовано')
+    updated = models.DateTimeField(auto_now=True, verbose_name='Изменено')
+
+    class Meta:
+        verbose_name_plural = 'Услуги'
+        verbose_name = 'Услуга'
+        ordering = ['buy_counter', 'views']
+        index_together = (('id', 'slug'),)
+
+
+    def get_absolute_url(self):
+        return reverse('service_detail_url', kwargs={'id': self.id, 'slug': self.slug})
+    def __str__(self):
+        return self.title
+
+# переделать через ContentType
+class ServiceGalary(models.Model):
+    service = models.OneToOneField(Service,
+                                   on_delete=models.CASCADE,
+                                   related_name='service_galary')
+    main_image = models.URLField(blank=True, null=True)
+
+
+    def __str__(self):
+        return self.service.title
+
+    class Meta:
+        verbose_name_plural = 'Галереи услуг'
+        verbose_name = 'Галерея услуг'
+
+class ServiceImage(Image):
+    galary = models.ForeignKey(ServiceGalary,
+                               on_delete=models.CASCADE,
+                               related_name='images')
+    is_main = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name_plural = 'Картинки'
+        verbose_name = 'Картинка'
+
+
+'''
+1) можно сделать один абстрактный класс из него наследовать Product и Service
+2) переделать галереи и картинки на ContentType
+ '''
