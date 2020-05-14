@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Delete course{% endblock %}
+
+{% block content %}
+  <h1>Удаление магазина "{{ object.title }}"</h1>
+  <div class="mine-shop">
+    <form action="" method="post">
+      {% csrf_token %}
+      <p>Вы уверены, что хотите удалить магазин "{{ object }}"?</p>
+      <input type="submit" class="button" value="Подтвердить">
+    </form>
+  </div>
+{% endblock %}

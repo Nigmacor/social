@@ -13,6 +13,7 @@ from .models import Profile, Contact, Profession, ProfileToProfession
 from images.models import Galary
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from actions.models import Action
+from shops.models import Shop
 #from django.contrib.auth import authenticate, login
 # from .forms import LoginForm
 
@@ -138,24 +139,3 @@ def user_follow(request):
         except User.DoesNotExist:
             return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'ok'})
-
-
-# def user_login(request):
-#     if request.method == 'POST':
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             cd = form.cleaned_data
-#             user = authenticate(request,
-#                                 username=cd['username'],
-#                                 password=cd['password'])
-#         if user is not None:
-#             if user.is_active:
-#                 login(request, user)
-#                 return HttpResponse('Авторизация успешна')
-#             else:
-#                 return HttpResponse('Ошибка авторизации')
-#         else:
-#             return HttpResponse('Логин или пароль введны неверно')
-#     else:
-#         form = LoginForm()
-#         return render(request, 'account/login.html', {'form': form})

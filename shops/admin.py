@@ -7,34 +7,34 @@ from .models import Service, ServiceGalary, ServiceImage
 # Register your models here.
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'user', 'title')
+    list_display = ('id', 'name', 'owner', 'title')
     prepopulated_fields = {'slug':('title',)}
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'county', 'buy_counter', 'views', 'available', 'created', 'updated')
+    list_display = ('title', 'price', 'county', 'available', 'created', 'updated')
     list_display_links = ('title',)
-    search_fields = ('title', 'price', 'county', 'buy_counter', 'views')
-    list_filter = ('available', 'county', 'price', 'buy_counter', 'views', 'created', 'updated', 'title')
+    search_fields = ('title', 'price', 'county', 'short_description', 'description', 'information')
+    list_filter = ('available', 'county', 'price', 'created', 'updated', 'title')
     list_editable = ('price', 'county', 'available')
     prepopulated_fields = {'slug':('title',)}
 
-
-@admin.register(ProductGalary)
-class ProductGalaryAdmin(admin.ModelAdmin):
-    list_display = ['product']
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ['title', 'galary']
 
+@admin.register(ProductGalary)
+class ProductGalaryAdmin(admin.ModelAdmin):
+    list_display = ['product']
+
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('title', 'buy_counter', 'views', 'available', 'created', 'updated')
+    list_display = ('title', 'available', 'created', 'updated')
     list_display_links = ('title',)
-    search_fields = ('title', 'buy_counter', 'views')
-    list_filter = ('available', 'buy_counter', 'views', 'created', 'updated', 'title')
+    search_fields = ('title', 'short_description', 'description', 'information')
+    list_filter = ('available', 'created', 'updated', 'title')
     list_editable = ('available',)
     prepopulated_fields = {'slug':('title',)}
 

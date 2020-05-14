@@ -3,6 +3,11 @@ from django.shortcuts import redirect
 from django.conf import settings
 import redis
 from datetime import datetime
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
 
 #from django.views.generic import View
 
@@ -55,3 +60,38 @@ def shop_detail(request, id):
 				  'shops/shop/shop_detail.html',
 				  {'shop': shop}
 				  )
+
+
+class OwnerMixin(object):
+    def get_queryset(self):
+        qs = super(OwnerMixin, self).get_queryset()
+        return qs.filter(owner=self.request.user)
+
+class OwnerEditMixin(object):
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super(OwnerEditMixin, self).form_valid(form)
+
+class OwnerShopMixin(OwnerMixin, LoginRequiredMixin):
+    model = Shop
+    fields = ['name', 'slug', 'contact_email', 'contact_phone', 'template_prefix']
+    success_url = reverse_lazy('manage_shop_list')
+
+class OwnerShopEditMixin(OwnerShopMixin, OwnerEditMixin):
+    fields = ['name', 'slug', 'title', 'contact_email', 'contact_phone', 'template_prefix']
+    success_url = reverse_lazy('manage_shop_list')
+    template_name = 'shops/manage/shop/form.html'
+
+class ManageShopListView(OwnerShopMixin, ListView):
+    template_name = 'shops/manage/shop/list.html'
+
+class ShopCreateViev(PermissionRequiredMixin, OwnerShopEditMixin, CreateView):
+    permission_required = 'shops.add_shop'
+
+class ShopUpdateViev(PermissionRequiredMixin, OwnerShopEditMixin, UpdateView):
+    permission_required = 'shops.change_shop'
+
+class ShopDeleteView(PermissionRequiredMixin, OwnerShopMixin, DeleteView):
+    permission_required = 'shops.delete_shop'
+    template_name = 'shops/manage/shop/delete.html'
+    success_url = reverse_lazy('manage_shop_list')

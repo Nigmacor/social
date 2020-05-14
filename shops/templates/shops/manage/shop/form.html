@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object %}
+    "{{ object.title }}"
+  {% else %}
+    Открытие магазина
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <h1>
+    {% if object %}
+      Редактирование магазина "{{ object.title }}"
+    {% else %}
+      Открытие магазина
+    {% endif %}
+  </h1>
+  <div class="mine-shop">
+    <h2>Информация о магазине</h2>
+    <form action="." method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <p><input type="submit" value="Сохранить"></p>
+    </form>
+  </div>
+{% endblock %}

@@ -17,14 +17,23 @@ def gen_slug(s):
 
 
 class Shop(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
                              related_name='shops',
                              on_delete=models.CASCADE)
-    name = models.CharField(max_length=92, help_text='Название для владельца и персонала')
+    name = models.CharField(max_length=92,
+                            help_text='Название для владельца и персонала',
+                            verbose_name='Название')
     slug = models.SlugField(max_length=92, unique=True)
-    title = models.CharField(max_length=92, help_text='Название для клиентов')
-    contact_email = models.EmailField(help_text="Контактный емайл для ЭТОГО магазина", default="contact@yourstore.com")
-    contact_phone = models.CharField(max_length=128, help_text="Контактный телефон для ЭТОГО магазина", default="")
+    title = models.CharField(max_length=92,
+                             help_text='Название для клиентов',
+                             verbose_name='Вывеска')
+    contact_email = models.EmailField(help_text="Контактный емайл для ЭТОГО магазина",
+                                      default="contact@yourstore.com",
+                                      verbose_name='Контактный e-mail')
+    contact_phone = models.CharField(max_length=128,
+                                     help_text="Контактный телефон для ЭТОГО магазина",
+                                     default="",
+                                     verbose_name='Контактный телефон')
     template_prefix = models.SlugField(max_length=92, help_text="obana.ru/THIS/...", unique=True)
     def __str__(self):
         return self.name
@@ -47,33 +56,44 @@ class Category(MPTTModel):
     def get_ancestors(self):
         return super().get_ancestors(include_self=True)
 
-class Product(models.Model):
-    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, related_name='products', on_delete=models.CASCADE)
+
+class AbstractItem(models.Model):
+    category = models.ForeignKey(Category, related_name='%(class)s', on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, related_name='%(class)s', on_delete=models.CASCADE)
     title = models.CharField(max_length=50, db_index=True, verbose_name='название')
     slug = models.SlugField(max_length=150, blank=True, unique=True)
     short_description = models.CharField(max_length=200, blank=True)
     description  = models.TextField(blank=True)
-    product_information = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
-    county = models.PositiveIntegerField(verbose_name='Количество на складе')
-    buy_counter = models.PositiveIntegerField(verbose_name='Покупок', default=0)
-    views = models.PositiveIntegerField(verbose_name='Просмотров', default=0)
+    information = models.TextField(blank=True)
     available = models.BooleanField(default=True, verbose_name='Доступно')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Опубликовано')
     updated = models.DateTimeField(auto_now=True, verbose_name='Изменено')
 
+    def get_absolute_url(self):
+        url_name = '{}_detail_url'.format(self._meta.model_name)
+        return reverse(url_name, kwargs={'id': self.id, 'slug': self.slug})
+    def __str__(self):
+        return self.title
+    class Meta:
+        abstract = True
+
+class Product(AbstractItem):
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
+    county = models.PositiveIntegerField(verbose_name='Количество на складе')
+
     class Meta:
         verbose_name_plural = 'Товары'
         verbose_name = 'Товар'
-        ordering = ['-price', 'buy_counter', 'views']
+        ordering = ['-price']
         index_together = (('id', 'slug'),)
 
+class Service(AbstractItem):
 
-    def get_absolute_url(self):
-        return reverse('product_detail_url', kwargs={'id': self.id, 'slug': self.slug})
-    def __str__(self):
-        return self.title
+    class Meta:
+        verbose_name_plural = 'Услуги'
+        verbose_name = 'Услуга'
+        ordering = ['category']
+        index_together = (('id', 'slug'),)
 
 # переделать через ContentType
 class ProductGalary(models.Model):
@@ -81,7 +101,6 @@ class ProductGalary(models.Model):
                                    on_delete=models.CASCADE,
                                    related_name='product_galary')
     main_image = models.URLField(blank=True, null=True)
-
 
     def __str__(self):
         return self.product.title
@@ -97,36 +116,9 @@ class ProductImage(Image):
     is_main = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name_plural = 'Картинки'
-        verbose_name = 'Картинка'
+        verbose_name_plural = 'Картинки товаров'
+        verbose_name = 'Картинка товара'
 
-
-
-class Service(models.Model):
-    category = models.ForeignKey(Category, related_name='services', on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, related_name='services', on_delete=models.CASCADE)
-    title = models.CharField(max_length=50, db_index=True, verbose_name='название')
-    slug = models.SlugField(max_length=150, blank=True, unique=True)
-    short_description = models.CharField(max_length=200, blank=True)
-    description  = models.TextField(blank=True)
-    service_information = models.TextField(blank=True)
-    buy_counter = models.PositiveIntegerField(verbose_name='Покупок', default=0)
-    views = models.PositiveIntegerField(verbose_name='Просмотров', default=0)
-    available = models.BooleanField(default=True, verbose_name='Доступно')
-    created = models.DateTimeField(auto_now_add=True, verbose_name='Опубликовано')
-    updated = models.DateTimeField(auto_now=True, verbose_name='Изменено')
-
-    class Meta:
-        verbose_name_plural = 'Услуги'
-        verbose_name = 'Услуга'
-        ordering = ['buy_counter', 'views']
-        index_together = (('id', 'slug'),)
-
-
-    def get_absolute_url(self):
-        return reverse('service_detail_url', kwargs={'id': self.id, 'slug': self.slug})
-    def __str__(self):
-        return self.title
 
 # переделать через ContentType
 class ServiceGalary(models.Model):
@@ -134,7 +126,6 @@ class ServiceGalary(models.Model):
                                    on_delete=models.CASCADE,
                                    related_name='service_galary')
     main_image = models.URLField(blank=True, null=True)
-
 
     def __str__(self):
         return self.service.title
@@ -150,8 +141,8 @@ class ServiceImage(Image):
     is_main = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name_plural = 'Картинки'
-        verbose_name = 'Картинка'
+        verbose_name_plural = 'Картинки услуг'
+        verbose_name = 'Картинка услуги'
 
 
 '''

@@ -37,9 +37,12 @@ h1, h2, h3, h4, h5 , h6 { font-family: 'Muli', sans-serif; font-weight:normal; }
 
 h1 {
     border-bottom:1px solid #bbb;
-    padding:0 0 10px 0;
     margin:10px 0 20px 0;
+    background:#efefef;
+    overflow:auto;
+    padding:20px 0 20px 40px;
 }
+
 
 h2 {
     margin:30px 0 20px;
@@ -543,4 +546,34 @@ form div.field {
     background:#efefef;
     color:#666;
     border-radius:4px;
+}
+
+.mine-shop {
+    padding:10px 20px;
+    float:left;
+    width:600px;
+}
+
+.mine-shop h3 {
+    margin:20px 0 0;
+    padding:0;
+    width:100%;
+}
+
+.mine-shop p {
+    margin:10px 0 20px;
+    width:100%;
+    float:left;
+}
+
+.mine-shop-info {
+    border:1px solid #ccc;
+    padding:0 20px;
+    margin-bottom:10px;
+    width:400px;
+    overflow:auto;
+}
+
+.mine-shop-info a {
+    margin-right:10px;
 }
