@@ -10,6 +10,7 @@ urlpatterns = [
     path('shop/create/', ShopCreateViev.as_view(), name='shop_create'),
     path('shop/<pk>/edit', ShopUpdateViev.as_view(), name='shop_edit'),
     path('shop/<pk>/delete', ShopDeleteView.as_view(), name='shop_delete'),
+    path('shop/<pk>/product/', ShopProductUpdateView.as_view(), name='shop_product_update'),
     path('shop/<str:id>/', shop_detail, name='shop_detail_url'),
 
 ]

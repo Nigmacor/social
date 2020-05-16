@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+Редактирование "{{ shop.title }}"
+{% endblock %}
+
+{% block content %}
+  <h1>Редактирование "{{ shop.title }}"</h1>
+  <div class="mine-shop">
+    <h2>Товары</h2>
+    <form action="" method="post">
+      {{ formset }}
+      {{ formset.management_form }}
+      {% csrf_token %}
+      <input type="submit" class="button" value="Сохранить">
+    </form>
+  </div>
+{% endblock %}

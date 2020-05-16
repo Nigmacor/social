@@ -1,5 +1,4 @@
-from django.shortcuts import render, get_object_or_404
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
 import redis
 from datetime import datetime
@@ -7,13 +6,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-
+from django.views.generic.base import TemplateResponseMixin, View
 
 #from django.views.generic import View
 
-from .models import Category, Product, Shop
+from .models import Category, Shop, Product
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
+from .forms import ProductFormSet
 
 # Create your views here.
 r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -95,3 +95,26 @@ class ShopDeleteView(PermissionRequiredMixin, OwnerShopMixin, DeleteView):
     permission_required = 'shops.delete_shop'
     template_name = 'shops/manage/shop/delete.html'
     success_url = reverse_lazy('manage_shop_list')
+
+class ShopProductUpdateView(TemplateResponseMixin, View):
+	template_name = 'shops/manage/product/formset.html'
+	shop = None
+
+	def get_formset(self, data=None):
+		return ProductFormSet(instance=self.shop)
+
+	#определяет HTTP-метод запроса и делегирует, либо get, либо post методу
+	def dispatch(self, request, pk):
+		self.shop = get_object_or_404(Shop, id=pk, owner=request.user)
+		return super(ShopProductUpdateView, self).dispatch(request, pk)
+
+	def get(self, request, *args, **kwargs):
+		formset = self.get_formset()
+		return self.render_to_response({'shop': self.shop, 'formset': formset})
+
+	def post(self, request, *args, **kwargs):
+		formset = self.get_formset(request.POST)
+		if formset.is_valid():
+			formset.save()
+			return redirect('manage_shop_list')
+		return self.render_to_response({'shop': self.shop, 'formset': formset})
