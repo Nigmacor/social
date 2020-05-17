@@ -1,16 +1,17 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
-import redis
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateResponseMixin, View
+from django.forms.models import modelform_factory
+from django.apps import apps
 
-#from django.views.generic import View
+import redis
 
-from .models import Category, Shop, Product
+from .models import Category, Shop, Product, ProductContent
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
@@ -96,7 +97,8 @@ class ShopDeleteView(PermissionRequiredMixin, OwnerShopMixin, DeleteView):
     template_name = 'shops/manage/shop/delete.html'
     success_url = reverse_lazy('manage_shop_list')
 
-class ShopProductUpdateView(TemplateResponseMixin, View):
+class ShopProductUpdateView(PermissionRequiredMixin, TemplateResponseMixin, View):
+	permission_required = 'shops.change_product'
 	template_name = 'shops/manage/product/formset.html'
 	shop = None
 
@@ -105,7 +107,7 @@ class ShopProductUpdateView(TemplateResponseMixin, View):
 
 	#определяет HTTP-метод запроса и делегирует, либо get, либо post методу
 	def dispatch(self, request, pk):
-		self.shop = get_object_or_404(Shop, id=pk, owner=request.user)
+		self.shop = get_object_or_404(Shop, id=pk, employes=request.user)
 		return super(ShopProductUpdateView, self).dispatch(request, pk)
 
 	def get(self, request, *args, **kwargs):
@@ -118,3 +120,62 @@ class ShopProductUpdateView(TemplateResponseMixin, View):
 			formset.save()
 			return redirect('manage_shop_list')
 		return self.render_to_response({'shop': self.shop, 'formset': formset})
+
+
+class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, View):
+	permission_required = ['shops.change_productcontent', 'shops.add_productcontent']
+	product = None
+	model = None
+	obj = None
+	template_name = 'shops/manage/content/form.html'
+
+	def get_model(self, model_name):
+		if model_name in ['text', 'image', 'file']:
+			return apps.get_model(app_label='shops', model_name=model_name)
+		return None
+
+	def get_form(self, model, *args, **kwargs):
+		Form = modelform_factory(model, exclude=['publisher', 'created', 'updated', 'product'])
+		return Form(*args, **kwargs)
+
+	def dispatch(self, request, product_id, model_name, id=None):
+		self.product = get_object_or_404(Product, id=product_id, shop__employes=request.user)
+		self.model = self.get_model(model_name)
+		if id:
+			self.obj = get_object_or_404(self.model,
+										 id=id,
+										 publisher=request.user)
+		return super(ContentCreateUpdateView, self).dispatch(request, product_id, model_name, id)
+
+	def get(self, request, product_id, model_name, id=None):
+		form = self.get_form(self.model, instance=self.obj)
+		return self.render_to_response({'form': form, 'object': self.obj, 'product': self.product})
+
+	def post(self, request, product_id, model_name, id=None):
+		form = self.get_form(self.model,
+							 instance=self.obj,
+							 data=request.POST,
+							 files=request.FILES)
+		if form.is_valid():
+			obj = form.save(commit=False)
+			obj.publisher = request.user
+			obj.product = self.product
+			obj.save()
+			if not id:
+				ProductContent.objects.create(product=self.product, item=self.obj)
+			return redirect('product_content_list', self.product.id)
+		return self.render_to_response({'form': form, 'object': self.obj})
+
+
+class ContentDeleteView(PermissionRequiredMixin, View):
+	permission_required = 'shops.delete_productcontent'
+	def post(self, request, id):
+		content = get_object_or_404(ProductContent,
+									id=id,
+									product__shop__employes=request.user)
+		product = content.product
+		content.item.delete()
+		content.delete()
+		return redirect('product_content_list', product.id)
+# сделать модель employee и метод для проверки is_employee
+# можно сдельть поле в профиле и добавлять туда магазины, которые можешь редактировать

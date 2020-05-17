@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import Product, ProductGalary, ProductImage, ServiceGalary, ServiceImage
+from .models import Shop, Product, ProductGalary, ProductImage, ServiceGalary, ServiceImage
 from actions.utils import create_action
 
 @receiver(post_save, sender=Product)
@@ -14,3 +14,8 @@ def get_main_image(sender, instance, *args, **kwargs):
         galary = instance._meta.get_field('galary').target_field.model.objects.get(pk=instance.galary.id)
         galary.main_image = instance.image.url
         galary.save()
+
+@receiver(post_save, sender=Shop)
+def create_shop(sender, instance, *args, **kwargs):
+    if instance.employes:
+        instance.employes.add(instance.owner)

@@ -2,12 +2,14 @@ from django.db import models
 from django.shortcuts import reverse
 from django.utils.text import slugify
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 from datetime import timedelta
 from time import time
 from mptt.models import MPTTModel, TreeForeignKey
 
-from images.models import Image
+from images.models import Image as abs_Image
 
 # Create your models here.
 
@@ -15,7 +17,7 @@ def gen_slug(s):
     new_slug = slugify(s, allow_unicode=True)
     return new_slug + '-' + str(int(time()))
 
-
+# Добавить модель персонала
 class Shop(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
                              related_name='shops',
@@ -23,6 +25,7 @@ class Shop(models.Model):
     name = models.CharField(max_length=92,
                             help_text='Название для владельца и персонала',
                             verbose_name='Название')
+    employes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='employer')
     slug = models.SlugField(max_length=92, unique=True)
     title = models.CharField(max_length=92,
                              help_text='Название для клиентов',
@@ -37,6 +40,7 @@ class Shop(models.Model):
     template_prefix = models.SlugField(max_length=92, help_text="obana.ru/THIS/...", unique=True)
     def __str__(self):
         return self.name
+
 
 class Category(MPTTModel):
     name = models.CharField(max_length=200, db_index=True)
@@ -57,7 +61,7 @@ class Category(MPTTModel):
         return super().get_ancestors(include_self=True)
 
 
-class AbstractItem(models.Model):
+class AbstractService(models.Model):
     category = models.ForeignKey(Category, related_name='%(class)s', on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, related_name='%(class)s', on_delete=models.CASCADE)
     title = models.CharField(max_length=50, db_index=True, verbose_name='название')
@@ -77,7 +81,7 @@ class AbstractItem(models.Model):
     class Meta:
         abstract = True
 
-class Product(AbstractItem):
+class Product(AbstractService):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     county = models.PositiveIntegerField(verbose_name='Количество на складе')
 
@@ -87,7 +91,7 @@ class Product(AbstractItem):
         ordering = ['-price']
         index_together = (('id', 'slug'),)
 
-class Service(AbstractItem):
+class Service(AbstractService):
 
     class Meta:
         verbose_name_plural = 'Услуги'
@@ -109,7 +113,7 @@ class ProductGalary(models.Model):
         verbose_name_plural = 'Галереи товаров'
         verbose_name = 'Галерея товаров'
 
-class ProductImage(Image):
+class ProductImage(abs_Image):
     galary = models.ForeignKey(ProductGalary,
                                on_delete=models.CASCADE,
                                related_name='images')
@@ -134,7 +138,7 @@ class ServiceGalary(models.Model):
         verbose_name_plural = 'Галереи услуг'
         verbose_name = 'Галерея услуг'
 
-class ServiceImage(Image):
+class ServiceImage(abs_Image):
     galary = models.ForeignKey(ServiceGalary,
                                on_delete=models.CASCADE,
                                related_name='images')
@@ -144,6 +148,45 @@ class ServiceImage(Image):
         verbose_name_plural = 'Картинки услуг'
         verbose_name = 'Картинка услуги'
 
+
+# сделать загрузчик контента
+class ProductContent(models.Model):
+    product = models.ForeignKey(Product,
+                               related_name='contents',
+                               on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType,
+                                     on_delete=models.CASCADE,
+                                     limit_choices_to={'model__in':(
+                                                                    'text',
+                                                                    'image',
+                                                                    'file')})
+    object_id = models.PositiveIntegerField()
+    item = GenericForeignKey('content_type', 'object_id')
+
+
+class AbstractItem(models.Model):
+    publisher = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 related_name='%(class)s_for_shop',
+                                 on_delete=models.PROTECT)
+    product = models.ForeignKey(Product,
+                                related_name='%(class)s',
+                                on_delete=models.CASCADE)
+    title = models.CharField(max_length=250)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.title
+
+class Text(AbstractItem):
+    content = models.TextField()
+class File(AbstractItem):
+    file = models.FileField(upload_to='product/files/%Y/%m/%d/')
+class Image(AbstractItem):
+    image = models.ImageField(upload_to='product/images/%Y/%m/%d/')
 
 '''
 1) можно сделать один абстрактный класс из него наследовать Product и Service
