@@ -12,6 +12,11 @@
           <a href="{% url "shop_edit" shop.id %}">Редактировать</a>
           <a href="{% url "shop_delete" shop.id %}">Удалить</a>
           <a href="{% url "shop_product_update" shop.id %}">Редактировать товары</a>
+          {% if shop.product.count > 0 %}
+            <a href="{% url "product_content_list" shop.product.first.id %}">
+              Управление контентом
+            </a>
+          {% endif %}
         </p>
       </div>
       {% empty %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load shop %}
+
+{% block title %}
+Продукт: {{ product.title }}
+{% endblock %}
+
+{% block content %}
+  {% with shop=product.shop %}
+    <h1>Магазин "{{ shop.title }}"</h1>
+    <div class="contents">
+      <h3>Продукты</h3>
+      <ul id="products">
+        {% for p in shop.product.all %}
+          <li data-id="{{ p.id }}" {% if p == product %}class="selected"{% endif %}>
+            <a href="{% url "product_content_list" p.id %}">
+              <span>
+                <span class="order">{{ p.available }}</span>
+              </span>
+              <br>
+              {{ p.title }}
+            </a>
+          </li>
+        {% empty %}
+          <li>Пока нет продуктов</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url "shop_product_update" shop.id %}">
+      Редактировать продукты</a></p>
+    </div>
+    <div class="mine-shop">
+      <h2>Продукт {{ product.order|add:1 }}: {{ product.title }}</h2>
+      <h3>Информация о продукте:</h3>
+      <div id="product-contents">
+        {% for content in product.contents.all %}
+          <div data-id="{{ content.id }}">
+            {% with item=content.item %}
+              <p>{{ item }} ({{ item|model_name }})</p>
+              <a href="{% url "product_content_update" product.id item|model_name item.id%}">
+                Редактировать
+              </a>
+              <form action="{% url "product_content_delete" content.id %}"  method="post">
+                <input type="submit" value="Удалить">
+                {% csrf_token %}
+              </form>
+            {% endwith %}
+          </div>
+        {% empty %}
+          <p>У этого продукта пока нет информации.</p>
+        {% endfor %}
+      </div>
+      <h3>Добавить новую информацию:</h3>
+      <ul class="content-types">
+        <li>
+          <a href="{% url "product_content_create" product.id "text" %}">Текст</a>
+        </li>
+        <li>
+          <a href="{% url "product_content_create" product.id "image" %}">Фото</a>
+        </li>
+        <li>
+          <a href="{% url "product_content_create" product.id "file" %}">Файл</a>
+        </li>
+      </ul>
+    </div>
+  {% endwith %}
+{% endblock %}

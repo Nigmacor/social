@@ -19,5 +19,6 @@ urlpatterns = [
     path('shop/<str:id>/', shop_detail, name='shop_detail_url'),
     path('product/<str:id>/<slug:slug>', product_detail, name='product_detail_url'),
     path('content/<int:id>/delete/', ContentDeleteView.as_view(), name='product_content_delete'),
+    path('product/<int:product_id>/', ProductContentListView.as_view(), name='product_content_list'),
 
 ]

@@ -10,6 +10,7 @@ from time import time
 from mptt.models import MPTTModel, TreeForeignKey
 
 from images.models import Image as abs_Image
+from .fields import OrderField
 
 # Create your models here.
 
@@ -156,12 +157,13 @@ class ProductContent(models.Model):
                                on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType,
                                      on_delete=models.CASCADE,
-                                     limit_choices_to={'model__in':(
-                                                                    'text',
+                                     limit_choices_to={'model__in':('text',
                                                                     'image',
                                                                     'file')})
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
+    order = OrderField(blank=True, for_fields=['product'])
+
 
 
 class AbstractItem(models.Model):

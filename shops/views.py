@@ -86,6 +86,7 @@ class OwnerShopEditMixin(OwnerShopMixin, OwnerEditMixin):
 class ManageShopListView(OwnerShopMixin, ListView):
     template_name = 'shops/manage/shop/list.html'
 
+
 class ShopCreateViev(PermissionRequiredMixin, OwnerShopEditMixin, CreateView):
     permission_required = 'shops.add_shop'
 
@@ -144,7 +145,7 @@ class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, Vi
 		if id:
 			self.obj = get_object_or_404(self.model,
 										 id=id,
-										 publisher=request.user)
+										 product__shop__employes=request.user)
 		return super(ContentCreateUpdateView, self).dispatch(request, product_id, model_name, id)
 
 	def get(self, request, product_id, model_name, id=None):
@@ -162,7 +163,7 @@ class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, Vi
 			obj.product = self.product
 			obj.save()
 			if not id:
-				ProductContent.objects.create(product=self.product, item=self.obj)
+				ProductContent.objects.create(product=self.product, item=obj)
 			return redirect('product_content_list', self.product.id)
 		return self.render_to_response({'form': form, 'object': self.obj})
 
@@ -177,5 +178,13 @@ class ContentDeleteView(PermissionRequiredMixin, View):
 		content.item.delete()
 		content.delete()
 		return redirect('product_content_list', product.id)
-# сделать модель employee и метод для проверки is_employee
-# можно сдельть поле в профиле и добавлять туда магазины, которые можешь редактировать
+
+
+class ProductContentListView(TemplateResponseMixin, View):
+	template_name = 'shops/manage/product/content_list.html'
+
+	def get(self, request, product_id):
+		product = get_object_or_404(Product,
+									id=product_id,
+									shop__employes=request.user)
+		return self.render_to_response({'product': product})

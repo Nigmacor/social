@@ -17,13 +17,17 @@
             <a href="{% url "dashboard" %}">My dashboard</a>
           </li>
           <li {% if section == "images" %}class="selected"{% endif %}>
-            <a href="{% url "images:list" %}">Images</a
+            <a href="{% url "images:list" %}">Images</a>
           </li>
           <li {% if section == "people" %}class="selected"{% endif %}>
-            <a href="{% url "user_list" %}">People</a
+            <a href="{% url "user_list" %}">People</a>
           </li>
           <li {% if section == "professions" %} class="selected"{% endif %}>
             <a href="{% url "professions" %}">My professions</a>
+          </li>
+          <li {% if section == "shops" %} class="selected"{% endif %}>
+            <a href="{% url "manage_shop_list" %}">My shops</a>
+          </li>
         </ul>
       {% endif %}
       <span class="user">
