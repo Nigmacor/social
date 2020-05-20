@@ -1,13 +1,21 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import Shop, Product, ProductGalary, ProductImage, ServiceGalary, ServiceImage
+from .models import Shop, Product, Service, ProductGalary, ProductImage, \
+ServiceType
 from actions.utils import create_action
 
+@receiver(post_save, sender=Service)
 @receiver(post_save, sender=Product)
 def activities(sender, instance, *args, **kwargs):
-    create_action(instance.shop.user, 'Добавил товар', instance, type='work')
+    create_action(instance.shop.owner, 'Добавил продукт', instance, type='work')
 
-@receiver(post_save, sender=ServiceImage)
+@receiver(pre_save, sender=Service)
+@receiver(pre_save, sender=Product)
+def get_service_type(sender, instance, *args, **kwargs):
+    obj = ServiceType.objects.create()
+    instance.service_type = obj
+
+
 @receiver(post_save, sender=ProductImage)
 def get_main_image(sender, instance, *args, **kwargs):
     if instance.is_main:

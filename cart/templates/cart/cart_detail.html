@@ -26,7 +26,7 @@
           <tr>
             <td>
               <a href="{{ product.get_absolute_url }}">
-                <img src="{% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %}">
+                <img src="{% if product.service_type.galary.images %}{{ product.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %}">
               </a>
             </td>
             <td>{{ product.title }}</td>
@@ -76,7 +76,7 @@
       {% for p in recommended_products %}
         <div class="item">
           <a href="{{ p.get_absolute_url }}">
-            <img src="{% if p.product_galary %}{{ p.product_galary.main_image }}{% else %}
+            <img src="{% if p..service_type.galary %}{{ p.service_type.galary.main_image }}{% else %}
             {% static "img/fiz.png" %}{% endif %}">
           </a>
           <p><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></p>

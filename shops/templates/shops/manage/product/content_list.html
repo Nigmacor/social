@@ -13,7 +13,7 @@
       <ul id="products">
         {% for p in shop.product.all %}
           <li data-id="{{ p.id }}" {% if p == product %}class="selected"{% endif %}>
-            <a href="{% url "product_content_list" p.id %}">
+            <a href="{{p.get_content_list_url}}">
               <span>
                 <span class="order">{{ p.available }}</span>
               </span>
@@ -24,19 +24,36 @@
         {% empty %}
           <li>Пока нет продуктов</li>
         {% endfor %}
-    </ul>
-    <p><a href="{% url "shop_product_update" shop.id %}">
-      Редактировать продукты</a></p>
+      </ul>
+      <p><a href="{% url "shop_product_update" shop.id %}">
+        Редактировать продукты</a></p>
+      <h3>Услуги</h3>
+      <ul id="products">
+        {% for s in shop.service.all %}
+          <li data-id="{{ s.id }}" {% if s == product %}class="selected"{% endif %}>
+            <a href="{{s.get_content_list_url}}">
+              <span>
+                <span class="order">{{ s.available }}</span>
+              </span>
+              <br>
+              {{ s.title }}
+            </a>
+          </li>
+        {% empty %}
+          <li>Пока нет услуг</li>
+        {% endfor %}
+      </ul>
+
     </div>
     <div class="mine-shop">
-      <h2>Продукт {{ product.order|add:1 }}: {{ product.title }}</h2>
+      <h2>Продукт: {{ product.title }}</h2>
       <h3>Информация о продукте:</h3>
       <div id="product-contents">
-        {% for content in product.contents.all %}
+        {% for content in product.service_type.contents.all %}
           <div data-id="{{ content.id }}">
             {% with item=content.item %}
               <p>{{ item }} ({{ item|model_name }})</p>
-              <a href="{% url "product_content_update" product.id item|model_name item.id%}">
+              <a href="{% url "product_content_update" content.id item|model_name item.id%}">
                 Редактировать
               </a>
               <form action="{% url "product_content_delete" content.id %}"  method="post">
@@ -52,13 +69,13 @@
       <h3>Добавить новую информацию:</h3>
       <ul class="content-types">
         <li>
-          <a href="{% url "product_content_create" product.id "text" %}">Текст</a>
+          <a href="{% url "product_content_create" product.service_type.id "text" %}">Текст</a>
         </li>
         <li>
-          <a href="{% url "product_content_create" product.id "image" %}">Фото</a>
+          <a href="{% url "product_content_create" product.service_type.id "image" %}">Фото</a>
         </li>
         <li>
-          <a href="{% url "product_content_create" product.id "file" %}">Файл</a>
+          <a href="{% url "product_content_create" product.service_type.id "file" %}">Файл</a>
         </li>
       </ul>
     </div>

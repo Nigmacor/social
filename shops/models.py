@@ -62,10 +62,20 @@ class Category(MPTTModel):
         return super().get_ancestors(include_self=True)
 
 
+class ServiceType(models.Model):
+
+    def get_type_obj(self):
+        try:
+            return self.product
+        except:
+            return self.service
+
+
 class AbstractService(models.Model):
     category = models.ForeignKey(Category, related_name='%(class)s', on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, related_name='%(class)s', on_delete=models.CASCADE)
     title = models.CharField(max_length=50, db_index=True, verbose_name='название')
+    service_type = models.OneToOneField(ServiceType, blank=True, on_delete=models.CASCADE)
     slug = models.SlugField(max_length=150, blank=True, unique=True)
     short_description = models.CharField(max_length=200, blank=True)
     description  = models.TextField(blank=True)
@@ -76,11 +86,14 @@ class AbstractService(models.Model):
 
     def get_absolute_url(self):
         url_name = '{}_detail_url'.format(self._meta.model_name)
-        return reverse(url_name, kwargs={'id': self.id, 'slug': self.slug})
+        return reverse(url_name, kwargs={'id': self.service_type.id, 'slug': self.slug})
+    def get_content_list_url(self):
+        return reverse('product_content_list', kwargs={'product_id': self.service_type.id})
     def __str__(self):
         return self.title
     class Meta:
         abstract = True
+
 
 class Product(AbstractService):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
@@ -100,15 +113,20 @@ class Service(AbstractService):
         ordering = ['category']
         index_together = (('id', 'slug'),)
 
+
+
 # переделать через ContentType
 class ProductGalary(models.Model):
-    product = models.OneToOneField(Product,
+    service = models.OneToOneField(ServiceType,
                                    on_delete=models.CASCADE,
-                                   related_name='product_galary')
+                                   related_name='galary')
     main_image = models.URLField(blank=True, null=True)
 
     def __str__(self):
-        return self.product.title
+        try:
+            return self.service.product.title
+        except:
+            return self.service.service.title
 
     class Meta:
         verbose_name_plural = 'Галереи товаров'
@@ -125,34 +143,9 @@ class ProductImage(abs_Image):
         verbose_name = 'Картинка товара'
 
 
-# переделать через ContentType
-class ServiceGalary(models.Model):
-    service = models.OneToOneField(Service,
-                                   on_delete=models.CASCADE,
-                                   related_name='service_galary')
-    main_image = models.URLField(blank=True, null=True)
-
-    def __str__(self):
-        return self.service.title
-
-    class Meta:
-        verbose_name_plural = 'Галереи услуг'
-        verbose_name = 'Галерея услуг'
-
-class ServiceImage(abs_Image):
-    galary = models.ForeignKey(ServiceGalary,
-                               on_delete=models.CASCADE,
-                               related_name='images')
-    is_main = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name_plural = 'Картинки услуг'
-        verbose_name = 'Картинка услуги'
-
-
 # сделать загрузчик контента
 class ProductContent(models.Model):
-    product = models.ForeignKey(Product,
+    product = models.ForeignKey(ServiceType,
                                related_name='contents',
                                on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType,
@@ -170,7 +163,7 @@ class AbstractItem(models.Model):
     publisher = models.ForeignKey(settings.AUTH_USER_MODEL,
                                  related_name='%(class)s_for_shop',
                                  on_delete=models.PROTECT)
-    product = models.ForeignKey(Product,
+    product = models.ForeignKey(ServiceType,
                                 related_name='%(class)s',
                                 on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
@@ -184,7 +177,7 @@ class AbstractItem(models.Model):
         return self.title
 
 class Text(AbstractItem):
-    content = models.TextField()
+    text = models.TextField()
 class File(AbstractItem):
     file = models.FileField(upload_to='product/files/%Y/%m/%d/')
 class Image(AbstractItem):

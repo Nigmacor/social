@@ -8,10 +8,11 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateResponseMixin, View
 from django.forms.models import modelform_factory
 from django.apps import apps
+from django.http import Http404
 
 import redis
 
-from .models import Category, Shop, Product, ProductContent
+from .models import Category, Shop, Product, Service, ProductContent, ServiceType
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
@@ -25,6 +26,7 @@ def shop(request, category_slug=None):
 	category = None
 	categories = Category.objects.all()
 	products = Product.objects.filter(available=True)
+	services = Service.objects.filter(available=True)
 	cart_product_form = CartAddProductForm()
 	if category_slug:
 		category = get_object_or_404(Category, slug=category_slug)
@@ -33,15 +35,20 @@ def shop(request, category_slug=None):
 			category__in=[cat for cat in category.get_leafnodes(include_self=True)],
 			available=True
 			)
+		services = services.filter(
+			category__in=[cat for cat in category.get_leafnodes(include_self=True)],
+			available=True
+			)
 	return render(request, 'shops/shop/shop.html', context={
 		'products_list': products,
+		'services_list': services,
 		'category': category,
 		'categories': categories,
 		'cart_product_form': cart_product_form,
 		})
 
 def product_detail(request, id, slug):
-	product = get_object_or_404(Product, id=id, slug=slug, available=True)
+	product = get_object_or_404(ServiceType, id=id, product__slug=slug, product__available=True)
 	cart_product_form = CartAddProductForm()
 	recomm = Recommender()
 	recommended_products = recomm.suggest_products_for([product], 4)
@@ -50,7 +57,22 @@ def product_detail(request, id, slug):
 	r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
 	#выпилил из render 'total_views': total_views}
 	return render(request, 'shops/shop/product_detail.html',
-				  context={'product': product,
+				  context={'product': product.product,
+				  		   'cart_product_form': cart_product_form,
+						   'total_views': total_views,
+						   'recommended_products': recommended_products})
+
+def service_detail(request, id, slug):
+	product = get_object_or_404(ServiceType, id=id, service__slug=slug, service__available=True)
+	cart_product_form = CartAddProductForm()
+	recomm = Recommender()
+	recommended_products = recomm.suggest_products_for([product], 4)
+    #увеличение числа просмотров на 1
+	total_views = r.incr('products:{}:views'.format(product.id))
+	r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
+	#выпилил из render 'total_views': total_views}
+	return render(request, 'shops/shop/product_detail.html',
+				  context={'product': product.service,
 				  		   'cart_product_form': cart_product_form,
 						   'total_views': total_views,
 						   'recommended_products': recommended_products})
@@ -140,17 +162,23 @@ class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, Vi
 		return Form(*args, **kwargs)
 
 	def dispatch(self, request, product_id, model_name, id=None):
-		self.product = get_object_or_404(Product, id=product_id, shop__employes=request.user)
+		some_product = get_object_or_404(ServiceType, id=product_id)
+		if request.user in some_product.get_type_obj().shop.employes.all():
+			self.product = some_product
+		else:
+			raise Http404('У вас нет такого продукта')
 		self.model = self.get_model(model_name)
 		if id:
-			self.obj = get_object_or_404(self.model,
-										 id=id,
-										 product__shop__employes=request.user)
+			some_object = get_object_or_404(self.model, id=id)
+			if request.user in some_object.product.get_type_obj().shop.employes.all():
+				self.obj = some_object
+			else:
+				raise Http404('У вас нет такой информации продукта')
 		return super(ContentCreateUpdateView, self).dispatch(request, product_id, model_name, id)
 
 	def get(self, request, product_id, model_name, id=None):
 		form = self.get_form(self.model, instance=self.obj)
-		return self.render_to_response({'form': form, 'object': self.obj, 'product': self.product})
+		return self.render_to_response({'form': form, 'object': self.obj, 'product': self.product.get_type_obj()})
 
 	def post(self, request, product_id, model_name, id=None):
 		form = self.get_form(self.model,
@@ -171,9 +199,12 @@ class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, Vi
 class ContentDeleteView(PermissionRequiredMixin, View):
 	permission_required = 'shops.delete_productcontent'
 	def post(self, request, id):
-		content = get_object_or_404(ProductContent,
-									id=id,
-									product__shop__employes=request.user)
+		cont = get_object_or_404(ProductContent,
+								 id=id)
+		if request.user in cont.product.get_type_obj().shop.employes.all():
+			content = cont
+		else:
+			raise Http404('У вас нет такой информации продукта')
 		product = content.product
 		content.item.delete()
 		content.delete()
@@ -184,7 +215,11 @@ class ProductContentListView(TemplateResponseMixin, View):
 	template_name = 'shops/manage/product/content_list.html'
 
 	def get(self, request, product_id):
-		product = get_object_or_404(Product,
-									id=product_id,
-									shop__employes=request.user)
-		return self.render_to_response({'product': product})
+		product = get_object_or_404(ServiceType, id=product_id).get_type_obj()
+		if request.user in product.shop.employes.all():
+			return self.render_to_response({'product': product})
+		else:
+			raise Http404('У вас нет такого продукта')
+
+		# shop__employes=request.user
+# доделать загрузчик контента

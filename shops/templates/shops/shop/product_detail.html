@@ -13,11 +13,11 @@
   {% endfor %}
   <h1>{{ product.title }}</h1>
   <div class="image-container">
-    <a href="{{ product.product_galary.main_image }}">
-      <img src="{{ product.product_galary.main_image }}" class="image-detail">
+    <a href="{{ product.service_type.galary.main_image }}">
+      <img src="{{ product.service_type.galary.main_image }}" class="image-detail">
     </a>
     <div class="small-img">
-      {% for image in product.product_galary.images.all %}
+      {% for image in product.service_type.galary.images.all %}
       {% thumbnail image.image "100" as im %}
       <a href="{{ image.image.url }}">
         <img src="{{ im.url }}" class="image-detail">
@@ -45,8 +45,8 @@
         <div class="item">
           <a href="{{ p.get_absolute_url }}">
 
-              <img src="{% if p.product_galary %}
-                          {{ p.product_galary.main_image }}
+              <img src="{% if p.service_type.galary %}
+                          {{ p.service_type.galary.main_image }}
                         {% else %}
                           {% static "img/fiz.png" %}
                         {% endif %}">
