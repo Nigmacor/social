@@ -28,7 +28,7 @@
       <tbody>
         {% for item in order.items.all %}
           <tr class="row{% cycle "1" "2" %}">
-            <td>{{ item.product.title }}</td>
+            <td>{% if item.product %}{{ item.product.product.title }}{% else %}{{ item.service.product.title }}{% endif %}</td>
             <td class="num">{{ item.price }} руб.</td>
             <td class="num">{{ item.quantity }}</td>
             <td class="num">{{ item.get_cost }} руб.</td>
