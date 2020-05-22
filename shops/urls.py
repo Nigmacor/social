@@ -20,6 +20,7 @@ urlpatterns = [
     path('product/<str:id>/<slug:slug>', product_detail, name='product_detail_url'),
     path('service/<str:id>/<slug:slug>', service_detail, name='service_detail_url'),
     path('content/<int:id>/delete/', ContentDeleteView.as_view(), name='product_content_delete'),
+    path('content/order/', ContentOrderView.as_view(), name='content_order'),
     path('product/<int:product_id>/', ProductContentListView.as_view(), name='product_content_list'),
 
 ]

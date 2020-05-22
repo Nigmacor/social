@@ -69,7 +69,8 @@ class ServiceType(models.Model):
             return self.product
         except:
             return self.service
-
+    def __str__(self):
+        return self.get_type_obj().title
 
 class AbstractService(models.Model):
     category = models.ForeignKey(Category, related_name='%(class)s', on_delete=models.CASCADE)
@@ -157,6 +158,8 @@ class ProductContent(models.Model):
     item = GenericForeignKey('content_type', 'object_id')
     order = OrderField(blank=True, for_fields=['product'])
 
+    class Meta:
+        ordering = ['order']
 
 
 class AbstractItem(models.Model):

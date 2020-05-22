@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.conf import settings
 
 from coupons.models import Coupon
-from shops.models import Product
+from shops.models import ServiceType
 
 class Cart(object):
 
@@ -27,12 +27,12 @@ class Cart(object):
             self.cart[str(product.id)]['price'] = product.price
             self.cart[str(product.id)]['total_price'] = self.cart[str(product.id)]['price'] * self.cart[str(product.id)]['quantity']'''
         product_ids = self.cart.keys()
-        products = Product.objects.filter(id__in=product_ids)
+        products = ServiceType.objects.filter(id__in=product_ids)
         for product in products:
             self.cart[str(product.id)]['product'] = product
 
         for item in self.cart.values():
-            item['price'] = Decimal(item['product'].price)
+            item['price'] = Decimal(item['product'].get_type_obj().price)
             item['total_price'] = item['price'] * item['quantity']
             yield item
 
@@ -41,7 +41,7 @@ class Cart(object):
         product_id = str(product.id)
         if product_id not in self.cart:
             self.cart[product_id] = {'quantity': 0,
-                                      'price': str(product.price)}
+                                      'price': str(product.get_type_obj().price)}
         if update_quantity:
             self.cart[product_id]['quantity'] = quantity
         else:

@@ -12,9 +12,10 @@ def activities(sender, instance, *args, **kwargs):
 @receiver(pre_save, sender=Service)
 @receiver(pre_save, sender=Product)
 def get_service_type(sender, instance, *args, **kwargs):
-    obj = ServiceType.objects.create()
-    instance.service_type = obj
-
+    if not instance.service_type:
+        obj = ServiceType.objects.create()
+        instance.service_type = obj
+    
 
 @receiver(post_save, sender=ProductImage)
 def get_main_image(sender, instance, *args, **kwargs):

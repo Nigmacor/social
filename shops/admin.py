@@ -2,7 +2,7 @@ from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 
 from .models import Shop, Product, ProductGalary, ProductImage, Category
-from .models import Service, ProductContent
+from .models import Service, ProductContent, ServiceType
 
 # Register your models here.
 @admin.register(Shop)
@@ -42,6 +42,12 @@ class ServiceAdmin(admin.ModelAdmin):
 @admin.register(ProductContent)
 class ProductContentAdmin(admin.ModelAdmin):
     list_display = ('product', 'id')
+
+
+@admin.register(ServiceType)
+class ServiceTypeAdmin(admin.ModelAdmin):
+    list_display = ('id',)
+
 
 class CategoryDraggableMPTTAdmin(DraggableMPTTAdmin):
     list_display = ['name', 'slug']

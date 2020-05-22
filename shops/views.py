@@ -11,6 +11,7 @@ from django.apps import apps
 from django.http import Http404
 
 import redis
+from braces.views import JsonRequestResponseMixin
 
 from .models import Category, Shop, Product, Service, ProductContent, ServiceType
 from cart.forms import CartAddProductForm
@@ -199,16 +200,14 @@ class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, Vi
 class ContentDeleteView(PermissionRequiredMixin, View):
 	permission_required = 'shops.delete_productcontent'
 	def post(self, request, id):
-		cont = get_object_or_404(ProductContent,
-								 id=id)
-		if request.user in cont.product.get_type_obj().shop.employes.all():
-			content = cont
+		content = get_object_or_404(ProductContent,id=id)
+		if request.user in content.product.get_type_obj().shop.employes.all():
+			product = content.product
+			content.item.delete()
+			content.delete()
+			return redirect('product_content_list', product.id)
 		else:
 			raise Http404('У вас нет такой информации продукта')
-		product = content.product
-		content.item.delete()
-		content.delete()
-		return redirect('product_content_list', product.id)
 
 
 class ProductContentListView(TemplateResponseMixin, View):
@@ -221,5 +220,12 @@ class ProductContentListView(TemplateResponseMixin, View):
 		else:
 			raise Http404('У вас нет такого продукта')
 
-		# shop__employes=request.user
+
+class ContentOrderView(JsonRequestResponseMixin, View):
+	def post(self, request):
+		for id, order in self.request_json.items():
+			print(self.request_json)
+			obj = ProductContent.objects.filter(id=id).update(order=order)
+		return self.render_json_response({'saved': 'OK'})
+
 # доделать загрузчик контента

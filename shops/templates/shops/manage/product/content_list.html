@@ -81,3 +81,23 @@
     </div>
   {% endwith %}
 {% endblock %}
+
+
+{% block domready %}
+  $('#product-contents').sortable({
+    stop: function(event, ui) {
+      contents_order = {};
+      $('#product-contents').children().each(function(){
+        // Связываю порядковый номер с идентификатором объекта.
+        contents_order[$(this).data('id')] = $(this).index();
+      });
+      $.ajax({
+        type: 'POST',
+        url: '{% url "content_order" %}',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: JSON.stringify(contents_order),
+      });
+    }
+  });
+{% endblock %}
