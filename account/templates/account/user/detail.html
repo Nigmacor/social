@@ -10,7 +10,7 @@
     {% endthumbnail %}
     </a>
   </div>
-  {% with total_professions=user.profile.professions.count total_followers=user.followers.count %}
+  {% with total_followers=user.followers.count %}
   <span class="count">
     навыки:
     <span class="total_prof">{{ total_professions }}</span>

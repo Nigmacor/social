@@ -18,7 +18,7 @@ class AdminProject(admin.ModelAdmin):
 
 
 class TypeOfWorkDraggableMPTTAdmin(DraggableMPTTAdmin):
-    list_display = ['title', 'slug']
+    list_display = ['title', 'slug', 'id']
     prepopulated_fields = {'slug': ('title',)}
     mptt_level_indent = 20
     def something(self, instance):
@@ -28,6 +28,6 @@ class TypeOfWorkDraggableMPTTAdmin(DraggableMPTTAdmin):
             instance.title
         )
 admin.site.register(TypeOfWork, TypeOfWorkDraggableMPTTAdmin,
-    list_display=('tree_actions', 'indented_title'),
+    list_display=('tree_actions', 'indented_title', 'id'),
     list_display_links=('indented_title',)
     )

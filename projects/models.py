@@ -5,6 +5,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from mptt.models import MPTTModel, TreeManyToManyField, TreeForeignKey
 
 from shops.models import Shop
+from account.models import Profession
+
 
 # Create your models here.
 
@@ -44,19 +46,43 @@ class Project(models.Model):
         return self.title
 
 
-class Module(MPTTModel):
-    producer = models.ForeignKey(Shop, related_name='projects', on_delete=models.PROTECT)
+class Producer(models.Model):
+    producer = models.ForeignKey(Shop,
+                                 related_name='projects',
+                                 on_delete=models.PROTECT)
+    take = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.producer.title
+
+class Module(models.Model):
+    producer = models.OneToOneField(Producer, blank=True, null=True, on_delete=models.PROTECT)
     project = models.ForeignKey(Project, related_name='modules', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     complited = models.BooleanField(default=False)
-    parent = TreeManyToManyField('self',
-                                 related_name='children',
-                                 symmetrical=False)
+    profession = models.ForeignKey(Profession,
+                                   related_name='modules',
+                                   blank=True, null=True,
+                                   on_delete=models.PROTECT)
+    
 
     def __str__(self):
         return self.title
 
+
+class Family(models.Model):
+    parents = models.ForeignKey(Module,
+                                related_name='fam_parents',
+                                on_delete=models.CASCADE)
+    childrens = models.ForeignKey(Module,
+                                  related_name='fam_childrens',
+                                  on_delete=models.CASCADE)
+
+# Динамическое добавление поля, избавиться при первой возможности
+Module.add_to_class('parents', models.ManyToManyField('self',
+                                                      through=Family,
+                                                      related_name='childs',
+                                                      symmetrical=False))
 
 class Benchmark(models.Model):
     module = models.ForeignKey(Module, related_name='benchmarks', on_delete=models.CASCADE)

@@ -19,7 +19,8 @@ class Profession(models.Model):
     slug = models.SlugField(max_length=200, blank=True)
     url = models.URLField()
     description = models.TextField(blank=True)
-
+    def __str__(self):
+        return self.title
 
 class ProfileToProfession(models.Model):
     worker = models.ForeignKey(Profile, related_name='rel_to_profession',

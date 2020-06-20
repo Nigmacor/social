@@ -40,12 +40,12 @@
             <p class="card-text">{{product.price}}</p>
           </div>
           <div class="card-footer">
-            <form id="form-{{ product.id }}" class="product-card-views" action="{% url "cart:cart_add" product.id %}" method="post" >
+            <form id="form-{{ product.service_type.id }}" class="product-card-views" action="{% url "cart:cart_add" product.service_type.id %}" method="post"" method="post" >
               {{ cart_product_form.quantity }}
               {{ cart_product_form.update }}
-              <input name="product_id" type="hidden" value="{{ product.id }}" >
+              <input name="product_id" type="hidden" value="{{ product.service_type.id }}" >
               {% csrf_token %}
-              <button type="submit" name="submit_btn" class="btn btn-success submit_btn" id="submit_btn_{{ product.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
+              <button type="submit" name="submit_btn" class="btn btn-success submit_btn" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
                 в корзину
               </button>
             </form>

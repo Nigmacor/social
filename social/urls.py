@@ -19,6 +19,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+from chat.views import index, room_list
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
@@ -27,6 +29,10 @@ urlpatterns = [
     path('payment/', include('payment.urls', namespace='payment')),
     path('orders/', include('orders.urls', namespace='orders')),
     path('coupons/', include('coupons.urls', namespace='coupons')),
+    path('projects/', include('projects.urls')),
+
+    path('room_list/', room_list, name='room_list'),
+    path('chat/<int:room_id>', index, name='chat'),
     path('', include('shops.urls')),
 ]
 if settings.DEBUG:

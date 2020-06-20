@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}chat{% endblock %}
+{% block header_text %}Chat obana{% endblock %}
+
+{% block content %}
+    <ul class="rooms">
+        {% for room in rooms %}
+            <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Заказ № {{ room.id }}</a></li>
+        {% empty %}
+            <p class="empty">Чаты не определены. Может быть, создать новый в <a href="{% url 'admin:index' %}">админке</a>?</p>
+        {% endfor %}
+    </ul>
+    <div id="chats">
+    </div>
+{% endblock %}

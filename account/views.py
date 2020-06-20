@@ -39,8 +39,16 @@ def dashboard(request):
 @login_required
 def professions(request):
     professions = Profession.objects.all()
+
+    my_professions = []
+    for profession in request.user.profile.rel_to_profession.all():
+        if profession.confirmed:
+            my_professions.append(profession.profession)
+
     return render(request, 'account/professions/professions.html',
-                  {'section': 'professions', 'professions': professions})
+                  {'section': 'professions',
+                   'professions': professions,
+                   'my_professions': my_professions})
 
 @ajax_required
 @require_POST
@@ -113,12 +121,17 @@ def user_list(request):
 @login_required
 def user_detail(request, username):
     user = get_object_or_404(User, username=username, is_active=True)
+    total_professions = 0
+    for profession in user.profile.rel_to_profession.all():
+        if profession.confirmed:
+            total_professions += 1
+
     return image_list_mixin(request,
                             images_list=user.images_created.all(),
                             aj_temp='images/image/list_ajax.html',
                             tmp='account/user/detail.html',
                             section='people',
-                            cont={'user': user})
+                            cont={'user': user, 'total_professions': total_professions})
 
 @ajax_required
 @require_POST

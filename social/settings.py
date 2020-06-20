@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'payment.apps.PaymentConfig',
     'coupons.apps.CouponsConfig',
     'projects.apps.ProjectsConfig',
+    'channels',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -134,6 +136,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
@@ -171,4 +174,45 @@ Configuration.configure(
     BRAINTREE_PRIVATE_KEY
 )
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+# chat
+redis_host = os.environ.get('REDIS_HOST', 'localhost')
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(redis_host, 6379)],
+        },
+    },
+}
+
+ASGI_APPLICATION = 'social.routing.application'
+
+
+NOTIFY_USERS_ON_ENTER_OR_LEAVE_ROOMS = True
+
+MSG_TYPE_MESSAGE = 0  # Для стандартных сообщений
+MSG_TYPE_WARNING = 1  # Для желтых сообщений
+MSG_TYPE_ALERT = 2  # Для красных и опасных оповещений
+MSG_TYPE_MUTED = 3  # Для просто ОК информации, которая не беспокоит пользователей
+MSG_TYPE_ENTER = 4  # Для просто ОК информации, которая не беспокоит пользователей
+MSG_TYPE_LEAVE = 5  # Для просто ОК информации, которая не беспокоит пользователей
+
+MESSAGE_TYPES_CHOICES = (
+    (MSG_TYPE_MESSAGE, 'MESSAGE'),
+    (MSG_TYPE_WARNING, 'WARNING'),
+    (MSG_TYPE_ALERT, 'ALERT'),
+    (MSG_TYPE_MUTED, 'MUTED'),
+    (MSG_TYPE_ENTER, 'ENTER'),
+    (MSG_TYPE_LEAVE, 'LEAVE'),
+)
+
+MESSAGE_TYPES_LIST = [
+    MSG_TYPE_MESSAGE,
+    MSG_TYPE_WARNING,
+    MSG_TYPE_ALERT,
+    MSG_TYPE_MUTED,
+    MSG_TYPE_ENTER,
+    MSG_TYPE_LEAVE,
+]
