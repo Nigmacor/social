@@ -15,7 +15,8 @@ urlpatterns = [
     path('professions/', views.professions, name='professions'),
     path('professions/add/', views.add_profession, name='add_profession'),
     path('users/follow/', views.user_follow, name='user_follow'),
-    path('users/<username>/', views.user_detail, name='user_detail'),
+    path('users/dialog/find/', views.dialog_find, name='dialog_find'),
+    path('users/<int:id>/', views.user_detail, name='user_detail'),
     path('users/', views.user_list, name='user_list'),
 ]
 # if settings.DEBUG:

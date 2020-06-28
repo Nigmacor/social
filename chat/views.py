@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Room, ChatMessage
+from .forms import ChatInputForm
+from django.http import Http404
+
 
 
 @login_required
@@ -11,7 +14,11 @@ def index(request, room_id):
     """
     # Получить список комнат, упорядоченных по алфавиту
     # rooms = Room.objects.order_by("title")
-    room = Room.objects.get(pk=room_id)
+    form = ChatInputForm()
+    try:
+        room = Room.objects.get(pk=room_id, members=request.user)
+    except:
+        raise Http404
     chat_queryset = room.messages.order_by('-created')[:10]
     chat_message_count = len(chat_queryset)
     if chat_message_count > 0:
@@ -33,7 +40,8 @@ def index(request, room_id):
         "privious_id": privious_id,
         "first_message_id": first_message_id,
         'user': request.user,
-        'section': 'messages'
+        'form': form,
+        'section': 'messages',
     })
 
 

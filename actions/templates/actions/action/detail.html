@@ -3,8 +3,8 @@
   <div class="action">
     <div class="images">
       {% if profile.photo %}
-        {% thumbnail user.profile.photo "80x80" format="PNG" crop="100%" as im %}
-          <a href="{{ user.get_absolute_url }}">
+        {% thumbnail profile.photo "80x80" format="PNG" crop="100%" as im %}
+          <a href="{% url 'user_detail' user.id %}">
             <img src="{{ im.url }}" alt="{{ user.get_full_name }}" class="item-img">
           </a>
         {% endthumbnail %}
@@ -24,11 +24,11 @@
     <div class="info">
       <p>
         <span class="date">{{ action.created|timesince }} назад</span><br />
-        <a href="{{ user.get_absolute_url }}">{{ user.first_name }}</a>
+        <a href="{% url 'user_detail' user.id %}">{{ user.first_name }}</a>
         {{ action.verb }}
         {% if action.target %}
           {% with target=action.target %}
-            <a href="{{ target.get_absolute_url }}">{{ target }}</a>
+            <a href="#">{{ target }}</a>
           {% endwith %}
         {% endif %}
       </p>

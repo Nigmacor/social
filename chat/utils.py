@@ -20,9 +20,3 @@ def get_room_or_error(room_id, user):
     if room.staff_only and not user.is_staff:
         raise ClientError("ROOM_ACCESS_DENIED")
     return room
-
-
-@database_sync_to_async
-def create_message(self, user, room, message):
-    m = ChatMessage(user=user, chat=room, message=message)
-    m.save()

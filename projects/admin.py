@@ -1,9 +1,12 @@
 from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 
-from .models import Project, Module, TypeOfWork
+from .models import Project, Module, TypeOfWork, ProjectRespond
 
 # Register your models here.
+@admin.register(ProjectRespond)
+class ProjectRespondAdmin(admin.ModelAdmin):
+    list_display = ['id', 'module', 'responded', 'created']
 
 class ModuleInline(admin.StackedInline):
     model = Module

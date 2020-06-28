@@ -35,7 +35,7 @@
             <a href="{% url 'manage_shop_list' %}">My shops</a>
           </li>
           <li {% if section == "messages" %} class="selected"{% endif %}>
-            <a href="{% url 'room_list' %}">My messages</a>
+            <a href="{% url 'chats:room_list' %}">My messages</a>
           </li>
         </ul>
       {% endif %}

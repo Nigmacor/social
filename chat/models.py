@@ -11,12 +11,12 @@ class Room(models.Model):
     # Если разрешены только "staff" пользователи (is_staff для пользователя django)
 
     staff_only = models.BooleanField(default=False)
-    members = models.ManyToManyField(User, related_name='childs')
+    members = models.ManyToManyField(User, related_name='chats')
 
     def __str__(self):
         return '{}'.format(self.id)
     def get_absolute_url(self):
-        return reverse('chat', kwargs={'room_id': self.id})
+        return reverse('chats:chat', kwargs={'room_id': self.id})
 
     @property
     def group_name(self):

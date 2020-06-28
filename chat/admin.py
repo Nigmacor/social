@@ -10,7 +10,7 @@ admin.site.register(
 
 admin.site.register(
     ChatMessage,
-    list_display=['user', 'chat', 'message', 'created']
+    list_display=['user', 'chat', 'id', 'message', 'created']
 
 )
 

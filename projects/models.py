@@ -64,10 +64,26 @@ class Module(models.Model):
                                    related_name='modules',
                                    blank=True, null=True,
                                    on_delete=models.PROTECT)
-    
+
 
     def __str__(self):
         return self.title
+    @property
+    def group_name(self):
+        """
+        Возвращает имя группы каналов, на которое должны быть подписаны сокеты, чтобы получать сообщения
+        сообщения, как они генерируются.
+        """
+        return 'module-{}'.format(self.id)
+
+
+class ProjectRespond(models.Model):
+    module = models.ForeignKey(Module, related_name='responds', on_delete=models.CASCADE)
+    responded = models.ForeignKey(User, related_name='responds', on_delete=models.CASCADE)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField()
+    garanty = models.CharField(max_length = 1024)
+    created = models.DateTimeField(auto_now_add=True)
 
 
 class Family(models.Model):

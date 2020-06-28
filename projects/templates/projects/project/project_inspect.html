@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Проект{% endblock %}
+
+{% block content %}
+  <h1>Проект</h1>
+  <h1>{{project.title}}</h1>
+  <ul class="modules">
+      {% for module in project.modules.all %}
+      <a href="{% url 'module_detail' module.id %}">
+        <li class="module-link module-close" data-module-id="{{module.id}}" data-detect="{%if module.producer%}benchmarks{%else%}respond{%endif%}">{{module.title}}{%if module.producer%}{{module.benchmarks.all}}{% endif %}</li>  
+      </a>
+      {% endfor %}
+  </ul>
+  <div id="chats">
+  </div>
+{% endblock %}

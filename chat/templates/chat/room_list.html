@@ -6,9 +6,9 @@
 {% block content %}
     <ul class="rooms">
         {% for room in rooms %}
-            <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Заказ № {{ room.id }}</a></li>
+            <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Последнее сообщение {{ room.messages.last.id }}</a></li>
         {% empty %}
-            <p class="empty">Чаты не определены. Может быть, создать новый в <a href="{% url 'admin:index' %}">админке</a>?</p>
+            <p class="empty">У вас, пока, нет переписок </p>
         {% endfor %}
     </ul>
     <div id="chats">
