@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Room, ChatMessage
+from .models import Room, ChatMessage, ChatMessagePack
 
 
 admin.site.register(
@@ -11,6 +11,12 @@ admin.site.register(
 admin.site.register(
     ChatMessage,
     list_display=['user', 'chat', 'id', 'message', 'created']
+
+)
+
+admin.site.register(
+    ChatMessagePack,
+    list_display=['id', 'chat', 'pack', 'created', 'previous', 'next']
 
 )
 

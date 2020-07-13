@@ -1,10 +1,17 @@
+import redis
+import json
+from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import Room, ChatMessage
-from .forms import ChatInputForm
 from django.http import Http404
 
+from .models import Room, ChatMessage, ChatMessagePack
+from .forms import ChatInputForm
 
+
+r = redis.StrictRedis(host=settings.REDIS_HOST,
+					  port=settings.REDIS_PORT,
+					  db=settings.REDIS_DB)
 
 @login_required
 def index(request, room_id):
@@ -33,10 +40,27 @@ def index(request, room_id):
         except IndexError:
             privious_id = -1
         chat_messages = reversed(chat_queryset)
-    # Визуализируйте это в шаблоне индекса
+    # другой вариант
+    previous_pack = r.get('room:{}:previous_pack'.format(room.id))
+    print('***********')
+    messages = []
+    try:
+        messages_pack = ChatMessagePack.objects.get(pk=previous_pack)
+        messages_in_p = messages_pack.pack.split(';\n')
+        for m in messages_in_p:
+            message = json.loads(m)
+            messages.append(message)
+        print(messages)
+        print('***********')
+        print(messages[0]['message'])
+    except:
+        print('passsssssssssssssssssss')
+
+
+
     return render(request, "chat/index.html", {
         "rooms": room,
-        "messages": chat_messages,
+        "messages": messages,
         "privious_id": privious_id,
         "first_message_id": first_message_id,
         'user': request.user,

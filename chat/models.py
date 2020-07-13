@@ -36,3 +36,16 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return self.message
+
+
+class ChatMessagePack(models.Model):
+    chat = models.ForeignKey(Room, related_name='messages_pack', on_delete=models.CASCADE)
+    pack = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    previous = models.OneToOneField('self',
+                                    related_name='next',
+                                    on_delete=models.SET_NULL,
+                                    null=True, blank=True)
+
+    def __str__(self):
+        return '{}:{}'.format(self.chat.id, self.id)

@@ -1,13 +1,18 @@
 import json
+import redis
 from django.conf import settings
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
+import datetime
 
 from .exceptions import ClientError
 from .utils import get_room_or_error
-from .models import ChatMessage
+from .models import ChatMessage, ChatMessagePack
 
 
+r = redis.StrictRedis(host=settings.REDIS_HOST,
+					  port=settings.REDIS_PORT,
+					  db=settings.REDIS_DB)
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
 
@@ -125,7 +130,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             raise ClientError("ROOM_ACCESS_DENIED")
         # Get the room and send to the group about it
         room = await get_room_or_error(room_id, self.scope["user"])
-        database_sync_to_async(self.create_message(room=room, message=message))
+        # database_sync_to_async(self.create_message(room=room, message=message))
+        await self.redis_message(room=room, message=message)
         await self.channel_layer.group_send(
             room.group_name,
             {
@@ -184,6 +190,36 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         m = ChatMessage(user=self.scope['user'], chat=room, message=message)
         m.save()
 
+    async def redis_message(self, room, message):
+        if message:
+            mes_in_frame = 20
+            redis_id = 'room:{}'.format(room.id)
+            total_message = r.incr(redis_id + ':count')
+            frame = {
+                    'user': self.scope['user'].id,
+                    'username': self.scope['user'].username,
+                    'message': message,
+                    'created': str(datetime.datetime.now()),
+                    }
+            str_frame = json.dumps(frame)
+            r.rpush(redis_id, str_frame)
+            if total_message % mes_in_frame == 0 and total_message != 0:
+                save_frame = ''
+                for mes in r.lrange(redis_id, 0, mes_in_frame):
+                    save_frame = save_frame + str(mes.decode('utf-8')) + ';\n'
+                save_frame = save_frame[:-2]
+                database_sync_to_async(self.save_messages(room, save_frame, mes_in_frame))
+
+    def save_messages(self, room, messages, num_of_mes):
+        previous_pack = r.get('room:{}:previous_pack'.format(room.id))
+        try:
+            previous = ChatMessagePack.objects.get(pk=previous_pack)
+            m = ChatMessagePack(chat=room, pack=messages, previous=previous)
+        except:
+            m = ChatMessagePack(chat=room, pack=messages)
+        m.save()
+        r.ltrim('room:{}'.format(room.id), num_of_mes, -1)
+        r.set('room:{}:previous_pack'.format(room.id), m.id)
 
 class LoadhistoryConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
