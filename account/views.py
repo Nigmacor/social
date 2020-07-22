@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -9,10 +9,12 @@ from common.mixin import image_list_mixin
 from common.decorators import ajax_required
 from actions.utils import create_action
 
-from .models import Profile, Contact, Profession, ProfileToProfession
+from .models import Profile, Contact, Profession, ProfileToProfession, Dialogs
 from images.models import Galary
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from actions.models import Action
+from shops.models import Shop
+from chat.models import Room
 #from django.contrib.auth import authenticate, login
 # from .forms import LoginForm
 
@@ -38,8 +40,16 @@ def dashboard(request):
 @login_required
 def professions(request):
     professions = Profession.objects.all()
+
+    my_professions = []
+    for profession in request.user.profile.rel_to_profession.all():
+        if profession.confirmed:
+            my_professions.append(profession.profession)
+
     return render(request, 'account/professions/professions.html',
-                  {'section': 'professions', 'professions': professions})
+                  {'section': 'professions',
+                   'professions': professions,
+                   'my_professions': my_professions})
 
 @ajax_required
 @require_POST
@@ -110,14 +120,26 @@ def user_list(request):
                   {'section': 'people', 'users': users})
 
 @login_required
-def user_detail(request, username):
-    user = get_object_or_404(User, username=username, is_active=True)
+def user_detail(request, id):
+    user = get_object_or_404(User, id=id, is_active=True)
+    total_professions = 0
+    for profession in user.profile.rel_to_profession.all():
+        if profession.confirmed:
+            total_professions += 1
+    try:
+        dialog_mbs = [user.profile, request.user.profile]
+        dialog = Dialogs.objects.get(user_from__in=dialog_mbs, user_to__in=dialog_mbs).id
+    except Dialogs.DoesNotExist:
+        dialog = -1
+
     return image_list_mixin(request,
                             images_list=user.images_created.all(),
                             aj_temp='images/image/list_ajax.html',
                             tmp='account/user/detail.html',
                             section='people',
-                            cont={'user': user})
+                            cont={'user': user,
+                                  'total_professions': total_professions,
+                                  'dialog': dialog})
 
 @ajax_required
 @require_POST
@@ -140,22 +162,29 @@ def user_follow(request):
     return JsonResponse({'status':'ok'})
 
 
-# def user_login(request):
-#     if request.method == 'POST':
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             cd = form.cleaned_data
-#             user = authenticate(request,
-#                                 username=cd['username'],
-#                                 password=cd['password'])
-#         if user is not None:
-#             if user.is_active:
-#                 login(request, user)
-#                 return HttpResponse('Авторизация успешна')
-#             else:
-#                 return HttpResponse('Ошибка авторизации')
-#         else:
-#             return HttpResponse('Логин или пароль введны неверно')
-#     else:
-#         form = LoginForm()
-#         return render(request, 'account/login.html', {'form': form})
+@ajax_required
+@require_POST
+@login_required
+def dialog_find(request):
+    user_from = request.user
+    user_id = request.POST.get('id')
+    dialog_id = int(request.POST.get('dialog_id'))
+    if user_id:
+        try:
+            user_to = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return JsonResponse({'status':'UserDoesNotExist'})
+
+    if dialog_id == -1:
+        room = Room(title='dialog')
+        room.save()
+        room.members.add(user_from, user_to)
+        dialog = Dialogs(user_from=user_from.profile, user_to=user_to.profile, room=room)
+        dialog.save()
+    else:
+        try:
+            dialog = Dialogs.objects.get(pk=dialog_id)
+        except Dialogs.DoesNotExist:
+            return JsonResponse({'status':'DialogDoesNotExist'})
+    return JsonResponse({'url':'/chat/{}'.format(dialog.room.id)})
+    # return redirect(reverse('chats:chat', kwargs={'room_id': dialog.room.id}))

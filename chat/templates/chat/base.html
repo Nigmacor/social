@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta charset="UTF-8">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" media="screen" />
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="{% static 'js/jquery-1.12.2.min.js' %}" type="text/javascript"></script>
+	<script src="{% static 'js/reconnecting-websocket.min.js' %}" type="text/javascript"></script>
+	{% block extra_head %}{% endblock %}
+</head>
+<body>
+	<header>
+		<h1>{% block header_text %}{% endblock %}</h1>
+			<a style="margin-right: 10%;" href="#">Сделать заказ</a>
+		{% if user.is_authenticated %}
+		<b>Здравствуйте {{ user.username }}</b>
+			<a href="/accounts/logout/">Выйти</a>
+		{% endif %}
+	</header>
+	<section>
+		{% block content %}
+		{% endblock %}
+	</section>
+	{% block extra_body %}{% endblock %}
+</body>
+</html>

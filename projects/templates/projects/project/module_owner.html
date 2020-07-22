@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Модуль{% endblock %}
+
+{% block content %}
+<h1>Module</h1>
+<h1>{{module.title}}</h1>
+
+<div id="chats">
+  <div class='room' id='module-{{ module.id }}'>
+    <div id="last_message_id" class='d-none'>{{ privious_id }}</div>
+    <div class='messages' data-module-id='{{ module.id }}'>
+      {% for respond in responds %}
+        <div class='message' style="margin-left:10px; margin-right:20px">
+          <span class='username'> {{respond.responded}}</span><br>
+          <span class='text-muted'><pre>{{respond.created|timesince}} </pre></span>
+          <span class='body'><p style="margin-left:30px">{{respond.cost}}</p> </span>
+          <a href="{% url 'respond_detail' respond.id %}">
+            <button type='button' class='btn btn-outline-secondary'>Подробнее</button>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+    <script>
+      $(function () {
+          // Correctly decide between ws:// and wss://
+          var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+          var ws_path = ws_scheme + '://' + window.location.host + "/project/respond/";
+          console.log("Connecting to " + ws_path);
+          var socket = new ReconnectingWebSocket(ws_path);
+          $(".messages").scrollTop($(".messages").prop("scrollHeight"));
+          // Handle incoming messages
+          socket.onmessage = function (message) {
+              // Decode the JSON
+              console.log("Got chat websocket message " + message.data);
+              var data = JSON.parse(message.data);
+              // Handle errors
+              if (data.error) {
+                  alert(data.error);
+                  return;
+              }
+              // Handle joining
+              if (data.join) {
+                  console.log("Joining room " + data.join);
+
+
+              } else if (data.leave) {
+                  console.log("Leaving room " + data.leave);
+                  // Обработка получения сообщения
+              } else if (data.message || data.msg_type != 0) {
+                  var msgdiv = $("#module-" + data.module_id + " .messages");
+                  var ok_msg = "";
+
+                  switch (data.msg_type) {
+                      case 0:
+                          // Сообщения
+                          ok_msg = "<div class='message'>" +
+                                  "<span class='username'>" + data.username + "</span><br>" +
+                                  "<span class='body'><p style='margin-left:30px'>" + data.message + "</p></span>" +
+                                  "<a href=" + ws_scheme + '://' + window.location.host + "/module/" + data.module_id + " >" +
+                                  "<button type='button' class='btn btn-outline-secondary'>Подробнее</button>"+
+                                  "</div></a>";
+                          break;
+                      case 1:
+                          // Предупреждение / Советы
+                          ok_msg = "<div class='contextual-message text-warning'>" + data.message +
+                                  "</div>";
+                          break;
+                      case 2:
+                          // Alert / Опасные сообщения
+                          ok_msg = "<div class='contextual-message text-danger'>" + data.message +
+                                  "</div>";
+                          break;
+                      case 3:
+                          // "Мут" сообщения
+                          ok_msg = "<div class='contextual-message text-muted'>" + data.message +
+                                  "</div>";
+                          break;
+                      case 4:
+                          // User подключен room
+                          ok_msg = "<div class='contextual-message text-muted'>" + data.username +
+                                  " присоединился к комнате!" +
+                                  "</div>";
+                          break;
+                      case 5:
+                          // User покинул room
+                          ok_msg = "<div class='contextual-message text-muted'>" + data.username +
+                                  " покинул комнату!" +
+                                  "</div>";
+                          break;
+                      default:
+                          console.log("Неподдерживаемый тип сообщения!");
+                          return;
+                  }
+                  msgdiv.append(ok_msg);
+
+                  msgdiv.scrollTop(msgdiv.prop("scrollHeight"));
+              } else {
+                  console.log("Не удается обработать сообщение!");
+              }
+          };
+
+          // Говорит, если мы присоединились к комнате или нет, если есть div для нее
+          inRoom = function (professionId) {
+              return $("#module-" + professionId).length > 0;
+          };
+
+          // Room join/leave
+
+          // Helpful debugging
+          socket.onopen = function () {
+              console.log("Connected to chat socket");
+              $("li.room-link").addClass("joined");
+              socket.send(JSON.stringify({
+                  "command": "join",
+                  "module": {{module.id}}
+              }));
+          };
+          socket.onclose = function () {
+              console.log("Disconnected from chat socket");
+              socket.send(JSON.stringify({
+                  "command": "leave",
+                  "module": {{module.id}}
+              }));
+          }
+
+
+      });
+
+      $(function () {
+          // Correctly decide between ws:// and wss://
+          var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+          var lh_path = ws_scheme + '://' + window.location.host + "/project/loadrespond/";
+          console.log("Connecting to " + lh_path);
+          var lh_socket = new ReconnectingWebSocket(lh_path);
+          var chat = $('.messages');
+          var block_request = false
+          var last_message_id = $("#last_message_id")
+          lh_socket.onmessage = function (message) {
+              // Decode the JSON
+              console.log("Got history websocket message " + message.data);
+              var data = JSON.parse(message.data);
+
+              new_messages = data.messages;
+              last_id = data.privious_id;
+              console.log(last_id);
+              last_message_id.text(last_id);
+
+              for (var i = 0; i < new_messages.length; i++) {
+                msg = "<div class='message'>" +
+                        "<span class='username'>" + new_messages[i].username + "</span><br>" +
+                        "<span class='text-muted'><pre>" + new_messages[i].created + "</pre></span>" +
+                        "<span class='body'><p style='margin-left:30px'>" + new_messages[i].message + "</p></span>" +
+                        "</div>";
+                chat.prepend(msg)
+                block_request = false
+              }
+          };
+
+          chat.scroll(function() {
+            if (chat.scrollTop() < 100 && block_request == false && last_message_id.text() != '-1') {
+              block_request = true
+              lh_socket.send(JSON.stringify({
+                'last_message_id': last_message_id.text(),
+                'module': chat.attr("data-module-id")
+              }));
+
+            }
+          });
+
+          lh_socket.onopen = function () {
+              console.log("Connected to history socket");
+
+
+          };
+          lh_socket.onclose = function () {
+              console.log("Disconnected from history socket");
+
+          }
+      });
+
+
+    </script>
+{% endblock %}

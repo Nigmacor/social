@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}chat{% endblock %}
+{% block header_text %}Chat obana{% endblock %}
+
+{% block content %}
+    <ul class="professions">
+        {% for profession in professions %}
+            <li class="profession-link" data-profession-id="{{ profession.id }}"><a href="{% url 'prochan' profession.id %}"> {{ profession.title }}</a></li>
+        {% empty %}
+            <p class="empty">У вас нет подтвержденных профессий </p>
+        {% endfor %}
+    </ul>
+    <div id="chats">
+    </div>
+{% endblock %}

@@ -6,13 +6,13 @@
   <div id="people-list">
     {% for user in users %}
       <div class="user">
-        <a href="{{ user.get_absolute_url }}">
+        <a href="{% url 'user_detail' user.id %}">
           {% thumbnail user.profile.photo "180x180" format="PNG" crop="100%" as im %}
             <img src="{{ im.url }}">
           {% endthumbnail %}
         </a>
         <div class="info">
-          <a href="{{ user.get_absolute_url }}" class="title">
+          <a href="{% url 'user_detail' user.id %}" class="title">
             {{ user.get_full_name }}
           </a>
         </div>

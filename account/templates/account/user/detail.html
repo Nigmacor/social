@@ -4,13 +4,13 @@
 {% block content %}
   <h1>{{ user.get_full_name }}</h1>
   <div class="profile-info">
-    <a href="{{ user.profile.photo.url }}">
+    <a href="{% if user.profile.photo.url %}{{ user.profile.photo.url }}{% else %}#{% endif %}">
     {%thumbnail user.profile.photo "180x180" crop="100%" format="PNG" as im%}
       <img src="{{ im.url }}" class="user-detail">
     {% endthumbnail %}
     </a>
   </div>
-  {% with total_professions=user.profile.professions.count total_followers=user.followers.count %}
+  {% with total_followers=user.followers.count %}
   <span class="count">
     навыки:
     <span class="total_prof">{{ total_professions }}</span>
@@ -28,10 +28,14 @@
       Отписаться
     {% endif %}
   </a>
+  {% if request.user.id != user.id %}
+    <a href="#" data-id="{{ user.id }}" data-dialog-id="{{ dialog }}" class="message button">Написать</a>
+  {% endif %}
   {% endwith %}
   <div id="image-list" class="image-container">
     {% include "images/image/list_ajax.html" with images=user.images_created.all %}
   </div>
+
 {% endblock %}
 
 
@@ -61,6 +65,22 @@
           $('span.count .total').text(previous_action == 'follow' ? previous_followers + 1 : previous_followers - 1);
         }
       }
+    );
+  });
+  $('a.message').click(function (e){
+    e.preventDefault();
+    dialogId = $('a.message').attr("data-dialog-id");
+    $.post('{% url "dialog_find" %}',
+      {
+        id: $(this).data('id'),
+        dialog_id: $(this).data('dialog-id')
+      },
+      function (data) {
+        var path = window.location.protocol + '//' + window.location.host + data['url'];
+        console.log(path);
+        location.href = path;
+      }
+
     );
   });
 {% endblock %}

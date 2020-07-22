@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load mptt_tags %}
+
+{% block title %}
+Проекты
+{% endblock %}
+
+{% block content %}
+<form class="" action="." method="post">
+  {{form.as_p}}
+  {% csrf_token %}
+  <input type="submit" value="Создать">
+</form>
+{% endblock %}

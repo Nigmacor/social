@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}chat{% endblock %}
+{% block header_text %}Chat obana{% endblock %}
+
+{% block content %}
+    <ul class="rooms">
+        {% for room in rooms %}
+            <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Последнее сообщение {{ room.messages.last.id }}</a></li>
+        {% empty %}
+            <p class="empty">У вас, пока, нет переписок </p>
+        {% endfor %}
+    </ul>
+    <div id="chats">
+    </div>
+{% endblock %}

@@ -25,7 +25,7 @@
     {% endrecursetree %}
   </ul>
 </div>
-<h1>{% if category %}{{ category.name }}{% else %}Products{% endif %}</h1>
+<h1>{% if category %}{{ category.name }}{% else %}Продукты{% endif %}</h1>
 
 
 <div class="card-deck" style="margin-left: 5%;">
@@ -33,23 +33,35 @@
     {% for product in products_list %}
       <a href="{{ product.get_absolute_url }}">
         <div class="card border-light mb-3" style="width:200px;float:left;margin-top: 3%">
-          <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
+          <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.service_type.galary.images %}{{ product.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
           <!-- <img src="{% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %}" class="card-img-top rounded-top" alt="..."> -->
           <div class="card-body">
             <h5 class="card-title">{{product.title}}</h5>
             <p class="card-text">{{product.price}}</p>
           </div>
           <div class="card-footer">
-            <form id="form-{{ product.id }}" class="product-card-views" action="{% url "cart:cart_add" product.id %}" method="post" >
+            <form id="form-{{ product.service_type.id }}" class="product-card-views" action="{% url "cart:cart_add" product.service_type.id %}" method="post"" method="post" >
               {{ cart_product_form.quantity }}
               {{ cart_product_form.update }}
-              <input name="product_id" type="hidden" value="{{ product.id }}" >
+              <input name="product_id" type="hidden" value="{{ product.service_type.id }}" >
               {% csrf_token %}
-              <button type="submit" name="submit_btn" class="btn btn-success submit_btn" id="submit_btn_{{ product.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
+              <button type="submit" name="submit_btn" class="btn btn-success submit_btn" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
                 в корзину
               </button>
             </form>
           </div>
+        </div>
+      </a>
+    {% endfor %}
+    {% for service in services_list %}
+      <a href="{{ service.get_absolute_url }}">
+        <div class="card border-light mb-3" style="width:200px;float:left;margin-top: 3%">
+          <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if service.service_type.galary.images %}{{ service.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
+          <!-- <img src="{% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %}" class="card-img-top rounded-top" alt="..."> -->
+          <div class="card-body">
+            <h5 class="card-title">{{service.title}}</h5>
+          </div>
+
         </div>
       </a>
     {% endfor %}

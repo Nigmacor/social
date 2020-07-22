@@ -27,7 +27,7 @@ class Recommender(object):
         if len(product_ids)==1:
             suggestions = r.zrange(self.get_product_key(product_ids[0]),
                                   0, -1, desc=True)[:max_result]
-        else:
+        elif len(product_ids)>=1:
             # Формирую временный ключ хранилища
             flat_ids = ''.join([str(id) for id in product_ids])
             tmp_key = 'tmp_{}'.format(flat_ids)
@@ -41,6 +41,8 @@ class Recommender(object):
             suggestions = r.zrange(tmp_key, 0, -1, desc=True)[:max_result]
             # Удаляею временный ключ хранилища
             r.delete(tmp_key)
+        else:
+            return None
         suggested_products_ids = [int(id) for id in suggestions]
         suggested_products = list(Product.objects.filter(id__in=suggested_products_ids))
         suggested_products.sort(key=lambda x: suggested_products_ids.index(x.id))

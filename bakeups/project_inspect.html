@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Проект{% endblock %}
+
+{% block content %}
+  <h1>Проект</h1>
+  <h1>{{project.title}}</h1>
+  <ul class="modules">
+      {% for module in project.modules.all %}
+          <div id="last_message_id-{{module.id}}" class='d-none'>{{ module.responds.last.id }}</div>
+          <li class="module-link module-close" data-module-id="{{module.id}}" data-detect="{%if module.producer%}benchmarks{%else%}respond{%endif%}">{{module.title}}{%if module.producer%}{{module.benchmarks.all}}{% endif %}</li>
+      {% endfor %}
+  </ul>
+  <div id="chats">
+  </div>
+{% endblock %}
+
+{% block extra_body %}
+    <script>
+      $(function () {
+          // Correctly decide between ws:// and wss://
+          var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+          var ws_path = ws_scheme + '://' + window.location.host + "/project/respond/";
+          console.log("Connecting to " + ws_path);
+          var socket = new ReconnectingWebSocket(ws_path);
+          $(".messages").scrollTop($(".messages").prop("scrollHeight"));
+          // Handle incoming messages
+          socket.onmessage = function (message) {
+              // Decode the JSON
+              console.log("Got chat websocket message " + message.data);
+              var data = JSON.parse(message.data);
+              // Handle errors
+              if (data.error) {
+                  alert(data.error);
+                  return;
+              }
+              // Handle joining
+              if (data.join) {
+                  console.log("Joining module " + data.join);
+
+                  var modulediv = $(
+                          "<div class='room' id='room-" + data.join + "'>" +
+                          "<div>" + data.title + "</div>"+
+                          "<div class='messages'></div>" +
+                          "</div>"
+                  );
+                  $("#chats").append(modulediv);
+
+
+
+                  // Handle leaving
+
+              } else if (data.leave) {
+                  console.log("Leaving module " + data.leave);
+                  $("#room-" + data.leave).remove();
+                  // Обработка получения сообщения
+              } else if (data.message || data.msg_type != 0) {
+                  var msgdiv = $("#room-" + data.module + " .messages");
+                  var ok_msg = "";
+
+                  switch (data.msg_type) {
+                      case 0:
+                          // Сообщения
+                          ok_msg = "<div class='message'>" +
+                                  "<span class='username'>" + data.username + "</span><br>" +
+                                  "<span class='body'><p style='margin-left:30px'>" + data.message + "</p></span>" +
+                                  "</div>";
+                          break;
+                      case 1:
+                          // Предупреждение / Советы
+                          ok_msg = "<div class='contextual-message text-warning'>" + data.message +
+                                  "</div>";
+                          break;
+                      case 2:
+                          // Alert / Опасные сообщения
+                          ok_msg = "<div class='contextual-message text-danger'>" + data.message +
+                                  "</div>";
+                          break;
+                      case 3:
+                          // "Мут" сообщения
+                          ok_msg = "<div class='contextual-message text-muted'>" + data.message +
+                                  "</div>";
+                          break;
+                      case 4:
+                          // User подключен module
+                          ok_msg = "<div class='contextual-message text-muted'>" + data.username +
+                                  " присоединился к комнате!" +
+                                  "</div>";
+                          break;
+                      case 5:
+                          // User покинул module
+                          ok_msg = "<div class='contextual-message text-muted'>" + data.username +
+                                  " покинул комнату!" +
+                                  "</div>";
+                          break;
+                      default:
+                          console.log("Неподдерживаемый тип сообщения!");
+                          return;
+                  }
+                  msgdiv.append(ok_msg);
+
+                  msgdiv.scrollTop(msgdiv.prop("scrollHeight"));
+              } else {
+                  console.log("Не удается обработать сообщение!");
+              }
+          };
+
+          // Говорит, если мы присоединились к комнате или нет, если есть div для нее
+
+
+          // Helpful debugging
+          $("li.module-link").click(function () {
+              moduleId = $(this).attr("data-module-id");
+              waitObj = $(this).attr("data-detect");
+
+
+              if (($(this).hasClass("module-close")) && (waitObj == 'respond')) {
+                  // Leave module
+
+                  $(this).addClass("joined");
+                  $(this).removeClass("module-close");
+                  socket.send(JSON.stringify({
+                      "command": "join",
+                      "module": moduleId
+                  }));
+
+              } else {
+                socket.send(JSON.stringify({
+                    "command": "leave",
+                    "module": moduleId
+                }));
+                $(this).removeClass("joined");
+                $(this).addClass("module-close");
+                  console.log('пип-пип');
+              }
+          });
+          socket.onopen = function () {
+              console.log("Connected to chat socket");
+
+          };
+          socket.onclose = function () {
+              console.log("Disconnected from chat socket");
+          }
+
+
+      });
+
+      $(function () {
+          // Correctly decide between ws:// and wss://
+          var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+          var lh_path = ws_scheme + '://' + window.location.host + "/project/loadrespond/";
+          console.log("Connecting to " + lh_path);
+          var lh_socket = new ReconnectingWebSocket(lh_path);
+          var chat = $('.messages');
+          var block_request = false
+          $("li.module-link").click(function () {
+              moduleId = $(this).attr("data-module-id");
+              waitObj = $(this).attr("data-detect");
+              var last_message_id = $("#last_message_id-" + moduleId)
+              lh_socket.send(JSON.stringify({
+                'last_message_id': last_message_id.text(),
+                'module': moduleId
+              }));
+
+              lh_socket.onmessage = function (message) {
+              // Decode the JSON
+              console.log("Got history websocket message " + message.data);
+              var data = JSON.parse(message.data);
+              new_messages = data.messages;
+              last_id = data.privious_id;
+              var msgdiv = $("#room-" + data.module + " .messages");
+
+              for (var i = 0; i < new_messages.length; i++) {
+                msg = "<div class='message'>" +
+                        "<span class='username'>" + new_messages[i].username + "</span><br>" +
+                        "<span class='text-muted'><pre>" + new_messages[i].created + "</pre></span>" +
+                        "<span class='body'><p style='margin-left:30px'>" + new_messages[i].message + "</p></span>" +
+                        "</div>";
+
+                msgdiv.prepend(msg);
+                block_request = false
+              }
+          };
+              chat.scroll(function() {
+            if (chat.scrollTop() < 300 && block_request == false && last_message_id.text() != '-1') {
+              block_request = true
+              lh_socket.send(JSON.stringify({
+                'last_message_id': last_message_id.text(),
+                'module': moduleId
+              }));
+
+            }
+          });
+          });
+
+
+
+
+
+
+
+          lh_socket.onopen = function () {
+              console.log("Connected to history socket");
+
+
+          };
+          lh_socket.onclose = function () {
+              console.log("Disconnected from history socket");
+
+          }
+      });
+
+
+    </script>
+{% endblock %}

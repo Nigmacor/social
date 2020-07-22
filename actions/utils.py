@@ -1,7 +1,9 @@
 import datetime
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
+
 from .models import Action
+
 
 def create_action(user, verb, target=None, type='common'):
 # Поиск похожего действия, совершенного за последнюю минуту.

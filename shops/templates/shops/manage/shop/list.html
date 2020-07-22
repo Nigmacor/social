@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Мои Магазины{% endblock %}
+
+{% block content %}
+  <h1>Мои Магазины</h1>
+  <div class="mine-shop">
+    {% for shop in object_list %}
+      <div class="mine-shop-info">
+        <h3>{{ shop.name }}</h3>
+        <p>
+          <a href="{% url "shop_edit" shop.id %}">Редактировать</a>
+          <a href="{% url "shop_delete" shop.id %}">Удалить</a>
+          <a href="{% url "shop_product_update" shop.id %}">Редактировать товары</a>
+          {% if shop.product.count > 0 %}
+            <a href="{% url "product_content_list" shop.product.first.service_type.id %}">
+              Управление контентом
+            </a>
+          {% endif %}
+        </p>
+      </div>
+      {% empty %}
+      <p>У Вас пока нет магазинов</p>
+    {% endfor %}
+    <p>
+      <a href="{% url "shop_create" %}" class="button">Открыть магазин</a>
+    </p>
+  </div>
+{% endblock %}

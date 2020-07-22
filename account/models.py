@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
+from chat.models import Room
+
 # Create your models here.
 
 class Profile(models.Model):
@@ -13,6 +15,20 @@ class Profile(models.Model):
     def __str__(self):
         return 'Profile for user {}'.format(self.user.username)
 
+# class Dialogs(models.Model):
+#     profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='dialogs_list')
+#     dialogs = models.ManyToManyField(Profile, through='RoomList')
+
+# RoomList
+class Dialogs(models.Model):
+    user_from = models.ForeignKey(Profile,
+                                  related_name='dialogs_from_profile',
+                                  on_delete=models.CASCADE)
+    user_to = models.ForeignKey(Profile, related_name='dialogs_to_profile',
+                                on_delete=models.CASCADE)
+    room = models.ForeignKey(Room,
+                             related_name='dialogs',
+                             on_delete=models.CASCADE)
 
 class Profession(models.Model):
     title = models.CharField(max_length=200)
@@ -20,6 +36,16 @@ class Profession(models.Model):
     url = models.URLField()
     description = models.TextField(blank=True)
 
+    @property
+    def group_name(self):
+        """
+        Возвращает имя группы каналов, на которое должны быть подписаны сокеты, чтобы получать сообщения
+        сообщения, как они генерируются.
+        """
+        return 'profession-{}'.format(self.id)
+
+    def __str__(self):
+        return self.title
 
 class ProfileToProfession(models.Model):
     worker = models.ForeignKey(Profile, related_name='rel_to_profession',

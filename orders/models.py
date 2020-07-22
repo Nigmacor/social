@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from coupons.models import Coupon
-from shops.models import Shop, Product
+from shops.models import Shop, ServiceType
 # Create your models here.
 
 class Order(models.Model):
@@ -49,7 +49,7 @@ class OrderItem(models.Model):
     shop = models.ForeignKey(Shop,
                              related_name='orders',
                              on_delete=models.CASCADE)
-    product = models.ForeignKey(Product,
+    product = models.ForeignKey(ServiceType,
                                 related_name='order_items',
                                 on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
