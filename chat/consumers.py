@@ -211,42 +211,38 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 database_sync_to_async(self.save_messages(room, save_frame, mes_in_frame))
 
     def save_messages(self, room, messages, num_of_mes):
-        previous_pack = r.get('room:{}:previous_pack'.format(room.id))
+        last_pack = r.get('room:{}:last_pack'.format(room.id))
         try:
-            previous = ChatMessagePack.objects.get(pk=previous_pack)
+            previous = ChatMessagePack.objects.get(pk=last_pack)
             m = ChatMessagePack(chat=room, pack=messages, previous=previous)
         except:
             m = ChatMessagePack(chat=room, pack=messages)
         m.save()
         r.ltrim('room:{}'.format(room.id), num_of_mes, -1)
-        r.set('room:{}:previous_pack'.format(room.id), m.id)
+        r.set('room:{}:last_pack'.format(room.id), m.id)
 
 class LoadhistoryConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         await self.accept()
 
     async def receive_json(self, content):
-        room = await get_room_or_error(content['room'], self.scope["user"])
-        chat_queryset = room.messages.filter(id__lte=content['last_message_id']).order_by('-created')[:10]
-        chat_message_count = len(chat_queryset)
-        if chat_message_count > 0:
-            first_message_id = chat_queryset[chat_message_count - 1].id
-        else:
-            first_message_id = -1
-            privious_id = -1
-        if first_message_id != -1:
+        privious_id = int(content['last_message_id'])
+        if privious_id != -1:
+            messages = []
             try:
-                privious_id = ChatMessage.objects.filter(pk__lt=first_message_id).order_by('-pk')[:1][0].id
-            except IndexError:
-                privious_id = -1
-            # chat_messages = reversed(chat_queryset)
-            cleaned_chat_message = list()
-            for item in chat_queryset:
-                cleaned_item = {'username': item.user.username,
-                                'message': item.message,
-                                'created': item.created.strftime('%d.%m.%Y %H:%M'),
-                                }
-                cleaned_chat_message.append(cleaned_item)
-            await self.send_json({'messages': cleaned_chat_message, 'privious_id': privious_id})
+                messages_pack = ChatMessagePack.objects.get(pk=privious_id)
+                messages_in_p = messages_pack.pack.split(';\n')
+                for m in messages_in_p:
+                    message = json.loads(m)
+                    messages.insert(0, message)
+            except:
+                pass
+
+            try:
+                privious_pack_id = messages_pack.previous.id
+            except:
+                privious_pack_id = -1
+            await self.send_json({'messages': messages, 'privious_id': privious_pack_id})
+
     async def disconnect(self, code):
         pass

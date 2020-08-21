@@ -20,8 +20,9 @@
           {% endfor %}
         </div>
         <form id="chat-form">
+            {{form.file}}
           <div class='input-group mb-3'>
-            {{form}}
+            {{form.chat}}
             <div class='input-group-append'>
               <button type='submit' class='btn btn-outline-secondary' id='button-addon2'>&ensp;<i class='fa fa-angle-double-right'>&ensp;</i></button>
             </div>
