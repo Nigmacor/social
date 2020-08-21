@@ -67,10 +67,22 @@ class ServiceType(models.Model):
     def get_type_obj(self):
         try:
             return self.product
-        except:
+        except ServiceType.DoesNotExist:
             return self.service
+        except:
+            print('bag')
+
     def __str__(self):
-        return self.get_type_obj().title
+        try:
+            return self.product.title
+        except:
+            pass
+        try:
+            return self.service.title
+        except:
+            pass
+        return 'Нет ссылки на товар id:{}'.format(self.id)
+
 
 class AbstractService(models.Model):
     category = models.ForeignKey(Category, related_name='%(class)s', on_delete=models.CASCADE)

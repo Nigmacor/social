@@ -26,43 +26,27 @@ def index(request, room_id):
         room = Room.objects.get(pk=room_id, members=request.user)
     except:
         raise Http404
-    chat_queryset = room.messages.order_by('-created')[:10]
-    chat_message_count = len(chat_queryset)
-    if chat_message_count > 0:
-        first_message_id = chat_queryset[chat_message_count - 1].id
-    else:
-        first_message_id = -1
-        privious_id = -1
-        chat_messages = []
-    if first_message_id != -1:
-        try:
-            privious_id = ChatMessage.objects.filter(pk__lt=first_message_id).order_by('-pk')[:1][0].id
-        except IndexError:
-            privious_id = -1
-        chat_messages = reversed(chat_queryset)
     # другой вариант
-    previous_pack = r.get('room:{}:previous_pack'.format(room.id))
-    print('***********')
+    last_pack = r.get('room:{}:last_pack'.format(room.id))
     messages = []
     try:
-        messages_pack = ChatMessagePack.objects.get(pk=previous_pack)
+        messages_pack = ChatMessagePack.objects.get(pk=last_pack)
         messages_in_p = messages_pack.pack.split(';\n')
         for m in messages_in_p:
             message = json.loads(m)
             messages.append(message)
-        print(messages)
-        print('***********')
-        print(messages[0]['message'])
     except:
         print('passsssssssssssssssssss')
 
-
+    try:
+        privious_pack_id = messages_pack.previous.id
+    except:
+        privious_pack_id = -1
 
     return render(request, "chat/index.html", {
         "rooms": room,
         "messages": messages,
-        "privious_id": privious_id,
-        "first_message_id": first_message_id,
+        "privious_id": privious_pack_id,
         'user': request.user,
         'form': form,
         'section': 'messages',
