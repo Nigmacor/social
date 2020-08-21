@@ -13,7 +13,7 @@ from django.http import Http404
 import redis
 from braces.views import JsonRequestResponseMixin
 
-from .models import Category, Shop, Product, Service, ProductContent, ServiceType
+from .models import Category, Shop, Product, Service, ProductContent, ServiceType, Slider, Slide
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
@@ -29,6 +29,8 @@ def shop(request, category_slug=None):
 	products = Product.objects.filter(available=True)
 	services = Service.objects.filter(available=True)
 	cart_product_form = CartAddProductForm()
+	slider = Slider.objects.filter(main=True).first()
+	slides = Slide.objects.filter(slider=slider)
 	if category_slug:
 		category = get_object_or_404(Category, slug=category_slug)
 		cats = category.get_leafnodes(include_self=True)
@@ -46,6 +48,7 @@ def shop(request, category_slug=None):
 		'category': category,
 		'categories': categories,
 		'cart_product_form': cart_product_form,
+		'slider': slides,
 		})
 
 def product_detail(request, id, slug):

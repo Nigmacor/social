@@ -29,12 +29,15 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    '18.130.227.105'
 ]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django_gulp',
+    'django_sass',
     'account.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -53,7 +56,7 @@ INSTALLED_APPS = [
     'coupons.apps.CouponsConfig',
     'projects.apps.ProjectsConfig',
     'channels',
-    'chat',
+    'chat',    
 ]
 
 MIDDLEWARE = [
@@ -136,7 +139,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = '/static/'
+
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'

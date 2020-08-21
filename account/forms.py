@@ -7,8 +7,12 @@ from .models import Profile
 #     password = forms.CharField(widget=forms.PasswordInput)
 
 class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
+    password = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Пароль'}))
+    password2 = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Повторите пароль'}))
+    username = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Логин'}))
+    first_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Имя'}))
+    email = forms.EmailField(label='', widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
+
     class Meta:
         model = User
         fields = ('username', 'first_name', 'email')
