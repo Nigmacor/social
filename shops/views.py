@@ -25,7 +25,7 @@ r = redis.StrictRedis(host=settings.REDIS_HOST,
 
 def shop(request, category_slug=None):
 	category = None
-	categories = Category.objects.all()
+	categories = Category.objects.filter(parent=None)
 	products = Product.objects.filter(available=True)
 	services = Service.objects.filter(available=True)
 	cart_product_form = CartAddProductForm()
@@ -34,12 +34,14 @@ def shop(request, category_slug=None):
 	if category_slug:
 		category = get_object_or_404(Category, slug=category_slug)
 		cats = category.get_leafnodes(include_self=True)
+		categories = cats
+		print(category)
 		products = products.filter(
-			category__in=[cat for cat in category.get_leafnodes(include_self=True)],
+			category__in=[cat for cat in cats],
 			available=True
 			)
 		services = services.filter(
-			category__in=[cat for cat in category.get_leafnodes(include_self=True)],
+			category__in=[cat for cat in cats],
 			available=True
 			)
 	return render(request, 'shops/shop/shop.html', context={

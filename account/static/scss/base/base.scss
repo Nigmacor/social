@@ -51,49 +51,6 @@ ol {
     line-height:1.5;
 }
 
-#header {
-    padding:10px 100px;
-    font-size:14px;
-    color:$dark-color;    
-    overflow:auto;
-}
-
-#header .logo {
-    font-family: $font-family;
-    float:left;
-    color:$dark-color;
-    font-weight: bold;
-    font-size: 24px;
-    margin-right:10%;
-}
-
-#header ul.menu {
-    list-style:none;
-    float:left;
-    margin:0;
-    padding:0;
-}
-#header ul.menu li {
-    float:left;
-    padding:4px 10px;
-}
-
-#header ul.menu li.selected a, #header ul.menu li.selected a:hover {
-    color:darken($color: $main-color, $amount: 5);
-    font-weight:bold;
-}
-
-#header a {
-    color:$dark-color
-}
-#header a:hover {
-    color:darken($color: $main-color, $amount: 5);
-}
-
-#header .user {
-    float:right;
-    padding-top:4px;
-}
 
 #content {
     padding:30px 0;
@@ -130,7 +87,6 @@ ol {
             li {
                 margin:0;
                 list-style:none;
-                padding:10px 14px 10px 56px;
                 background: $secondary-color;    
                        
                 a {
@@ -138,7 +94,8 @@ ol {
                     color: $dark-color;    
                     font-weight: 500;
                     font-size: 14px;
-                    line-height: 17px;            
+                    line-height: 17px;  
+                    padding: 10px 14px 10px 56px;          
                 }
     
                 &:hover{
@@ -536,127 +493,88 @@ form div.field {
     border-radius:4px;
 }
 
-footer{
-    color: $light-color;
-    background: $dark-color;
-    padding: 90px 0 20px 0;
-    .container{
-        max-width: 1140px;
-    }
-    .footer{          
-        &__info{
-            display: flex;
-            >div{
-                margin-right: 30px;
-            }
-            h4{
-                font-weight: bold;
-                font-size: 16px;
-                line-height: 23px;  
-                color: $light-color;
-                margin-bottom: 1px;
-            }
-            a{
-                font-family: $font-family-secondary;                
-                font-size: 14px;
-                line-height: 20px;
-                color: $grey-color;
-                display: block;
-                margin-bottom: 1px;
-
-            }
-        }
-        &__bottom{
-            display: flex;
-            align-items: center;
-            margin-top: 37px;
-            padding-right: 15px;
-            padding-left: 15px;
-            &-copyright{
-                font-weight: 600;
-                font-size: 14px;
-                line-height: 20px;
-            }
-            a{                
-                font-size: 14px;
-                line-height: 20px;
-                color: $grey-color;
-                font-family: $font-family-secondary;
-            }
-            span, a{
-                margin-right: 30px;
-            }
+.products{
+    &__container{
+        margin-top: 40px;
+        width: 100%;
+        h3{
+            font-weight: bold;
+            font-size: 26px;
+            line-height: 32px; 
+            color: $dark-color;    
+            position: relative;
+            margin: auto;
+            margin-bottom: 40px;
+            width: 250px;
+            &:after {
+                content: '';
+                position: absolute;
+                bottom: 0; left: 0; 
+                height: 3px;
+                width: 100%;
+                z-index: 1;
+                margin: -5px; /* !importanté */
+                border-radius: 1px; /* !importanté */
+                background: linear-gradient(90deg, #145C08 0%, #6BA371 100%);
+              }
         }
 
-        &__subscription{
-            float: right;
-            &-label{
-                display: flex;
-                font-weight: bold;
-                font-size: 14px;
-                line-height: 12px;
-                margin-bottom: 21px;
-                align-items: center;
-
-                img{
-                    height: 18px;
-                    width: 22px;
-                }
-                
-                span{
-                    margin-left: 23px;
-                    max-width: 280px;
-                }
-            }
-
-            &-email{
-                background: $grey-color;
+        .card{
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            border: none;
+            &-img-top{
                 border-radius: 5px;
-                width: 350px;
-                height: 50px;
-                display: flex;
-                input{
-                    background: $grey-color;
-                    height: 100%;
-                    width: 190px;
-                    border-radius: 5px;
-                    outline: none;
-                }
-                button{
-                    height: 100%;
-                    width: 160px;
-                    border-radius: 5px;
-                    background: $main-color;
-                    font-weight: bold;
-                    font-size: 14px;
-                    line-height: 11px;                    
-                    text-align: center;
-                    color: $light-color;
-                    border: none;
-                    outline: none;
-                }
+            }
+            &-title{
+                font-weight: 500;
+                font-size: 18px;
+                line-height: 22px;  
+                color: #000000;
             }
 
-            &-agree{
-                margin-top: 14px;
-                font-family: $font-family-secondary;                
-                font-size: 12px;
-                line-height: 12px;                
-                display: flex;
-                align-items: center;
-                color: $light-color;
-
-                input{
-                    margin: 0 10px 0 0;
-                    width: 20px;
-                    height: 20px;
+            &-desc{
+                font-size: 14px;
+                line-height: 17px;                
+                color: #000000;
+            }
+            &-footer{
+                background-color: transparent;
+                border: none;
+                padding-top: 1.25rem;
+                #id_quantity{
+                    display: none;
                 }
-
-                span{
-                    max-width: 280px;
+                .card-price{
+                    width: 73px;
+                    height: 30px; 
+                    background: $main-color;
+                    border-radius: 5px;
+                    color: $light-color;
+                    text-align: center;
+                    padding: 4px 0 0 0;
+                }
+                .card-buttons{
+                    display: flex;
+                    margin-top: 13px;
+                }
+                .cart_btn, .favorites_btn{
+                    width: 30px;
+                    height: 30px; 
+                    background: $main-color;
+                    border-radius: 5px;
+                    padding: 0 0 0 2px ;
+                    overflow: hidden;
+                    margin-right: 13px;
+                }
+                .favorites_btn{
+                    padding: 0;
                 }
             }
         }
+
+        
     }
-    
 }
+
