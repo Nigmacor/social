@@ -1,7 +1,7 @@
 import redis
 from django.conf import settings
 
-from .models import Product
+from .models import ServiceType
 
 #подключаю redis и определяю REDIS_DB = 1 для обработки рекомендаций
 REDIS_DB = 1
@@ -44,10 +44,10 @@ class Recommender(object):
         else:
             return None
         suggested_products_ids = [int(id) for id in suggestions]
-        suggested_products = list(Product.objects.filter(id__in=suggested_products_ids))
+        suggested_products = list(ServiceType.objects.filter(id__in=suggested_products_ids))
         suggested_products.sort(key=lambda x: suggested_products_ids.index(x.id))
         return suggested_products
 
     def clear_purchases(self):
-        for id in Product.objects.values_list('id', flat=True):
+        for id in ServiceType.objects.values_list('id', flat=True):
             r.delete(self.get_product_key(id))
