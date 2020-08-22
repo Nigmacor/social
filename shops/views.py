@@ -31,13 +31,13 @@ def shop(request, category_slug=None):
 	cart_product_form = CartAddProductForm()
 	if category_slug:
 		category = get_object_or_404(Category, slug=category_slug)
-		cats = category.get_leafnodes(include_self=True)
+		cats = category.get_descendants(include_self=True)
 		products = products.filter(
-			category__in=[cat for cat in category.get_leafnodes(include_self=True)],
+			category__in=[cat for cat in cats],
 			available=True
 			)
 		services = services.filter(
-			category__in=[cat for cat in category.get_leafnodes(include_self=True)],
+			category__in=[cat for cat in cats],
 			available=True
 			)
 	return render(request, 'shops/shop/shop.html', context={
