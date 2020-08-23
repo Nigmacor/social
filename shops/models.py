@@ -67,9 +67,9 @@ class ServiceType(models.Model):
     def get_type_obj(self):
         try:
             return self.product
-        except ServiceType.DoesNotExist:
-            return self.service
         except:
+            return self.service
+        else:
             print('bag')
 
     def __str__(self):
