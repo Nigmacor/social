@@ -8,7 +8,8 @@
 
 
 {% block content %}
-  <h1>Ваша корзина</h1>
+<div class="col-sm-12">
+  <h1>Корзина</h1>
   <table class="cart">
     <thead>
       <tr>
@@ -75,19 +76,23 @@
       <h3>С этим часто покупают</h3>
       {% for p in recommended_products %}
         <div class="item">
-          <a href="{{ p.get_absolute_url }}">
-            <img src="{% if p..service_type.galary %}{{ p.service_type.galary.main_image }}{% else %}
+          <a href="{{ p.get_type_obj.get_absolute_url }}">
+            <img src="{% if p.galary %}{{ p.galary.main_image }}{% else %}
             {% static "img/fiz.png" %}{% endif %}">
           </a>
-          <p><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></p>
+          <p><a href="{{ p.get_type_obj.get_absolute_url }}">{{ p.get_type_obj.title }}</a></p>
         </div>
       {% endfor %}
     </div>
   {% endif %}
   <p>Ввести купон:</p>
   <form action="{% url "coupons:apply" %}" method="post">
-    {{ coupon_apply_form }}
-    <input type="submit" value="Применить">
+    <div class='input-group mb-3'>
+      {{ coupon_apply_form }}
+      <div class='input-group-append'>
+        <input type="submit" value="Применить">
+      </div>
+    </div>
     {% csrf_token %}
   </form>
   <p class="text-right">
@@ -96,4 +101,5 @@
       Перейти к оформлению
     </a>
   </p>
+</div>
 {% endblock %}

@@ -7,38 +7,47 @@
 {% endblock %}
 
 {% block content %}
-<div id="sidebar" class="col-sm-3">
-  <div>
-    <img src="../../../static/icons/category.png" alt="">
-    <h3>Категории</h3>
+<div class="col-sm-12 col-xl-3">
+  <div id="sidebar" >
+    <div>
+      <img src="../../../static/icons/category.png" alt="">
+      <h3>Категории</h3>
+    </div>
+    
+    <ul>
+      {% if category %}
+      <li >
+        <a href="{% url "shop" %}">Все категории</a>
+      </li>
+      {%for i in ancestors %}
+        <li><a href="{{ i.get_absolute_url }}" %}">{{i}}</a></li>
+      {%endfor%}
+      <li class="selected">
+        <a href="{% url "shop" %}">{{category}}</a>
+      </li>    
+      
+      </li>
+      {% endif %}
+      {% recursetree categories %}
+          <li{% if node.slug == category.slug %} class="selected" {% endif %}>
+              <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
+              
+          </li>
+      {% endrecursetree %}
+    </ul>
   </div>
-  
-  <ul>
-    <li {% if not category %}class="selected"{% endif %}>
-      <a href="{% url "shop" %}">Все</a>
-    </li>
-    {% recursetree categories %}
-        <li{% if node.slug == category.slug %} class="selected" {% endif %}>
-            <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
-            <!-- {% if not node.is_leaf_node %}
-                <ul class="children">
-                    <a href="{{ children.get_absolute_url }}">{{ children }}</a>
-                </ul>
-            {% endif %} -->
-        </li>
-    {% endrecursetree %}
-  </ul>
 </div>
 <!-- <h1>{% if category %}{{ category.name }}{% else %}Продукты{% endif %}</h1> -->
 
-  
-    <div class="main_slider col-sm-9" data-selector="main-slider">
+  <div class="col-sm-12 col-xl-9">
+    <div class="main_slider" data-selector="main-slider">
       {% for slide in slider %}
         <div class="main_slider__item" style="background: no-repeat center/cover url({{slide.image.url}})"></div>     
         <!-- <div class="main_slider__item" style="background: no-repeat center/cover url(../../../static/img/fiz.png)"></div>    -->
         {% endfor %}  
     </div> 
-
+  </div>
+  <div class="col-sm-12">
     <div class="products__container">
       <h3>Товары и услуги</h3>   
       {% for product in products_list %}
@@ -56,7 +65,7 @@
             </div>
             <div class="card-footer">
               <div>
-                <div class="card-price">{{product.price}} ₽</div>
+                <div class="card-price">{{product.price|floatformat:"0" }} ₽</div>
                   <div class="card-buttons">
                     <button type="submit" name="submit_btn" class="btn favorites_btn submit_btn" >
                       <img src="../../../static/icons/favorites.png" alt="">
@@ -89,6 +98,7 @@
         </a>
       {% endfor %}   
     </div>
+  </div>
 {% endblock %}
 
 

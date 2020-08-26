@@ -12,5 +12,5 @@ $secondary-color: #D5F9D9;
 $grey-color: #C4C4C4;
 $light-color: white;
 $dark-color: #001A34;
-$link-color: $main-color;
-$link-hover-color: $secondary-color;
+$link-color: $dark-color;
+$link-hover-color: darken($link-color, 5)

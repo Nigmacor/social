@@ -90,7 +90,7 @@ class AbstractService(models.Model):
     title = models.CharField(max_length=50, db_index=True, verbose_name='название')
     service_type = models.OneToOneField(ServiceType, blank=True, on_delete=models.CASCADE)
     slug = models.SlugField(max_length=150, blank=True, unique=True)
-    short_description = models.CharField(max_length=200, blank=True)
+    short_description = models.CharField(max_length=500, blank=True)
     description  = models.TextField(blank=True)
     information = models.TextField(blank=True)
     available = models.BooleanField(default=True, verbose_name='Доступно')
@@ -109,7 +109,7 @@ class AbstractService(models.Model):
 
 
 class Product(AbstractService):
-    price = models.DecimalField(max_digits=10, decimal_places=0, verbose_name='Цена')
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     county = models.PositiveIntegerField(verbose_name='Количество на складе')
 
     class Meta:

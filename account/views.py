@@ -64,7 +64,7 @@ def add_profession(request):
                 ProfileToProfession.objects.get_or_create(worker=request.user.profile,
                                                           profession=profession)
             else:
-                messages.info(request, 'У вас уже указанна эта профессия')
+                messages.info(request, 'У вас уже указана эта профессия')
             return JsonResponse({'status':'ok'})
         except Profession.DoesNotExist:
             return JsonResponse({'status':'ok'})
