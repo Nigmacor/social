@@ -9,3 +9,5 @@ package-lock.json
 .vscode/
 
 media/cache/
+
+db.sqlite3
