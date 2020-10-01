@@ -3,7 +3,7 @@
 {% load mptt_tags %}
 
 {% block title %}
-{% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% if category %}{{ category.name }}{% else %}Товары{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -17,10 +17,10 @@
     <ul>
       {% if category %}
       <li >
-        <a href="{% url "shop" %}">Все категории</a>
+        <a href="{% url "shop" %}">< Все категории</a>
       </li>
       {%for i in ancestors %}
-        <li><a href="{{ i.get_absolute_url }}" %}">{{i}}</a></li>
+        <li><a href="{{ i.get_absolute_url }}" %}">< {{i}}</a></li>
       {%endfor%}
       <li class="selected">
         <a href="{% url "shop" %}">{{category}}</a>
@@ -74,10 +74,17 @@
                       {{ cart_product_form.quantity }}
                       {{ cart_product_form.update }}
                       <input name="product_id" type="hidden" value="{{ product.service_type.id }}" >
-                      {% csrf_token %}
-                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
-                        <img src="../../../static/icons/cart.png" alt="">
-                      </button>
+                      {% csrf_token %}     
+                      {% if product.service_type.id|stringformat:"i" in cart.product_ids %}
+                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
+                          
+                        </button>
+                      {%else%} 
+                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
+                          <img src="../../../static/icons/cart.png" alt="">
+                        </button>
+                      {%endif%}                                     
+                      
                     </form>
                   </div>              
               </div>
@@ -142,7 +149,18 @@ $('[data-selector="main-slider"]').slick();
       data: data,
       cache: true,
       success: function (data) {
-        console.log('OK');
+        let count = 0;
+        if (parseInt($(".badge_cart").text()) == 0){
+           count =  0;
+           $(".badge_cart").toggleClass('d-none');
+        } else {
+          count = parseInt($(".badge_cart").text());
+        }
+        
+        
+        count++;
+        console.log(count)
+        $(".badge_cart").text(count);        
       },
       error: function () {
         console.log('error');

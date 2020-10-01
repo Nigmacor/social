@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Bookmark an image{% endblock %}
+{% block title %}Добавление изображения{% endblock %}
 {% block content %}
-  <h1>Bookmark an image</h1>
+<div class="col-12"> 
+  <h1>Добавление изображения</h1>
   <img src="{{ request.GET.url }}" class="image-preview">
   <form action="." method="post" class="create">
     {{ form.as_p }}
@@ -11,4 +12,5 @@
 {% endblock %}
 
 {% block domready %}
+</div>
 {% endblock %}

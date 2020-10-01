@@ -2,7 +2,7 @@ import braintree
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-import weasyprint
+# import weasyprint
 
 from orders.models import Order
 from orders.utils import get_order_pdf

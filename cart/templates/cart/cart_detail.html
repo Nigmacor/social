@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-<link href="{% static "css/base.css" %}" rel="stylesheet">
 
 {% block title %}
   Корзина
@@ -10,67 +9,82 @@
 {% block content %}
 <div class="col-sm-12">
   <h1>Корзина</h1>
-  <table class="cart">
-    <thead>
-      <tr>
-        <th>Изображение</th>
-        <th>Продукт</th>
-        <th>Количество</th>
-        <th>Удалить</th>
-        <th>Стоимость единицы</th>
-        <th>Всего</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in cart %}
-        {% with product=item.product.get_type_obj %}
-          <tr>
-            <td>
-              <a href="{{ product.get_absolute_url }}">
-                <img src="{% if product.service_type.galary.images %}{{ product.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %}">
-              </a>
-            </td>
-            <td>{{ product.title }}</td>
-            <td>
-              <form action="{% url "cart:cart_add" item.product.id %}" method="post">
-                {{ item.update_quantity_form.quantity }}
-                {{ item.update_quantity_form.update }}
-                <input type="submit" value="Обновить">
-                {% csrf_token %}
-              </form>
-            </td>
-            <td><a href="{% url "cart:cart_remove" item.product.id%}">Удалить</a></td>
-            <td class="num">{{ item.price }}руб.</td>
-            <td class="num">{{ item.total_price }}руб.</td>
-          </tr>
-        {% endwith %}
-      {% endfor %}
-      {% if cart.coupon %}
-        <tr class="subtotal">
-          <td>Всего</td>
-          <td colspan="4"></td>
-          <td class="num">{{ cart.get_total_price|floatformat:"2" }} руб.</td>
-        </tr>
-        <tr>
-          <td>
-            "{{ cart.coupon.code }}" купон
-            ({{ cart.coupon.discount }}% Скидка)
-          </td>
-          <td colspan="4"></td>
-          <td class="num neg">
-            - {{ cart.get_discount|floatformat:"2" }} руб.
-          </td>
-        </tr>
-      {% endif %}
-      <tr class="total">
-        <td>Итого</td>
-        <td colspan="4"></td>
-        <td class="num">
-          {{ cart.get_total_price_after_discount|floatformat:"2" }} руб.
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="cart">  
+    <div class="row">
+      <div class="col-sm-8">
+        {% if cart|length == 0 %}
+        <div>Корзина пуста</div>
+        {% endif %}
+        {% for item in cart %}
+          {% with product=item.product.get_type_obj %}   
+            <div class="row cart_item">    
+              <div class="col-sm-2">
+                <a href="{{ product.get_absolute_url }}">
+                  <img src="{% if product.service_type.galary.images %}{{ product.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %}">
+                </a>
+              </div>
+              <div class="col-sm-6">
+                <div>{{ product.title }}</div>
+                <a href="#" class="cart_controls">В избранное</a> | 
+                <a href="{% url "cart:cart_remove" item.product.id%}" class="cart_controls">Удалить</a>
+              </div>
+              <div class="col-sm-2">
+                <form action="{% url "cart:cart_add" item.product.id %}" id="id-{{item.product.id}}" method="post">
+                  {{ item.update_quantity_form.quantity }}
+                  {{ item.update_quantity_form.update }}
+                  <!-- <input type="submit" value="Обновить"> -->
+                  {% csrf_token %}
+                </form>
+              </div>
+              <!-- <div class="col-sm-2 num" >{{ item.price }}₽</div> -->
+              <div class="col-sm-2 num">{{ item.total_price }} ₽</td>
+            </div>
+          </div>       
+          {% endwith %}
+        {% endfor %}      
+      </div>
+      <div class="col-sm-4">        
+        <p>Ввести купон:</p>
+        <form action="{% url "coupons:apply" %}" method="post">
+          <div class='input-group mb-3'>
+            {{ coupon_apply_form }}
+            <div class='input-group-append'>
+              <input type="submit" value="Применить">
+            </div>
+          </div>
+          {% csrf_token %}
+        </form>
+
+        {% if cart.coupon %}
+          <div class="subtotal cart_info">
+            <div>Всего</div>           
+            <div class="num cart_num">{{ cart.get_total_price|floatformat:"2" }} ₽</div>
+          </div>
+          <div class="cart_info">
+            <div>
+              Купон {{ cart.coupon.code }}             
+            </div>           
+            <div class="num neg cart_num">
+              - {{ cart.get_discount|floatformat:"2" }} ₽
+            </div>
+          </div>
+        {% endif %}
+        <div class="total cart_info ">
+          <div>К оплате</div>         
+          <div class="num cart_num">
+            {{ cart.get_total_price_after_discount|floatformat:"2" }} ₽
+          </div>
+        </div>
+        
+          <!-- <a href="{% url "shop" %}" class="button light">Продолжить покупки</a> -->
+          <div class="buy_continue_button">
+            <a href="{% url "orders:order_create" %}" class="button">
+              Перейти к оформлению
+            </a>
+          </div>
+       
+      </div>
+    </div>
   {% if recommended_products %}
     <div class="recommendations cart">
       <h3>С этим часто покупают</h3>
@@ -85,21 +99,17 @@
       {% endfor %}
     </div>
   {% endif %}
-  <p>Ввести купон:</p>
-  <form action="{% url "coupons:apply" %}" method="post">
-    <div class='input-group mb-3'>
-      {{ coupon_apply_form }}
-      <div class='input-group-append'>
-        <input type="submit" value="Применить">
-      </div>
-    </div>
-    {% csrf_token %}
-  </form>
-  <p class="text-right">
-    <a href="{% url "shop" %}" class="button light">Продолжить покупки</a>
-    <a href="{% url "orders:order_create" %}" class="button">
-      Перейти к оформлению
-    </a>
-  </p>
+</div>
 </div>
 {% endblock %}
+
+{% block extra_body %}
+<script>
+  $( ".quantitySelect" ).change(function() {   
+    console.log(this.value)
+    $(this).parent().submit();
+  });
+
+</script>
+{% endblock %}
+

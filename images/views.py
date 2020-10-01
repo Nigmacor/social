@@ -29,8 +29,8 @@ def image_create(request):
             new_item.user = request.user
             new_item.save()
             #добавляем новость в ленту
-            create_action(request.user, 'добавленно изображение', new_item)
-            messages.success(request, 'Изображение успешно добавленно')
+            create_action(request.user, 'добавлено изображение', new_item)
+            messages.success(request, 'Изображение успешно добавлено')
             return redirect(new_item)
     else:
         form = ImageCreateForm(data=request.GET)

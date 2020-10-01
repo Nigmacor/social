@@ -9,6 +9,7 @@ urlpatterns = [
 # Определенные ранее обработчики.
     # здесь прописаны все Url к шаблонам templates\registration
     path('', views.dashboard, name='dashboard'),
+    path('notifications/', views.notifications, name='notifications'),
     path('in/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
     path('edit/', views.edit, name='edit'),

@@ -8,14 +8,22 @@ class Cart(object):
 
     def __init__(self, request):
         """инициализирую корзину"""
+        
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
             #создаю корзину, если ее нет
             cart = self.session[settings.CART_SESSION_ID] = {}
+
+        # ids = self.session.get('product_ids')
+        # print(request.session['product_ids'])
+        # if not ids:
+        #     request.session['product_ids'] = list()
+        #     self.session = request.session
         self.cart = cart
         # Сохраняю купон.
         self.coupon_id = self.session.get('coupon_id')
+        self.product_ids = list(self.cart.keys())
 
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
@@ -30,6 +38,8 @@ class Cart(object):
         products = ServiceType.objects.filter(id__in=product_ids)
         for product in products:
             self.cart[str(product.id)]['product'] = product
+            
+
 
         for item in self.cart.values():
             item['price'] = Decimal(item['product'].get_type_obj().price)
@@ -46,6 +56,7 @@ class Cart(object):
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
+
         self.save()
 
 
