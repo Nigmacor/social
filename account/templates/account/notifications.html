@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Уведомления{% endblock %}
+{% block content %}
+<div class="col-12">
+  <h1>Уведомления</h1> 
+  <div id="action-list">
+    {% for action in actions %}
+      {% include "actions/action/detail.html" %}
+    {% endfor %}
+  </div>  
+  <div id="action-list">
+    {% for action in work_actions %}
+      {% include "actions/action/detail.html" %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

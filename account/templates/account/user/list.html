@@ -2,13 +2,13 @@
 {% load thumbnail %}
 {% block title %}People{% endblock %}
 {% block content %}
-  <h1>People</h1>
+  <h1>Контакты</h1>
   <div id="people-list">
     {% for user in users %}
       <div class="user">
         <a href="{% url 'user_detail' user.id %}">
           {% thumbnail user.profile.photo "180x180" format="PNG" crop="100%" as im %}
-            <img src="{{ im.url }}">
+            <img src="{{ im.url  }}">
           {% endthumbnail %}
         </a>
         <div class="info">

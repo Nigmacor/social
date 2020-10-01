@@ -47,12 +47,12 @@ def cart_detail(request):
     for item in cart:
         item['update_quantity_form'] = CartAddProductForm(
                                         initial={'quantity': item['quantity'],
-                                        'update': True})
+                                        'update': True}, auto_id=False)
     coupon_apply_form = CouponApplyForm()
-    rec = Recommender()
+    rec = Recommender()    
     cart_products = [item['product'] for item in cart]
     recommended_products = rec.suggest_products_for(cart_products, max_result=4)
     return render(request, 'cart/cart_detail.html',
                   {'cart': cart,
                    'coupon_apply_form': coupon_apply_form,
-                   'recommended_products': recommended_products})
+                   'recommended_products': recommended_products,})

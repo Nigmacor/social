@@ -90,7 +90,7 @@ class AbstractService(models.Model):
     title = models.CharField(max_length=50, db_index=True, verbose_name='название')
     service_type = models.OneToOneField(ServiceType, blank=True, on_delete=models.CASCADE)
     slug = models.SlugField(max_length=150, blank=True, unique=True)
-    short_description = models.CharField(max_length=200, blank=True)
+    short_description = models.CharField(max_length=500, blank=True)
     description  = models.TextField(blank=True)
     information = models.TextField(blank=True)
     available = models.BooleanField(default=True, verbose_name='Доступно')
@@ -207,6 +207,21 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return self.owner.username
+class Slider(models.Model):
+    title = models.CharField(max_length=120)
+    main = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+class Slide(models.Model):
+    title = models.CharField(max_length=120)
+    slider = models.ForeignKey(Slider, related_name='slides', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='slider/images/%Y/%m/%d/')
+    
+    def __str__(self):
+        return self.title
+
 '''
 1) можно сделать один абстрактный класс из него наследовать Product и Service
 2) переделать галереи и картинки на ContentType

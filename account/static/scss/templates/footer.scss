@@ -1,0 +1,124 @@
+footer{
+    color: $light-color;
+    background: $dark-color;
+    padding: 90px 0 20px 0;
+    .container{
+        max-width: 1140px;
+    }
+    .footer{          
+        &__info{
+            display: flex;
+            >div{
+                margin-right: 30px;
+            }
+            h4{
+                font-weight: bold;
+                font-size: 16px;
+                line-height: 23px;  
+                color: $light-color;
+                margin-bottom: 1px;
+            }
+            a{
+                font-family: $font-family-secondary;                
+                font-size: 14px;
+                line-height: 20px;
+                color: $grey-color;
+                display: block;
+                margin-bottom: 1px;
+
+            }
+        }
+        &__bottom{
+            display: flex;
+            align-items: center;
+            margin-top: 37px;
+            padding-right: 15px;
+            padding-left: 15px;
+            &-copyright{
+                font-weight: 600;
+                font-size: 14px;
+                line-height: 20px;
+            }
+            a{                
+                font-size: 14px;
+                line-height: 20px;
+                color: $grey-color;
+                font-family: $font-family-secondary;
+            }
+            span, a{
+                margin-right: 30px;
+            }
+        }
+
+        &__subscription{
+            float: right;
+            &-label{
+                display: flex;
+                font-weight: bold;
+                font-size: 14px;
+                line-height: 12px;
+                margin-bottom: 21px;
+                align-items: center;
+
+                img{
+                    height: 18px;
+                    width: 22px;
+                }
+                
+                span{
+                    margin-left: 23px;
+                    max-width: 280px;
+                }
+            }
+
+            &-email{
+                background: $grey-color;
+                border-radius: 5px;
+                width: 350px;
+                height: 50px;
+                display: flex;
+                input{
+                    background: $grey-color;
+                    height: 100%;
+                    width: 190px;
+                    border:none;
+                    outline: none;
+                }
+                button{
+                    height: 100%;
+                    width: 160px;
+                    border-radius: 5px;
+                    background: $main-color;
+                    font-weight: bold;
+                    font-size: 14px;
+                    line-height: 11px;                    
+                    text-align: center;
+                    color: $light-color;
+                    border: none;
+                    outline: none;
+                }
+            }
+
+            &-agree{
+                margin-top: 14px;
+                font-family: $font-family-secondary;                
+                font-size: 12px;
+                line-height: 12px;                
+                display: flex;
+                align-items: center;
+                color: $light-color;
+
+                input{
+                    margin: 0 10px 0 0;
+                    width: 20px;
+                    height: 20px;
+                }
+
+                span{
+                    max-width: 280px;
+                }
+            }
+        }
+    }
+    
+}

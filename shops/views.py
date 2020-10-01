@@ -17,7 +17,8 @@ import redis
 from braces.views import JsonRequestResponseMixin
 from common.decorators import ajax_required
 
-from .models import Category, Shop, Product, Service, ProductContent, ServiceType, Wishlist
+from .models import Category, Shop, Product, Service, ProductContent, ServiceType, Slider, Slide, Wishlist
+
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
@@ -28,15 +29,26 @@ r = redis.StrictRedis(host=settings.REDIS_HOST,
 					  db=settings.REDIS_DB)
 
 def shop(request, category_slug=None):
+	
 	category = None
-	categories = Category.objects.all()
+	ancestors = None
+	categories = Category.objects.filter(parent=None)
 	products = Product.objects.filter(available=True)
 	services = Service.objects.filter(available=True)
 	cart_product_form = CartAddProductForm()
-	if category_slug:
+	slider = Slider.objects.filter(main=True).first()
+	slides = Slide.objects.filter(slider=slider)
+	if category_slug:		
 		category = get_object_or_404(Category, slug=category_slug)
+		cats = category.get_descendants()
+		
 		ancestors = list(category.get_ancestors())[:-1]
-		cats = category.get_descendants(include_self=True)
+		
+		categories = category.get_leafnodes(include_self=False)
+		# if len(categories) == 0 : 
+		# 	categories = Category.objects.filter(parent=None)  
+			
+		print(ancestors)
 		products = products.filter(
 			category__in=[cat for cat in cats],
 			available=True
@@ -51,6 +63,8 @@ def shop(request, category_slug=None):
 		'category': category,
 		'categories': categories,
 		'cart_product_form': cart_product_form,
+		'slider': slides,	
+		'ancestors': ancestors,		
 		})
 
 def product_detail(request, id, slug):

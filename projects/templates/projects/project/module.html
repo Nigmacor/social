@@ -3,6 +3,8 @@
 {% block title %}Модуль{% endblock %}
 
 {% block content %}
-<h1>Module</h1>
-<a href="{% url 'respond' module_id %}" class="button">Откликнуться</a>
+<div class="col-12">
+    <h1>Модуль</h1>
+    <a href="{% url 'respond' module_id %}" class="button">Откликнуться</a>
+</div>
 {% endblock %}

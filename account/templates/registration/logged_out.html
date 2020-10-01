@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Logged out{% endblock %}
+{% block title %}Выход из аккаунта{% endblock %}
 {% block content %}
-  <h1>Logged out</h1>
-  <p>You have been successfully logged out.
-    You can <a href="{% url "login" %}">log-in again</a>.
+<div class="col-sm-12">
+  <h1 >Выход из аккаунта</h1>
+</div>  
+  <p class="col-sm-12">Вы успешно вышли из акаунта.    
   </p>
+  <a class="col-sm-12" href="{% url "shop" %}">Перейти на главную </a>.
 {% endblock %}

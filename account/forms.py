@@ -7,8 +7,12 @@ from .models import Profile
 #     password = forms.CharField(widget=forms.PasswordInput)
 
 class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
+    password = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Пароль'}))
+    password2 = forms.CharField(label='', widget=forms.PasswordInput(attrs={'placeholder': 'Повторите пароль'}))
+    username = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Логин'}))
+    first_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Имя'}))
+    email = forms.EmailField(label='', widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
+
     class Meta:
         model = User
         fields = ('username', 'first_name', 'email')
@@ -18,12 +22,17 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError('Пароли несовпадают.')
         return cd['password2']
 
-class UserEditForm(forms.ModelForm):
+class UserEditForm(forms.ModelForm):   
+    username = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Логин'}))
+    first_name = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Имя'}))
+    email = forms.EmailField(label='', widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
     class Meta:
         model = User
         fields = ('username', 'first_name', 'email')
 
-class ProfileEditForm(forms.ModelForm):
+class ProfileEditForm(forms.ModelForm):    
+    date_of_birth = forms.DateField(label='', widget=forms.DateInput(attrs={'placeholder': 'Дата рождения'}))
+    # photo = forms.FileField(label='', widget=forms.FileInput(attrs={'placeholder': 'Фото'}))
     class Meta:
         model = Profile
         fields = ('date_of_birth', 'photo')
