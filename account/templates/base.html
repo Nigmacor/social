@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{% block title %}{% endblock %}</title>    
+    <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">    <link href="{% static 'css/main.css' %}" rel="stylesheet">
@@ -16,27 +16,27 @@
 
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
   </head>
-  <body>        
-    {% if request.path == account or user_list in request.path or request.path == notifications%}      
+  <body>
+    {% if request.path == account or user_list in request.path or request.path == notifications%}
     <div class="container">
-    <div class="menu">      
+    <div class="menu">
       <div class="row">
-          <a class="logo col-sm-12 col-xl-3" href="{% url "shop" %}">Mаркетплейс</a> 
-          <div class="right_submenu col-sm-12 col-xl-9 row">             
-                  <div class="col-sm-12 col-xl-8">                      
+          <a class="logo col-sm-12 col-xl-3" href="{% url "shop" %}">Mаркетплейс</a>
+          <div class="right_submenu col-sm-12 col-xl-9 row">
+                  <div class="col-sm-12 col-xl-8">
                     <a href="{% url 'dashboard' %}" class="btn">
                       <img src="../static/icons/tasks.png"><div>Заказы</div>
                     </a>
                     <button class="btn"><img src="/static/icons/chat.png"><div>Сообщения</div></button>
                     <a href="{% url 'user_list' %}" class="btn">
-                      <img src="/static/icons/dark_profile.png"/> 
+                      <img src="/static/icons/dark_profile.png"/>
                       <div>Контакты</div>
-                    </a>      
+                    </a>
                     <a href="{% url 'notifications' %}" class="btn">
                       <img src="../static/icons/notification.png"><div>Уведомления</div>
                     </a>
                   </div>
-                  <div class="col-sm-12 col-xl-4 profile_block">                    
+                  <div class="col-sm-12 col-xl-4 profile_block">
                     <div class="dropdown">
                       <button class="btn profile_btn" id="dropdownMenu2">
                         <div style="background: center / cover no-repeat url({{request.user.profile.photo.url}})"></div>
@@ -47,90 +47,90 @@
                           <!-- <div class="profession">столяр</div> -->
                         </div>
                       </button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenu2">                        
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
                         <a class="dropdown-item" href="{% url "edit" %}">Изменить профиль</a>
-                        <a class="dropdown-item" href="{% url "password_change" %}">Сменить пароль</a>   
-                        <a class="dropdown-item" href="{% url 'logout' %}">Выход</a>               
+                        <a class="dropdown-item" href="{% url "password_change" %}">Сменить пароль</a>
+                        <a class="dropdown-item" href="{% url 'logout' %}">Выход</a>
                       </div>
                     </div>
-                  
-                  </div>                
+
+                  </div>
               </div>
              </div>
            </div>
-    {% else %}    
+    {% else %}
     <div class="top-menu d-sm-none d-md-block">
-      <div class="container">        
-        <a class="nav-link" href="#">Доставка</a>         
-        <a class="nav-link" href="#">Оплата</a>         
-        <a class="nav-link" href="#">Вопросы и ответы</a> 
+      <div class="container">
+        <a class="nav-link" href="#">Доставка</a>
+        <a class="nav-link" href="#">Оплата</a>
+        <a class="nav-link" href="#">Вопросы и ответы</a>
         <a class="nav-link" href="#">Отзывы</a>
         <a class="nav-link" href="/admin/">Контакты</a>
       </div>
-    </div>       
+    </div>
     <div class="container">
       <div class="menu">
-        <div class="row">                
-            <a href="{% url "shop" %}" class="logo col-sm-12 col-xl-3">Mаркетплейс</a> 
+        <div class="row">
+            <a href="{% url "shop" %}" class="logo col-sm-12 col-xl-3">Mаркетплейс</a>
             <div class="search col-sm-12 col-xl-4">
               <input id="search-input" type="text" placeholder="Я хочу найти...">
               <button id="search-button" type="submit"><img src="/static/icons/search.png"/></button>
-            </div>     
-                
+            </div>
+
             <div class="right_submenu col-sm-12 col-xl-5">
-              {%if request.user.is_authenticated%} 
+              {%if request.user.is_authenticated%}
               <div class="dropdown">
                 <a href="{% url 'dashboard' %}" class="btn " id="dropdownMenu2" >
-                  <img src="/static/icons/dark_profile.png"/> 
-                  <div>                  
-                      {{request.user.first_name}} 
+                  <img src=" {% static 'icons/dark_profile.png' %} "/> 
+                  <div>
+                      {{request.user.first_name}}
                   </div>
-                </a>                 
+                </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                  <a class="dropdown-item" href="{% url 'logout' %}">Выход</a>                  
+                  <a class="dropdown-item" href="{% url 'logout' %}">Выход</a>
                 </div>
               </div>
-               
-              {%else%}   
+
+              {%else%}
               <a href="{% url 'login' %}" class="btn">
-                <img src="/static/icons/dark_profile.png"/> 
-                <div>                  
-                    Войти 
+                <img src="/static/icons/dark_profile.png"/>
+                <div>
+                    Войти
                 </div>
-              </a>  
-              {% endif %} 
+              </a>
+              {% endif %}
               <a href="" class="btn"><img src="/static/icons/dark_favorites.png"><div>Избранное</div></a>
               <a href="{% url 'cart:cart_detail' %}" class="btn">
                 <img src="/static/icons/dark_cart.png">
                 <div>Корзина</div>
-                
-                  <div class="badge badge_cart {%if cart|length == 0 %}d-none{% endif %}">                    
+
+                  <div class="badge badge_cart {%if cart|length == 0 %}d-none{% endif %}">
                       {{cart|length}}
-                    
+
                   </div>
-                
+
               </a>
-             
-            </div>  
+
+            </div>
         </div>
       </div>
     {% endif %}
-    
 
-        <div id="content" > 
-          <div class="row">   
+
+        <div id="content" >
+          <div class="row">
             {% block content %}{% endblock %}
           </div>
         </div>
-    
 
-  </div>  
+
+  </div>
 
     <footer>
-      <div class="container">      
+      <div class="container">
         <div class="row">
           <div class="col-sm-6">
-            <div class="footer__info"> 
+            <div class="footer__info">
               <div>
                 <h4>Компания</h4>
                 <a href="#">О Маркетплейсе</a>
@@ -166,8 +166,8 @@
         </div>
         <div class="row footer__bottom">
           <span class="footer__bottom-copyright">© 2020 Маркетплейс</span>
-          <a href="#">Публичная оферта </a>   
-          <a href="#">Политика конфиденциальности</a>       
+          <a href="#">Публичная оферта </a>
+          <a href="#">Политика конфиденциальности</a>
         </div>
       </div>
     </footer>
