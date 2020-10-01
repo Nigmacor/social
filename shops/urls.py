@@ -22,5 +22,7 @@ urlpatterns = [
     path('content/<int:id>/delete/', ContentDeleteView.as_view(), name='product_content_delete'),
     path('content/order/', ContentOrderView.as_view(), name='content_order'),
     path('product/<int:product_id>/', ProductContentListView.as_view(), name='product_content_list'),
+    path('wishlist/', wishlist, name='wishlist'),
+    path('wishlist/action/', wishlist_actions, name='wishlist_actions'),
 
 ]

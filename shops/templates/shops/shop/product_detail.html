@@ -37,6 +37,14 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-primary">в корзину</button>
   </form>
+  <a href="#" data-id="{{ product.service_type.id }}" data-action="{% if product.service_type in request.user.wishlist.products.all %}reverse_{% endif %}add" class="wish button">
+      {% if product.service_type in request.user.wishlist.products.all %}
+        Убрать
+      {% else %}
+        Добавить
+      {% endif %}
+  </a>
+
   {{ product.body|linebreaks }}
   {% if recommended_products %}
     <div class="recommendations">
@@ -59,4 +67,24 @@
   {% endif %}
 </div>
 
+{% endblock %}
+
+{% block domready %}
+  $('a.wish').click(function(e){
+    e.preventDefault();
+    var args = {id: $(this).attr('data-id'), action: $(this).attr('data-action')}
+    $.post('{% url "wishlist_actions" %}',
+      args,
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $('a.wish').attr('data-action');
+          console.log(previous_action)
+          $('a.wish').attr('data-action', previous_action == 'add' ? 'reverse_add' : 'add')
+          $('a.wish').text(previous_action == 'add' ? 'Убрать' : 'Добавить');
+
+        }
+      }
+    );
+  });
 {% endblock %}

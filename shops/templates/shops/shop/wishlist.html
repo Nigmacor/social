@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load thumbnail %}
+
+{% block title %}
+  Желаемое
+{% endblock %}
+
+{% block content %}
+    {% for w in wishlist.products.all %}
+        <h1>{{w.get_type_obj.title}}</h1>
+    {% empty %}
+        <h1>Пусто</h1>
+    {% endfor %}
+{% endblock %}

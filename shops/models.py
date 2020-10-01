@@ -198,6 +198,15 @@ class File(AbstractItem):
 class Image(AbstractItem):
     image = models.ImageField(upload_to='product/images/%Y/%m/%d/')
 
+
+class Wishlist(models.Model):
+    products = models.ManyToManyField(ServiceType, related_name='pot_clients', blank=True)
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
+                             related_name='wishlist',
+                             on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.owner.username
 '''
 1) можно сделать один абстрактный класс из него наследовать Product и Service
 2) переделать галереи и картинки на ContentType

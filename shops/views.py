@@ -9,11 +9,15 @@ from django.views.generic.base import TemplateResponseMixin, View
 from django.forms.models import modelform_factory
 from django.apps import apps
 from django.http import Http404
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 import redis
 from braces.views import JsonRequestResponseMixin
+from common.decorators import ajax_required
 
-from .models import Category, Shop, Product, Service, ProductContent, ServiceType
+from .models import Category, Shop, Product, Service, ProductContent, ServiceType, Wishlist
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
@@ -31,6 +35,7 @@ def shop(request, category_slug=None):
 	cart_product_form = CartAddProductForm()
 	if category_slug:
 		category = get_object_or_404(Category, slug=category_slug)
+		ancestors = list(category.get_ancestors())[:-1]
 		cats = category.get_descendants(include_self=True)
 		products = products.filter(
 			category__in=[cat for cat in cats],
@@ -85,6 +90,31 @@ def shop_detail(request, id):
 				  {'shop': shop}
 				  )
 
+@ajax_required
+@login_required
+@require_POST
+def wishlist_actions(request):
+    product_id = request.POST.get('id')
+    action = request.POST.get('action')
+    if product_id and action:
+        try:
+            product = ServiceType.objects.get(id=product_id)
+            wishlist = Wishlist.objects.get_or_create(owner=request.user)
+            if action == 'add':
+                print(wishlist)
+                wishlist[0].products.add(product)
+            else:
+                print(wishlist)
+                wishlist[0].products.remove(product)
+            return JsonResponse({'status': 'ok'})
+        except:
+            pass
+    return JsonResponse({'status': 'ok'})
+
+@login_required
+def wishlist(request):
+    wishlist = Wishlist.objects.get_or_create(owner=request.user)
+    return render(request, 'shops/shop/wishlist.html', {'wishlist': wishlist[0]})
 
 class OwnerMixin(object):
     def get_queryset(self):
