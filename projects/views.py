@@ -4,7 +4,7 @@ from django.http import Http404
 from django.contrib.auth.decorators import login_required
 
 from .forms import ProjectCreateForm, ProjectRespondForm
-from .models import Module, Family, Project, TypeOfWork, ProjectRespond
+from .models import Module, Family, Project, ProjectRespond
 from account.models import Profession, ProfileToProfession
 
 
@@ -98,9 +98,8 @@ class ProjectCreate(TemplateResponseMixin, View):
         if form.is_valid():
             module_list = []
             obj = form.cleaned_data
-            type = get_object_or_404(TypeOfWork, id=obj['type'])
+            # type = get_object_or_404(TypeOfWork, id=obj['type'])
             project = Project.objects.create(customer=request.user,
-                                             type=type,
                                              title=obj['title'],
                                              description=obj['description'])
             work_type = work_dict[str(obj['type'])]

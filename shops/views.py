@@ -9,88 +9,83 @@ from django.views.generic.base import TemplateResponseMixin, View
 from django.forms.models import modelform_factory
 from django.apps import apps
 from django.http import Http404
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.db.models import Q
 
 import redis
 from braces.views import JsonRequestResponseMixin
+from common.decorators import ajax_required
 
-from .models import Category, Shop, Product, Service, ProductContent, ServiceType, Slider, Slide
+from .models import Category, Shop, Product, Service, ProductContent, ServiceType, Slider, Slide, Wishlist
+
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
-
+from comments.models import Comment
+from comments.forms import CommentForm
+from comments.views import CommentCreate
+from .utils import service_type_filter
 # Create your views here.
 r = redis.StrictRedis(host=settings.REDIS_HOST,
 					  port=settings.REDIS_PORT,
 					  db=settings.REDIS_DB)
 
 def shop(request, category_slug=None):
-	
-	category = None
-	ancestors = None
-	categories = Category.objects.filter(parent=None)
-	products = Product.objects.filter(available=True)
-	services = Service.objects.filter(available=True)
-	cart_product_form = CartAddProductForm()
-	slider = Slider.objects.filter(main=True).first()
-	slides = Slide.objects.filter(slider=slider)
-	if category_slug:		
-		category = get_object_or_404(Category, slug=category_slug)
-		cats = category.get_descendants()
-		
-		ancestors = list(category.get_ancestors())[:-1]
-		
-		categories = category.get_leafnodes(include_self=False)
-		# if len(categories) == 0 : 
-		# 	categories = Category.objects.filter(parent=None)  
-			
-		print(ancestors)
-		products = products.filter(
-			category__in=[cat for cat in cats],
-			available=True
-			)
-		services = services.filter(
-			category__in=[cat for cat in cats],
-			available=True
-			)
-	return render(request, 'shops/shop/shop.html', context={
-		'products_list': products,
-		'services_list': services,
-		'category': category,
-		'categories': categories,
-		'cart_product_form': cart_product_form,
-		'slider': slides,	
-		'ancestors': ancestors,		
-		})
+    category = None
+    ancestors = None
+    categories = Category.objects.filter(parent=None)
+    products = ServiceType.objects.filter(available=True)
+    cart_product_form = CartAddProductForm()
+    slider = Slider.objects.filter(main=True).first()
+    slides = Slide.objects.filter(slider=slider)
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        cats = category.get_descendants(include_self=True)
+        ancestors = list(category.get_ancestors())[:-1]
+        products = products.filter(
+            Q(product__category__in=[cat for cat in cats]) |
+            Q(service__category__in=[cat for cat in cats]))
+        categories = category.get_leafnodes(include_self=False)
 
-def product_detail(request, id, slug):
-	product = get_object_or_404(ServiceType, id=id, product__slug=slug, product__available=True)
-	cart_product_form = CartAddProductForm()
-	recomm = Recommender()
-	recommended_products = recomm.suggest_products_for([product], 4)
-    #увеличение числа просмотров на 1
-	total_views = r.incr('products:{}:views'.format(product.id))
-	r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
-	#выпилил из render 'total_views': total_views}
-	return render(request, 'shops/shop/product_detail.html',
-				  context={'product': product.product,
-				  		   'cart_product_form': cart_product_form,
-						   'total_views': total_views,
-						   'recommended_products': recommended_products})
+    return render(request, 'shops/shop/shop.html', context={
+    	'products_list': products,
+    	'category': category,
+    	'categories': categories,
+    	'cart_product_form': cart_product_form,
+    	'slider': slides,
+    	'ancestors': ancestors,
+    	})
 
-def service_detail(request, id, slug):
-	product = get_object_or_404(ServiceType, id=id, service__slug=slug, service__available=True)
-	cart_product_form = CartAddProductForm()
-	recomm = Recommender()
-	recommended_products = recomm.suggest_products_for([product], 4)
-    #увеличение числа просмотров на 1
-	total_views = r.incr('products:{}:views'.format(product.id))
-	r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
-	#выпилил из render 'total_views': total_views}
-	return render(request, 'shops/shop/product_detail.html',
-				  context={'product': product.service,
-				  		   'cart_product_form': cart_product_form,
-						   'total_views': total_views,
-						   'recommended_products': recommended_products})
+
+class ProductDetail(View):
+    def get(self, request, id, slug):
+        product = service_type_filter(id, slug)
+        cart_product_form = CartAddProductForm()
+        recomm = Recommender()
+        recommended_products = recomm.suggest_products_for([product], 4)
+        #увеличение числа просмотров на 1
+        total_views = r.incr('products:{}:views'.format(product.id))
+        r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
+        #выпилил из render 'total_views': total_views}
+
+        context_product_detail = {'product': product.get_type_obj(),
+        		 				  'cart_product_form': cart_product_form,
+        		 			  	  'total_views': total_views,
+        		 			  	  'recommended_products': recommended_products}
+
+        context_comment = CommentCreate.get_comment(self, request, product)
+        context_product_detail.update(context_comment)
+
+        return render(request, 'shops/shop/product_detail.html',
+        			  context= context_product_detail)
+
+    def post(self, request, slug, id):
+        product = service_type_filter(id, slug)
+        CommentCreate.post_comment(self, request, product)
+        return redirect('product_detail_url', product.id, product.get_type_obj().slug)
+
 
 def shop_detail(request, id):
 	shop = get_object_or_404(Shop, id=id)
@@ -99,6 +94,31 @@ def shop_detail(request, id):
 				  {'shop': shop}
 				  )
 
+@ajax_required
+@login_required
+@require_POST
+def wishlist_actions(request):
+    product_id = request.POST.get('id')
+    action = request.POST.get('action')
+    if product_id and action:
+        try:
+            product = ServiceType.objects.get(id=product_id)
+            wishlist = Wishlist.objects.get_or_create(owner=request.user)
+            if action == 'add':
+                print(wishlist)
+                wishlist[0].products.add(product)
+            else:
+                print(wishlist)
+                wishlist[0].products.remove(product)
+            return JsonResponse({'status': 'ok'})
+        except:
+            pass
+    return JsonResponse({'status': 'ok'})
+
+@login_required
+def wishlist(request):
+    wishlist = Wishlist.objects.get_or_create(owner=request.user)
+    return render(request, 'shops/shop/wishlist.html', {'wishlist': wishlist[0]})
 
 class OwnerMixin(object):
     def get_queryset(self):

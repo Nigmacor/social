@@ -1,0 +1,187 @@
+{% load thumbnail %}
+
+<br><br><br><br>
+Рейтинг: {{ rating }}
+<hr>
+<p>Комментариев: {{ amount_of_comments }}</p>
+<br>
+
+{% if request.user.is_authenticated %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% for field in comment_form %}
+      <div class="form-group">
+          {% if field.errors %}
+            <div class="alert alert-danger">
+              {{ field.errors }}
+            </div>
+            {% endif %}
+
+            {{ field.label }}:
+            {{ field }}
+      </div>
+    {% endfor %}
+    <br>
+    {% for field in images_form %}
+      <div class="form-group">
+          {% if field.errors %}
+            <div class="alert alert-danger">
+              {{ field.errors }}
+            </div>
+            {% endif %}
+
+            {{ field.label }}:
+            {{ field }}
+      </div>
+    {% endfor %}
+
+    <br>
+    &nbsp <button type="submit" class="btn btn-primary">Оставить комментарий</button>
+  </form>
+{% endif %}
+
+<br>
+
+<style>
+#down{
+	vertical-align:bottom;;
+}
+</style>
+
+{% for comment in page_object.object_list %}
+  <div class="card" style="width: 50rem;">
+    <div class="card-body">
+      <div class="main-comment">
+        <h7 class="card-subtitle mb-2">{{ comment.author }}</h7>
+        <h8 class="card-subtitle mb-2 text-muted">{{ comment.date }}</h8>
+        <h7 class="card-subtitle">Оценка: {{ comment.rating }}</h7>
+        <p class="card-text">{{ comment.text }}</p>
+
+        {% if comment.images %}
+          {% for image in comment.images.all %}
+            <p><img src="{{ image.images_comment.url }}"></p>
+          {% endfor %}
+
+        {% endif %}
+        <!-- <div class="image-container">
+          <a href="{{ comment.image }}">
+            <img src="{{ comment.image }}" class="image-detail">
+          </a>
+          <div class="small-img">
+            {% for image in comment.image.all %}
+              {% thumbnail comment.image "100" as im %}
+              <a href="{{ comment.image }}">
+                <img src="{{ comment.image }}" class="image-detail">
+              </a>
+              {% endthumbnail %}
+            {% endfor %}
+          </div>
+        </div> -->
+
+        {% if comment.add_text %}
+          <h7 class="card-subtitle mb-2 text-muted">Дополнено:</h7>
+          <h8 class="card-subtitle mb-2 text-muted">{{ comment.add_text_date}}</h8>
+          <p class="card-text">{{ comment.add_text }}</p>
+        {% endif %}
+
+        <div class="buttons">
+          {% if request.user.is_authenticated and request.user == comment.author %}
+            {% if comment.add_text == '' %}
+              <a href="{{ comment.get_update_url }}" class="btn btn-primary">&#9998;</a>
+              <!-- Можно пройти по ссылке, нужно как-то исправить -->
+            {% endif %}
+            <a href="{{ comment.get_delete_url }}" class="btn btn-danger">&#128465;</a>
+            <!-- <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-1">&#128465;</button> -->
+          {% endif %}
+
+          {% if request.user.is_authenticated %}
+            <a href="{{ comment.get_reply_url }}" class="btn btn-primary">Ответить</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <br><br>
+
+      <div class="reply-comments">
+        {% for reply in comment.reply.all %}
+          <div class="card" style="width: 25rem;">
+            <div class="card-body">
+              <h8 class="card-title">{{ reply.author }}</h8>
+              <h9 class="card-subtitle mb-2 text-muted">{{ reply.date }}</h9>
+              <p class="card-text">{{ reply.text }}</p>
+
+              {% if request.user.is_authenticated and request.user == reply.author %}
+                <a href="{{ reply.get_reply_delete_url }}" class="btn btn-danger">&#128465;</a>
+              {% endif %}
+
+            </div>
+          </div>
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+
+  <br>
+
+{% empty %}
+  Нет комментариев
+{% endfor %}
+
+<!-- <div class="modal" id="modal-1">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <button class="close" type="button" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">Удалить комментарий</h4>
+    </div>
+    <div class="modal-header">
+      <p>Вы уверены, что хотите удалить комментарий?</p>
+    </div>
+    <div class="modal-header">
+      <button class="btn btn-danger" type="button" data-dismiss="modal">Отмена</button>
+      <button type="submit" class="btn btn-danger">Удалить комментарий</button>
+    </div>
+  </div>
+</div> -->
+
+{% if is_paginated %}
+  <nav aria-label="...">
+    <ul class="pagination">
+      <li class="page-item {% if not prev_url %} disabled {% endif %}">
+        <a class="page-link" href="{{ prev_url }}" tabindex="-1">&lsaquo;</a>
+      </li>
+
+      {% if page_object.number > 1|add:2 %}
+        <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+      {% endif %}
+
+      {% if page_object.number > 1|add:3 %}
+        <li class="page-item"><a>...</a></li>
+      {% endif %}
+
+      {% for n in page_object.paginator.page_range %}
+        {% if page_object.number == n %}
+          <li class="page-item active">
+            <a class="page-link" href="?page={{ n }}">{{ n }} <span class="sr-only">(current)</span></a>
+          </li>
+        {% elif n > page_object.number|add:-3 and n < page_object.number|add:3 %}
+          <li class="page-item"><a class="page-link" href="?page={{ n }}">{{ n }}</a></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_object.number < page_object.paginator.num_pages|add:-3 %}
+        <li class="page-item"><a>...</a></li>
+      {% endif %}
+
+      {% if page_object.number < page_object.paginator.num_pages|add:-2 %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_object.paginator.num_pages }}">{{ page_object.paginator.num_pages }}</a></li>
+      {% endif %}
+
+      <li class="page-item {% if not next_url %} disabled {% endif %}">
+        <a class="page-link" href="{{ next_url }}" tabindex="-1">&rsaquo;</a>
+      </li>
+    </ul>
+  </nav>
+{% endif %}
+<br>

@@ -10,10 +10,10 @@
 <div class="col-sm-12 col-xl-3">
   <div id="sidebar" >
     <div>
-      <img src="../../../static/icons/category.png" alt="">
+      <img src="{% static 'icons/category.png'%}" alt="">
       <h3>Категории</h3>
     </div>
-    
+
     <ul>
       {% if category %}
       <li >
@@ -24,14 +24,14 @@
       {%endfor%}
       <li class="selected">
         <a href="{% url "shop" %}">{{category}}</a>
-      </li>    
-      
+      </li>
+
       </li>
       {% endif %}
       {% recursetree categories %}
           <li{% if node.slug == category.slug %} class="selected" {% endif %}>
               <a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
-              
+
           </li>
       {% endrecursetree %}
     </ul>
@@ -42,68 +42,57 @@
   <div class="col-sm-12 col-xl-9">
     <div class="main_slider" data-selector="main-slider">
       {% for slide in slider %}
-        <div class="main_slider__item" style="background: no-repeat center/cover url({{slide.image.url}})"></div>     
+        <div class="main_slider__item" style="background: no-repeat center/cover url({{slide.image.url}})"></div>
         <!-- <div class="main_slider__item" style="background: no-repeat center/cover url(../../../static/img/fiz.png)"></div>    -->
-        {% endfor %}  
-    </div> 
+        {% endfor %}
+    </div>
   </div>
   <div class="col-sm-12">
     <div class="products__container">
-      <h3>Товары и услуги</h3>   
+      <h3>Товары и услуги</h3>
       {% for product in products_list %}
-        
+
           <div class="card border-light mb-3">
-            <a href="{{ product.get_absolute_url }}">
-              <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.service_type.galary.images %}{{ product.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
+            <a href="{{ product.get_type_obj.get_absolute_url }}">
+              <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.galary.images %}{{ product.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
             </a>
             <!-- <img src="{% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %}" class="card-img-top rounded-top" alt="..."> -->
             <div class="card-body">
-              <a href="{{ product.get_absolute_url }}">
-                <h5 class="card-title">{{product.title}}</h5>
+              <a href="{{ product.get_type_obj.get_absolute_url }}">
+                <h5 class="card-title">{{product.get_type_obj.title}}</h5>
               </a>
-              <div class="card-desc">{{product.short_description}}</div>
+              <div class="card-desc">{{product.get_type_obj.short_description}}</div>
             </div>
             <div class="card-footer">
               <div>
-                <div class="card-price">{{product.price|floatformat:"0" }} ₽</div>
+                <div class="card-price">{{product.get_type_obj.price|floatformat:"0" }} ₽</div>
                   <div class="card-buttons">
                     <button type="submit" name="submit_btn" class="btn favorites_btn submit_btn" >
-                      <img src="../../../static/icons/favorites.png" alt="">
+                      <img src="{% static 'icons/favorites.png'%}" alt="">
                     </button>
-                    <form id="form-{{ product.service_type.id }}" class="product-card-views" action="{% url "cart:cart_add" product.service_type.id %}" method="post"" method="post" >
+                    <form id="form-{{ product.id }}" class="product-card-views" action="{% url "cart:cart_add" product.id %}" method="post"" method="post" >
                       {{ cart_product_form.quantity }}
                       {{ cart_product_form.update }}
-                      <input name="product_id" type="hidden" value="{{ product.service_type.id }}" >
-                      {% csrf_token %}     
-                      {% if product.service_type.id|stringformat:"i" in cart.product_ids %}
-                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
-                          
+                      <input name="product_id" type="hidden" value="{{ product.id }}" >
+                      {% csrf_token %}
+                      {% if product.id|stringformat:"i" in cart.product_ids %}
+                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" id="submit_btn_{{ product.id }}" data-title ="{{product.get_type_obj.title}}" data-price ="{{ product.get_type_obj.price }}">
+
                         </button>
-                      {%else%} 
-                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
-                          <img src="../../../static/icons/cart.png" alt="">
+                      {%else%}
+                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
+                          <img src="{% static 'static/icons/cart.png'%}" alt="">
                         </button>
-                      {%endif%}                                     
-                      
+                      {%endif%}
+
                     </form>
-                  </div>              
+                  </div>
               </div>
             </div>
           </div>
-        
-      {% endfor %}
-      {% for service in services_list %}
-        <a href="{{ service.get_absolute_url }}">
-          <div class="card border-light mb-3" style="width:200px;float:left;margin-top: 3%">
-            <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if service.service_type.galary.images %}{{ service.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="card-img-top rounded-top"></div>
-            <!-- <img src="{% if product.imag %}{{ product.imag.url }}{% else %}{% static "img/fiz.png" %}{% endif %}" class="card-img-top rounded-top" alt="..."> -->
-            <div class="card-body">
-              <h5 class="card-title">{{service.title}}</h5>
-            </div>
 
-          </div>
-        </a>
-      {% endfor %}   
+      {% endfor %}
+
     </div>
   </div>
 {% endblock %}
@@ -156,11 +145,11 @@ $('[data-selector="main-slider"]').slick();
         } else {
           count = parseInt($(".badge_cart").text());
         }
-        
-        
+
+
         count++;
         console.log(count)
-        $(".badge_cart").text(count);        
+        $(".badge_cart").text(count);
       },
       error: function () {
         console.log('error');

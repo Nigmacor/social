@@ -1,10 +1,11 @@
 from django import forms
 
-from .models import TypeOfWork, Project, ProjectRespond
+from .models import Project, ProjectRespond
 
 
-types_of_work = TypeOfWork.objects.all()
-PRODUCT_QUANTITY_CHOICES = [(type.id, str(type.title)) for type in types_of_work]
+# types_of_work = TypeOfWork.objects.all()
+# PRODUCT_QUANTITY_CHOICES = [(type.id, str(type.title)) for type in types_of_work]
+PRODUCT_QUANTITY_CHOICES = [1, 2]
 
 class ProjectCreateForm(forms.Form):
     type = forms.TypedChoiceField(choices=PRODUCT_QUANTITY_CHOICES, coerce=int, label='')

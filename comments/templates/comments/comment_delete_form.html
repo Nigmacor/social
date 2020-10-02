@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Уд. комм. №{{ comment.id }}
+{% endblock %}
+
+{% block content %}
+<form action="{{ comment.get_delete_url }}" method="post">
+  {% csrf_token %}
+
+  <h3>Вы уверены, что хотите удалить следующий комментарий?:</h3>
+  <br>
+  {% for field in comment_form %}
+    <div class="form-group">
+        {% if field.errors %}
+          <div class="alert alert-danger">
+            {{ field.errors }}
+          </div>
+        {% endif %}
+
+        {{ field.label }}:
+        {{ field }}
+    </div>
+
+  {% endfor %}
+  <br>
+  &nbsp
+  <a href="{% url 'shop' %}" class="btn btn-primary">Отмена</a>
+  <button type="submit" class="btn btn-danger">Удалить комментарий</button>
+</form>
+
+{% endblock %}

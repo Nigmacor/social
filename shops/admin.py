@@ -2,13 +2,18 @@ from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 
 from .models import Shop, Product, ProductGalary, ProductImage, Category
-from .models import Service, ProductContent, ServiceType, Slide, Slider
+from .models import Service, ProductContent, ServiceType, Wishlist, Slide, Slider
+
 
 # Register your models here.
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'owner', 'title')
     prepopulated_fields = {'slug':('title',)}
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ('id', 'owner')
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

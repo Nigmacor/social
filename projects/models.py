@@ -33,7 +33,7 @@ class TypeOfWork(MPTTModel):
 
 class Project(models.Model):
     customer = models.ForeignKey(User, related_name='projects', on_delete=models.PROTECT)
-    type = models.ForeignKey(TypeOfWork, related_name='projects', on_delete=models.PROTECT)
+    type = models.ForeignKey('TypeOfWork', related_name='projects', null=True, on_delete=models.PROTECT)
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField()

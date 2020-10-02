@@ -63,13 +63,14 @@ class Category(MPTTModel):
 
 
 class ServiceType(models.Model):
+    available = models.BooleanField(default=True, verbose_name='Доступно')
 
     def get_type_obj(self):
         try:
             return self.product
-        except ServiceType.DoesNotExist:
-            return self.service
         except:
+            return self.service
+        else:
             print('bag')
 
     def __str__(self):
@@ -133,7 +134,7 @@ class ProductGalary(models.Model):
     service = models.OneToOneField(ServiceType,
                                    on_delete=models.CASCADE,
                                    related_name='galary')
-    main_image = models.URLField(blank=True, null=True)
+    main_image = models.URLField(blank=True, null=True, max_length=500)
 
     def __str__(self):
         try:
@@ -198,6 +199,15 @@ class File(AbstractItem):
 class Image(AbstractItem):
     image = models.ImageField(upload_to='product/images/%Y/%m/%d/')
 
+
+class Wishlist(models.Model):
+    products = models.ManyToManyField(ServiceType, related_name='pot_clients', blank=True)
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL,
+                             related_name='wishlist',
+                             on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.owner.username
 class Slider(models.Model):
     title = models.CharField(max_length=120)
     main = models.BooleanField(default=True)
@@ -209,7 +219,7 @@ class Slide(models.Model):
     title = models.CharField(max_length=120)
     slider = models.ForeignKey(Slider, related_name='slides', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='slider/images/%Y/%m/%d/')
-    
+
     def __str__(self):
         return self.title
 
