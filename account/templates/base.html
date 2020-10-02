@@ -25,15 +25,15 @@
           <div class="right_submenu col-sm-12 col-xl-9 row">
                   <div class="col-sm-12 col-xl-8">
                     <a href="{% url 'dashboard' %}" class="btn">
-                      <img src="../static/icons/tasks.png"><div>Заказы</div>
+                      <img src="{% static 'icons/tasks.png'%}"><div>Заказы</div>
                     </a>
-                    <button class="btn"><img src="/static/icons/chat.png"><div>Сообщения</div></button>
+                    <button class="btn"><img src="{% static 'icons/chat.png'%}"><div>Сообщения</div></button>
                     <a href="{% url 'user_list' %}" class="btn">
-                      <img src="/static/icons/dark_profile.png"/>
+                      <img src="{% static 'icons/dark_profile.png'%}"/>
                       <div>Контакты</div>
                     </a>
                     <a href="{% url 'notifications' %}" class="btn">
-                      <img src="../static/icons/notification.png"><div>Уведомления</div>
+                      <img src="{% static 'icons/notification.png'%}"><div>Уведомления</div>
                     </a>
                   </div>
                   <div class="col-sm-12 col-xl-4 profile_block">
@@ -73,8 +73,10 @@
         <div class="row">
             <a href="{% url "shop" %}" class="logo col-sm-12 col-xl-3">Mаркетплейс</a>
             <div class="search col-sm-12 col-xl-4">
-              <input id="search-input" type="text" placeholder="Я хочу найти...">
-              <button id="search-button" type="submit"><img src="/static/icons/search.png"/></button>
+              <form action="#" >
+                <input id="search-input" type="text" placeholder="Я хочу найти...">
+                <button id="search-button" type="submit"><img src="{% static 'icons/search.png' %}"/></button>
+              </form>
             </div>
 
             <div class="right_submenu col-sm-12 col-xl-5">
@@ -93,15 +95,18 @@
 
               {%else%}
               <a href="{% url 'login' %}" class="btn">
-                <img src="/static/icons/dark_profile.png"/>
+                <img src="{% static 'icons/dark_profile.png' %}"/>
                 <div>
                     Войти
                 </div>
               </a>
               {% endif %}
-              <a href="" class="btn"><img src="/static/icons/dark_favorites.png"><div>Избранное</div></a>
+              <a href="{% url 'wishlist' %}" class="btn">
+                <img src="{% static 'icons/dark_favorites.png' %}">
+                <div>Избранное</div>
+              </a>
               <a href="{% url 'cart:cart_detail' %}" class="btn">
-                <img src="/static/icons/dark_cart.png">
+                <img src="{% static 'icons/dark_cart.png' %}">
                 <div>Корзина</div>
 
                   <div class="badge badge_cart {%if cart|length == 0 %}d-none{% endif %}">
@@ -118,8 +123,8 @@
 
 
         <div id="content" >
-          <div class="row">
-            {% block content %}{% endblock %}
+          <div class="row">            
+              {% block content %}{% endblock %}            
           </div>
         </div>
 
@@ -148,7 +153,7 @@
           <div class="col-sm-6">
             <div class="footer__subscription">
               <div class="footer__subscription-label">
-                <img src="/static/icons/message.png" alt="">
+                <img src="{% static 'icons/message.png' %}" alt="">
                 <span>Подпишись на рассылку и будь в курсе акций и новых поступлений</span>
               </div>
               <div class="footer__subscription-email">

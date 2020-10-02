@@ -10,7 +10,7 @@
 <div class="col-sm-12 col-xl-3">
   <div id="sidebar" >
     <div>
-      <img src="../../../static/icons/category.png" alt="">
+      <img src="{% static 'icons/category.png'%}" alt="">
       <h3>Категории</h3>
     </div>
     
@@ -68,7 +68,7 @@
                 <div class="card-price">{{product.price|floatformat:"0" }} ₽</div>
                   <div class="card-buttons">
                     <button type="submit" name="submit_btn" class="btn favorites_btn submit_btn" >
-                      <img src="../../../static/icons/favorites.png" alt="">
+                      <img src="{% static 'icons/favorites.png'%}" alt="">
                     </button>
                     <form id="form-{{ product.service_type.id }}" class="product-card-views" action="{% url "cart:cart_add" product.service_type.id %}" method="post"" method="post" >
                       {{ cart_product_form.quantity }}
@@ -81,7 +81,7 @@
                         </button>
                       {%else%} 
                         <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.service_type.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
-                          <img src="../../../static/icons/cart.png" alt="">
+                          <img src="{% static 'static/icons/cart.png'%}" alt="">
                         </button>
                       {%endif%}                                     
                       
