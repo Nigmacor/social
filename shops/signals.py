@@ -33,5 +33,5 @@ def get_main_image(sender, instance, *args, **kwargs):
 
 @receiver(post_save, sender=Shop)
 def create_shop(sender, instance, *args, **kwargs):
-    if instance.employes:
+    if not instance.employes:
         instance.employes.add(instance.owner)
