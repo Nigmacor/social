@@ -23,7 +23,10 @@ from .models import Category, Shop, Product, Service, ProductContent, ServiceTyp
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
 from .forms import ProductFormSet
-
+from comments.models import Comment
+from comments.forms import CommentForm
+from comments.views import CommentCreate
+from .utils import service_type_filter
 # Create your views here.
 r = redis.StrictRedis(host=settings.REDIS_HOST,
 					  port=settings.REDIS_PORT,
@@ -55,55 +58,33 @@ def shop(request, category_slug=None):
     	'ancestors': ancestors,
     	})
 
-def product_detail(request, id, slug):
-    product = ServiceType.objects.filter(
-        Q(id=id, product__slug=slug, product__available=True) |
-        Q(id=id, service__slug=slug, service__available=True))
-    if not product:
-        raise Http404('К сожалению данный продукт недоступен')
-    else:
-        product = product.first()
-    cart_product_form = CartAddProductForm()
-    recomm = Recommender()
-    recommended_products = recomm.suggest_products_for([product], 4)
-    #увеличение числа просмотров на 1
-    total_views = r.incr('products:{}:views'.format(product.id))
-    r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
-    #выпилил из render 'total_views': total_views}
-    return render(request, 'shops/shop/product_detail.html',
-    			  context={'product': product.get_type_obj(),
-    			  		   'cart_product_form': cart_product_form,
-    					   'total_views': total_views,
-    					   'recommended_products': recommended_products})
 
 class ProductDetail(View):
-	def get(self, request, id, slug):
-		product = get_object_or_404(ServiceType, id=id, product__slug=slug, product__available=True)
-		cart_product_form = CartAddProductForm()
-		recomm = Recommender()
-		recommended_products = recomm.suggest_products_for([product], 4)
-	    #увеличение числа просмотров на 1
-		total_views = r.incr('products:{}:views'.format(product.id))
-		r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
-		#выпилил из render 'total_views': total_views}
+    def get(self, request, id, slug):
+        product = service_type_filter(id, slug)
+        cart_product_form = CartAddProductForm()
+        recomm = Recommender()
+        recommended_products = recomm.suggest_products_for([product], 4)
+        #увеличение числа просмотров на 1
+        total_views = r.incr('products:{}:views'.format(product.id))
+        r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
+        #выпилил из render 'total_views': total_views}
 
-		context_product_detail = {'product': product.product,
-				 				  'cart_product_form': cart_product_form,
-				 			  	  'total_views': total_views,
-				 			  	  'recommended_products': recommended_products}
+        context_product_detail = {'product': product.get_type_obj(),
+        		 				  'cart_product_form': cart_product_form,
+        		 			  	  'total_views': total_views,
+        		 			  	  'recommended_products': recommended_products}
 
-		context_comment = CommentCreate.get_comment(self, request, product)
-		context_product_detail.update(context_comment)
+        context_comment = CommentCreate.get_comment(self, request, product)
+        context_product_detail.update(context_comment)
 
-		return render(request, 'shops/shop/product_detail.html',
-					  context= context_product_detail)
+        return render(request, 'shops/shop/product_detail.html',
+        			  context= context_product_detail)
 
-	def post(self, request, slug, id):
-		product = get_object_or_404(ServiceType, id=id, product__slug=slug, product__available=True)
-		CommentCreate.post_comment(self, request, product)
-		return redirect('product_detail_url', product.id, product.product.slug)
-
-
+    def post(self, request, slug, id):
+        product = service_type_filter(id, slug)
+        CommentCreate.post_comment(self, request, product)
+        return redirect('product_detail_url', product.id, product.get_type_obj().slug)
 
 
 def shop_detail(request, id):

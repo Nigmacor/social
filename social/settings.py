@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'channels',
     'chat',
     'psycopg2',
+    'comments.apps.CommentsConfig',
+
 ]
 
 MIDDLEWARE = [
