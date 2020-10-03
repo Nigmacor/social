@@ -71,10 +71,11 @@
     <div class="container">
       <div class="menu">
         <div class="row">
-            <a href="{% url "shop" %}" class="logo col-sm-12 col-xl-3">Mаркетплейс</a>
+            <a href="{% url 'shop' %}" class="logo col-sm-12 col-xl-3">Mаркетплейс</a>
             <div class="search col-sm-12 col-xl-4">
-              <form action="#" >
-                <input id="search-input" type="text" placeholder="Я хочу найти...">
+              <form action="{% url 'search' %}" method="get" >
+                {{search_form}}
+                {% csrf_token %}
                 <button id="search-button" type="submit"><img src="{% static 'icons/search.png' %}"/></button>
               </form>
             </div>
@@ -83,7 +84,7 @@
               {%if request.user.is_authenticated%}
               <div class="dropdown">
                 <a href="{% url 'dashboard' %}" class="btn " id="dropdownMenu2" >
-                  <img src=" {% static 'icons/dark_profile.png' %} "/> 
+                  <img src=" {% static 'icons/dark_profile.png' %} "/>
                   <div>
                       {{request.user.first_name}}
                   </div>
@@ -123,8 +124,8 @@
 
 
         <div id="content" >
-          <div class="row">            
-              {% block content %}{% endblock %}            
+          <div class="row">
+              {% block content %}{% endblock %}
           </div>
         </div>
 

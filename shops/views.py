@@ -13,6 +13,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.contrib.postgres.search import TrigramSimilarity, SearchVector, SearchQuery, SearchRank
+from django.db.models.functions import Greatest
 
 import redis
 from braces.views import JsonRequestResponseMixin
@@ -22,7 +24,7 @@ from .models import Category, Shop, Product, Service, ProductContent, ServiceTyp
 
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
-from .forms import ProductFormSet
+from .forms import ProductFormSet, SearchForm
 from comments.models import Comment
 from comments.forms import CommentForm
 from comments.views import CommentCreate
@@ -35,6 +37,7 @@ r = redis.StrictRedis(host=settings.REDIS_HOST,
 def shop(request, category_slug=None):
     category = None
     ancestors = None
+    search_form = SearchForm()
     categories = Category.objects.filter(parent=None)
     products = ServiceType.objects.filter(available=True)
     cart_product_form = CartAddProductForm()
@@ -56,7 +59,30 @@ def shop(request, category_slug=None):
     	'cart_product_form': cart_product_form,
     	'slider': slides,
     	'ancestors': ancestors,
+        'search_form': search_form,
     	})
+
+def product_search(request):
+    search_form = SearchForm()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        search_form = SearchForm(request.GET)
+    if search_form.is_valid():
+        query = search_form.cleaned_data['query']
+        search =Greatest(
+            TrigramSimilarity('product__title', query),
+            TrigramSimilarity('service__title', query),
+            TrigramSimilarity('product__short_description', query),
+            TrigramSimilarity('service__short_description', query)
+        )
+        results = ServiceType.objects.annotate(
+            similarity=search
+            ).filter(similarity__gt=0.2).filter(available=True).order_by('-similarity')
+    return render(request, 'shops/shop/search.html', {'search_form': search_form,
+                                                      'query': query,
+                                                      'results': results})
+
 
 
 class ProductDetail(View):
