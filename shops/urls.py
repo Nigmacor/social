@@ -29,4 +29,5 @@ urlpatterns = [
     path('product/delete_comment/<str:id_p>/<str:id>', CommentDelete.as_view(), name='comment_delete_url'),
     path('product/reply/<str:id_p>/<str:id>', ReplyCreate.as_view(), name='reply_url'),
     path('product/delete_reply/<str:id_c>/<str:id>', ReplyDelete.as_view(), name='reply_delete_url'),
+    path('search/', product_search, name='search'),
 ]
