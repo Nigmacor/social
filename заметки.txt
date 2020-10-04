@@ -10,3 +10,4 @@ jwt token
 **********************
 celery
 celery -A social worker -P eventlet
+ger
