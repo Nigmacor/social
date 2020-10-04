@@ -1,16 +1,45 @@
 {% extends "base.html" %}
-
-{% block title %}chat{% endblock %}
+{% load static %}
+{% block title %}Чат{% endblock %}
 {% block header_text %}Chat obana{% endblock %}
 
 {% block content %}
-    <ul class="rooms">
-        {% for room in rooms %}
-            <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Последнее сообщение {{ room.messages.last.id }}</a></li>
-        {% empty %}
-            <p class="empty">У вас, пока, нет переписок </p>
-        {% endfor %}
-    </ul>
-    <div id="chats">
+<div class="col-sm-12 col-xl-3">
+    <div id="sidebar" >
+      <div>
+        <img src="{% static 'icons/category.png'%}" alt="">
+        <h3>Диалоги</h3>
+      </div>
+  
+      <ul>
+        {% if category %}
+        <li >
+          <a href="{% url "shop" %}">< Все категории</a>
+        </li>
+        {%for i in ancestors %}
+          <li><a href="{{ i.get_absolute_url }}" %}">< {{i}}</a></li>
+        {%endfor%}
+        <li class="selected">
+          <a href="{% url "shop" %}">{{category}}</a>
+        </li>
+  
+        </li>
+        {% endif %}        
+      </ul>
     </div>
+  </div>
+  <!-- <h1>{% if category %}{{ category.name }}{% else %}Продукты{% endif %}</h1> -->
+  
+    <div class="col-sm-12 col-xl-9">
+        <ul class="rooms">
+            {% for room in rooms %}
+                <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Последнее сообщение {{ room.messages.last.id }}</a></li>
+            {% empty %}
+                <p class="empty">У вас, пока, нет переписок </p>
+            {% endfor %}
+        </ul>
+        <div id="chats">
+        </div>
+    </div>    
+   
 {% endblock %}

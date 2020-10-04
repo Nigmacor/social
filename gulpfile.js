@@ -14,7 +14,10 @@ function watch() {
   browserSync.init({
     notify: false,
     port: 8000,
-    proxy: '127.0.0.1:8000'
+    proxy: {
+      target: "127.0.0.1:8000",
+      ws: true
+  }   
   });
   
   gulp.watch('./**/*.scss', style)
