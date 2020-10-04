@@ -10,7 +10,7 @@
         <img src="{% static 'icons/category.png'%}" alt="">
         <h3>Диалоги</h3>
       </div>
-  
+
       <ul>
         {% if category %}
         <li >
@@ -22,14 +22,14 @@
         <li class="selected">
           <a href="{% url "shop" %}">{{category}}</a>
         </li>
-  
+
         </li>
-        {% endif %}        
+        {% endif %}
       </ul>
     </div>
   </div>
   <!-- <h1>{% if category %}{{ category.name }}{% else %}Продукты{% endif %}</h1> -->
-  
+
     <div class="col-sm-12 col-xl-9">
         <ul class="rooms">
             {% for room in rooms %}
@@ -37,9 +37,17 @@
             {% empty %}
                 <p class="empty">У вас, пока, нет переписок </p>
             {% endfor %}
+
+            {% for message in last_messages %}
+                <li class="room-link" data-room-id=""><a href="">  распарсить json и сделать на js: {{message}} </a></li>
+            {% empty %}
+                <p class="empty">У вас, пока, нет переписок </p>
+            {% endfor %}
+            <li class="room-link"><a href=""><h1> Нашел баг, пишет одновременно на 2 окнах</h1> </a></li>
+
         </ul>
         <div id="chats">
         </div>
-    </div>    
-   
+    </div>
+
 {% endblock %}

@@ -200,8 +200,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     'username': self.scope['user'].username,
                     'message': message,
                     'created': str(datetime.datetime.now()),
+                    'room_id': room.id,
+                    'message_id': str(total_message),
                     }
             str_frame = json.dumps(frame)
+            r.set(redis_id + ':last_message', str_frame)
             r.rpush(redis_id, str_frame)
             if total_message % mes_in_frame == 0 and total_message != 0:
                 save_frame = ''

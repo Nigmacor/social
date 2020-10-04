@@ -27,6 +27,7 @@ def index(request, room_id):
     except:
         raise Http404
     # другой вариант
+    pack_in_cach = r.lrange('room:{}'.format(room.id), 0, -1)
     last_pack = r.get('room:{}:last_pack'.format(room.id))
     messages = []
     try:
@@ -35,6 +36,10 @@ def index(request, room_id):
         for m in messages_in_p:
             message = json.loads(m)
             messages.append(message)
+        for m in pack_in_cach:
+            message = json.loads(m.decode('utf-8'))
+            messages.append(message)
+
     except:
         print('passsssssssssssssssssss')
 
@@ -55,16 +60,17 @@ def index(request, room_id):
 
 @login_required
 def room_list(request):
-    """
-    Root page view. This is essentially a single-page app, if you ignore the
-    login and admin parts.
-    """
+
     # Получить список комнат, упорядоченных по алфавиту
     # rooms = Room.objects.order_by("title")
+    last_messages = []
     rooms = Room.objects.filter(members=request.user)
-
+    for room in rooms:
+        last_message = r.get('room:{}:last_message'.format(room.id)).decode("utf-8")
+        last_messages.append(last_message)
     # Визуализируйте это в шаблоне индекса
     return render(request, "chat/room_list.html", {
         "rooms": rooms,
-        'section': 'messages'
+        'section': 'messages',
+        'last_messages': last_messages
     })
