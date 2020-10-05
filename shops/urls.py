@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-from comments.views import CommentDelete, CommentUpdate, ReplyCreate, ReplyDelete
+from comments.views import CommentDelete, CommentUpdate, ReplyCreate, ReplyDelete, ComplaintCommentCreate, ComplaintReplyCreate
 
 
 urlpatterns = [
@@ -29,5 +29,7 @@ urlpatterns = [
     path('product/delete_comment/<str:id_p>/<str:id>', CommentDelete.as_view(), name='comment_delete_url'),
     path('product/reply/<str:id_p>/<str:id>', ReplyCreate.as_view(), name='reply_url'),
     path('product/delete_reply/<str:id_c>/<str:id>', ReplyDelete.as_view(), name='reply_delete_url'),
+    path('product/comment/<str:id_p>/<str:id>/complaint', ComplaintCommentCreate.as_view(), name='complaint_comment_url'),
+    path('product/reply/<str:id_c>/<str:id>/complaint', ComplaintReplyCreate.as_view(), name='complaint_reply_url'),
     path('search/', product_search, name='search'),
 ]

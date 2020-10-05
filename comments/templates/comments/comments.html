@@ -97,6 +97,7 @@
 
           {% if request.user.is_authenticated %}
             <a href="{{ comment.get_reply_url }}" class="btn btn-primary">Ответить</a>
+            <a href="{{ comment.get_complaint_comment_url }}" class="btn btn-primary">Пожаловаться</a>
           {% endif %}
         </div>
       </div>
@@ -113,6 +114,10 @@
 
               {% if request.user.is_authenticated and request.user == reply.author %}
                 <a href="{{ reply.get_reply_delete_url }}" class="btn btn-danger">&#128465;</a>
+              {% endif %}
+
+              {% if request.user.is_authenticated %}
+                <a href="{{ reply.get_complaint_reply_url }}" class="btn btn-primary">Пожаловаться</a>
               {% endif %}
 
             </div>

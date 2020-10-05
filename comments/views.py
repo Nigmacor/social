@@ -5,8 +5,8 @@ from django.core.paginator import Paginator
 from django.core.files.images import ImageFile
 from django.core.files.base import ContentFile
 
-from .models import Comment, Reply, ImageComment
-from .forms import CommentForm, CommentAddForm, ReplyForm, ImageCommentForm
+from .models import Comment, Reply, ImageComment, ComplaintComment, ComplaintReply
+from .forms import CommentForm, CommentAddForm, ReplyForm, ImageCommentForm, ComplaintCommentForm, ComplaintReplyForm
 from shops.models import ServiceType
 
 
@@ -140,3 +140,51 @@ class ReplyDelete(LoginRequiredMixin, View):
 		reply_bound_form = ReplyForm(request.POST, instance=reply)
 		reply.delete()
 		return redirect('shop')
+
+
+class ComplaintCommentCreate(LoginRequiredMixin, View):
+	def get(self, request, id, id_p):
+		comment = Comment.objects.get(id=id)
+		complaint_bound_form = ComplaintCommentForm()
+		context_complaint = {'complaint_form': complaint_bound_form}
+		return render(request, 'comments/complaint_comment_form.html',
+					  context={'comment': comment,
+					  		   'complaint_form': complaint_bound_form})
+
+	def post(self, request, id, id_p):
+		comment = Comment.objects.get(id=id)
+		complaint_bound_form = ComplaintCommentForm(request.POST)
+
+		if complaint_bound_form.is_valid():
+			cd = complaint_bound_form.cleaned_data
+			new_complaint = ComplaintComment.objects.create(comment=comment, author=request.user, complaint=cd['complaint'])
+			return redirect('shop')
+
+		# complaint = complaint_bound_form.save()
+		return render(request, 'comments/complaint_comment_form.html',
+					  context={'comment': comment,
+					  		   'complaint_form': complaint_bound_form})
+
+
+class ComplaintReplyCreate(LoginRequiredMixin, View):
+	def get(self, request, id, id_c):
+		reply = Reply.objects.get(id=id)
+		complaint_bound_form = ComplaintReplyForm()
+		context_complaint = {'complaint_form': complaint_bound_form}
+		return render(request, 'comments/complaint_reply_form.html',
+					  context={'reply': reply,
+					  		   'complaint_form': complaint_bound_form})
+
+	def post(self, request, id, id_c):
+		reply = Reply.objects.get(id=id)
+		complaint_bound_form = ComplaintReplyForm(request.POST)
+
+		if complaint_bound_form.is_valid():
+			cd = complaint_bound_form.cleaned_data
+			new_complaint = ComplaintReply.objects.create(reply=reply, author=request.user, complaint=cd['complaint'])
+			return redirect('shop')
+
+		# complaint = complaint_bound_form.save()
+		return render(request, 'comments/complaint_reply_form.html',
+					  context={'reply': reply,
+					  		   'complaint_form': complaint_bound_form})
