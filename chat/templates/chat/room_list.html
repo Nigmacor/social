@@ -39,11 +39,10 @@
             {% endfor %}
 
             {% for message in last_messages %}
-                <li class="room-link" data-room-id=""><a href="">  распарсить json и сделать на js: {{message}} </a></li>
+                <li class="room-link" data-room-id="{{ message.room_id }}"><a href="/chat/{{ message.room_id }}">  распарсить json и сделать на js: {{message}} </a></li>
             {% empty %}
                 <p class="empty">У вас, пока, нет переписок </p>
-            {% endfor %}
-            <li class="room-link"><a href=""><h1> Нашел баг, пишет одновременно на 2 окнах</h1> </a></li>
+            {% endfor %}            
 
         </ul>
         <div id="chats">

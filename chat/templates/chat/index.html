@@ -11,24 +11,57 @@
       <div class='room' id='room-{{ rooms.id }}'>
         <div id="last_message_id" class='d-none'>{{ privious_id }}</div>
         <div class='messages'>
-          {% for message in messages %}
-            <div class='message' style="margin-left:10px; margin-right:20px">
-              <span class='username'> {{message.username}}</span><br>
-              <span class='text-muted'><pre>{{message.created}}</pre></span>
-              <span class='body'><p style="margin-left:30px">{{message.message}}</p> </span>
-            </div>
+          {% for message in messages %}  
+          {% if user.username != message.username %}        
+            <div class="message">
+                <div class="photo">
+                </div>
+                <div class="message_right">
+                    <div class="message_right_top">
+                        <div class="name">
+                            {{message.username}}
+                        </div>
+                        <div class="time">
+                            {{message.created|slice:"11:16"}}
+                        </div>
+                    </div>
+                    <div class="text"> 
+                        {{message.message}}
+                    </div>
+                </div>
+            </div> 
+            {% else %}
+                <div class="message my">
+                    <div class="photo">
+                    </div>
+                    <div class="message_right">
+                        <div class="message_right_top">
+                            <div class="name">
+                                {{message.username}}
+                            </div>
+                            <div class="time">
+                                {{message.created|slice:"11:16"}}
+                            </div>
+                        </div>
+                        <div class="text"> 
+                            {{message.message}}
+                        </div>
+                    </div>
+                </div> 
+            {% endif %}
           {% endfor %}
+        </div>
         </div>
         <form id="chat-form">
             {{form.file}}
           <div class='input-group mb-3'>
             {{form.chat}}
             <div class='input-group-append'>
-              <button type='submit' class='btn btn-outline-secondary' id='button-addon2'>&ensp;<i class='fa fa-angle-double-right'>&ensp;</i></button>
+              <button type='submit' class='btn ' id='button-addon2'>&ensp;<i class='fa fa-angle-double-right'>&ensp;</i></button>
             </div>
           </div>
         </form>
-      </div>
+      
     </div>
 {% endblock %}
 
@@ -41,7 +74,7 @@
             var ws_path = ws_scheme + '://' + window.location.host + "/chat/stream/";
             console.log("Connecting to " + ws_path);
             var socket = new ReconnectingWebSocket(ws_path);
-            $(".messages").scrollTop($(".messages").prop("scrollHeight"));
+            $(".room").scrollTop($(".room").prop("scrollHeight"));
             // Handle incoming messages
             socket.onmessage = function (message) {
                 // Decode the JSON
@@ -81,6 +114,25 @@
                     switch (data.msg_type) {
                         case 0:
                             // Сообщения
+                            ok_msg = `
+                            <div class="message">
+                                <div class="photo">
+                                </div>
+                                <div class="message_right">
+                                    <div class="message_right_top">
+                                        <div class="username">
+                                            ${data.username}
+                                        </div>
+                                        <div class="time">
+                                        12:05
+                                        </div>
+                                    </div>
+                                    <div class="text"> 
+                                        Таким образом консультация с широким активом влечет за собой процесс внедрения и модернизации направлений прогрессивного развития.
+                                    </div>
+                                </div>
+                            </div>`
+
                             ok_msg = "<div class='message'>" +
                                     "<span class='username'>" + data.username + "</span><br>" +
                                     "<span class='body'><p style='margin-left:30px'>" + data.message + "</p></span>" +
@@ -173,11 +225,29 @@
                 last_message_id.text(last_id);
 
                 for (var i = 0; i < new_messages.length; i++) {
-                  msg = "<div class='message'>" +
-                          "<span class='username'>" + new_messages[i].username + "</span><br>" +
-                          "<span class='text-muted'><pre>" + new_messages[i].created + "</pre></span>" +
-                          "<span class='body'><p style='margin-left:30px'>" + new_messages[i].message + "</p></span>" +
-                          "</div>";
+                    msg = `
+                            <div class="message">
+                                <div class="photo">
+                                </div>
+                                <div class="message_right">
+                                    <div class="message_right_top">
+                                        <div class="name">
+                                            ${new_messages[i].username}
+                                        </div>
+                                        <div class="time">
+                                            ${new_messages[i].created.substr(11, 5)}
+                                        </div>
+                                    </div>
+                                    <div class="text"> 
+                                        ${new_messages[i].message}
+                                    </div>
+                                </div>
+                            </div>`;
+                //   msg = "<div class='message'>" +
+                //           "<span class='username'>" + new_messages[i].username + "</span><br>" +
+                //           "<span class='text-muted'><pre>" + new_messages[i].created + "</pre></span>" +
+                //           "<span class='body'><p style='margin-left:30px'>" + new_messages[i].message + "</p></span>" +
+                //           "</div>";
                   chat.prepend(msg)
                   block_request = false
                 }

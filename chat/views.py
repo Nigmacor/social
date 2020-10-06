@@ -34,6 +34,7 @@ def index(request, room_id):
         messages_pack = ChatMessagePack.objects.get(pk=last_pack)
         messages_in_p = messages_pack.pack.split(';\n')
         for m in messages_in_p:
+            print(m)
             message = json.loads(m)
             messages.append(message)
         for m in pack_in_cach:
@@ -66,7 +67,7 @@ def room_list(request):
     last_messages = []
     rooms = Room.objects.filter(members=request.user)
     for room in rooms:
-        last_message = r.get('room:{}:last_message'.format(room.id)).decode("utf-8")
+        last_message = json.loads(r.get('room:{}:last_message'.format(room.id)) or "{}")
         last_messages.append(last_message)
     # Визуализируйте это в шаблоне индекса
     return render(request, "chat/room_list.html", {

@@ -1,7 +1,7 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap");
 @import url(http://fonts.googleapis.com/css?family=Ubuntu);
-* {
+*, *:focus {
   outline: none !important; }
 
 body {
@@ -777,3 +777,80 @@ footer {
         height: 20px; }
       footer .footer__subscription-agree span {
         max-width: 280px; }
+
+#chats {
+  width: 100%;
+  background-color: #FAFFFA;
+  border-radius: 5px;
+  padding: 20px 40px; }
+  #chats .room {
+    height: calc(100vh - 270px);
+    overflow: auto;
+    padding: 10px; }
+  #chats .message {
+    display: flex;
+    margin-top: 15px; }
+    #chats .message .photo {
+      background-image: url("https://static4.depositphotos.com/1000605/297/i/450/depositphotos_2975699-stock-photo-style-beauty-guy.jpg");
+      background-size: cover;
+      filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.25));
+      border-radius: 5px;
+      width: 40px;
+      height: 40px; }
+    #chats .message .layer {
+      height: 484px;
+      padding: 5px;
+      border-radius: 5px; }
+    #chats .message .time {
+      color: #C4C4C4;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 12px;
+      line-height: 15px;
+      padding-top: 4px;
+      padding-left: 17px; }
+    #chats .message .name {
+      padding-left: 12px;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 15px; }
+    #chats .message .text {
+      background: #FFFFFF;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.25);
+      border-radius: 5px;
+      max-width: 459px;
+      padding: 15px 11px;
+      font-size: 12px;
+      line-height: 15px;
+      letter-spacing: 0em;
+      text-align: left; }
+    #chats .message .layer {
+      background: #FAFFFA;
+      position: relative;
+      margin-top: 19px; }
+    #chats .message .message_right {
+      margin: 0 15px; }
+    #chats .message .message_right_top {
+      display: flex;
+      align-items: center; }
+    #chats .message .attach {
+      border: 0px; }
+    #chats .message .field {
+      position: absolute;
+      bottom: 0px;
+      border: 1px solid #6BA371;
+      border-radius: 5px;
+      width: 700px;
+      height: 38px; }
+    #chats .message .send {
+      position: absolute;
+      right: 0; }
+    #chats .message .send_icon {
+      border: none; }
+    #chats .message.my {
+      flex-direction: row-reverse; }
+      #chats .message.my .message_right_top {
+        flex-direction: row-reverse; }
+      #chats .message.my .text {
+        background: #D5F9D9; }
