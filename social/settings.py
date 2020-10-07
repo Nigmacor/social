@@ -88,6 +88,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processor.cart',
             ],
+            'libraries':{
+                'user_avatar_url': 'chat.templatetags.user_avatar_url',
+            }
         },
     },
 ]

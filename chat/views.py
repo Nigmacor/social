@@ -34,7 +34,6 @@ def index(request, room_id):
         messages_pack = ChatMessagePack.objects.get(pk=last_pack)
         messages_in_p = messages_pack.pack.split(';\n')
         for m in messages_in_p:
-            print(m)
             message = json.loads(m)
             messages.append(message)
         for m in pack_in_cach:
@@ -75,3 +74,9 @@ def room_list(request):
         'section': 'messages',
         'last_messages': last_messages
     })
+
+
+@login_required
+def file_upload(request):
+    print('Yes')
+    return {'status': 'ok'}
