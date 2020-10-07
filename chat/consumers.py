@@ -260,5 +260,12 @@ class FileConsumer(AsyncWebsocketConsumer):
         if text_data:
             print(text_data)
             await self.send(text_data="Hello world!")
+        if bytes_data:
+            print('yes')
+            path = 'C:\\Users\\pc\\Desktop\\site\\trial\\social\\Our.png'
+            f = open(path, 'wb')
+            f.write(bytes_data)
+            f.close()
+            print('done')
     async def disconnect(self, code):
-        await self.close()
+        pass
