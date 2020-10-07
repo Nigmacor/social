@@ -4,7 +4,7 @@ from channels.http import AsgiHandler
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
-from chat.consumers import ChatConsumer, LoadhistoryConsumer
+from chat.consumers import ChatConsumer, LoadhistoryConsumer, FileConsumer
 from projects.consumers import ProfessionConsumer, LoadModuleConsumer, RespondConsumer, LoadRespondConsumer
 
 
@@ -25,14 +25,12 @@ application = ProtocolTypeRouter({
         URLRouter([
             # URLRouter just takes standard Django path() or url() entries.
             path("chat/stream/", ChatConsumer),
+            path("chat/file/", FileConsumer),
             path("chat/loadhistory/", LoadhistoryConsumer),
             path("project/stream/", ProfessionConsumer),
             path("project/loadhistory/", LoadModuleConsumer),
             path("project/respond/", RespondConsumer),
             path("project/loadrespond/", LoadRespondConsumer),
-
-
-
         ]),
     ),
 
