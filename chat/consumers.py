@@ -1,7 +1,7 @@
 import json
 import redis
 from django.conf import settings
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer, AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 import datetime
 
@@ -139,6 +139,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "room_id": room_id,
                 "username": self.scope["user"].username,
                 "message": message,
+                "avatar": str(self.scope["user"].profile.photo.url),
             }
         )
 
@@ -182,6 +183,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "room": event["room_id"],
                 "username": event["username"],
                 "message": event["message"],
+                "avatar": event["avatar"]
             },
         )
 
@@ -249,3 +251,14 @@ class LoadhistoryConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, code):
         pass
+
+class FileConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+
+    async def receive(self, text_data=None, bytes_data=None):
+        if text_data:
+            print(text_data)
+            await self.send(text_data="Hello world!")
+    async def disconnect(self, code):
+        await self.close()
