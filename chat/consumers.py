@@ -267,14 +267,15 @@ class FileConsumer(AsyncWebsocketConsumer):
             print(text_data)
             await self.send(text_data="Hello world!")
         if bytes_data:
-            fili_ext = mimetypes.MimeTypes().types_map_inv[1][
-                magic.from_buffer(bytes_data[:50], mime=True)][0]
+            mime = magic.from_buffer(bytes_data[:32], mime=True)
+            fili_ext = mimetypes.MimeTypes().types_map_inv[1][mime][0]
             file_mame ='{}{}'.format(uuid.uuid4().hex[:9], fili_ext)
             path = settings.BASE_DIR + '\\media\\chats\\local\\' + file_mame
             f = open(path, 'wb')
             f.write(bytes_data)
             f.close()
-            img_id = database_sync_to_async(self.save_image(file_mame, path))
+            print(mime)
+            img_id = await database_sync_to_async(self.save_image)(file_mame, path)
             print('done: ' + path)
             await self.send(img_id)
 
@@ -289,4 +290,4 @@ class FileConsumer(AsyncWebsocketConsumer):
             title=title,
             is_public=False)
         img.save()
-        return img.id
+        return str(img.id)
