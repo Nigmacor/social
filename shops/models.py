@@ -99,8 +99,7 @@ class AbstractService(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name='Изменено')
 
     def get_absolute_url(self):
-        url_name = '{}_detail_url'.format(self._meta.model_name)
-        return reverse(url_name, kwargs={'id': self.service_type.id, 'slug': self.slug})
+        return reverse('product_detail_url', kwargs={'id': self.service_type.id, 'slug': self.slug})
     def get_content_list_url(self):
         return reverse('product_content_list', kwargs={'product_id': self.service_type.id})
     def __str__(self):

@@ -25,7 +25,7 @@ application = ProtocolTypeRouter({
         URLRouter([
             # URLRouter just takes standard Django path() or url() entries.
             path("chat/stream/", ChatConsumer),
-            path("chat/file/", FileConsumer),
+            path("chat/file/<id>/", FileConsumer),
             path("chat/loadhistory/", LoadhistoryConsumer),
             path("project/stream/", ProfessionConsumer),
             path("project/loadhistory/", LoadModuleConsumer),
@@ -33,5 +33,6 @@ application = ProtocolTypeRouter({
             path("project/loadrespond/", LoadRespondConsumer),
         ]),
     ),
+
 
 })

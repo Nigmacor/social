@@ -4,10 +4,14 @@ from django.conf import settings
 from channels.generic.websocket import AsyncJsonWebsocketConsumer, AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 import datetime
+import uuid
+import magic
+import mimetypes
 
 from .exceptions import ClientError
 from .utils import get_room_or_error
 from .models import ChatMessage, ChatMessagePack
+from images.models import Image
 
 
 r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -77,7 +81,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 {
                     "type": "chat.join",
                     "room_id": room_id,
-                    "username": self.scope["user"].username,
+                    "username": self.scope["user"].first_name,
                 }
             )
         # Хранить, что пользователь в комнате
@@ -106,7 +110,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 {
                     "type": "chat.leave",
                     "room_id": room_id,
-                    "username": self.scope["user"].username,
+                    "username": self.scope["user"].first_name,
                 }
             )
         # Remove that we're in the room
@@ -137,7 +141,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             {
                 "type": "chat.message",
                 "room_id": room_id,
-                "username": self.scope["user"].username,
+                "username": self.scope["user"].first_name,
+                "user": self.scope["user"].id,
                 "message": message,
                 "avatar": str(self.scope["user"].profile.photo.url),
             }
@@ -183,7 +188,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "room": event["room_id"],
                 "username": event["username"],
                 "message": event["message"],
-                "avatar": event["avatar"]
+                "avatar": event["avatar"],
+                "user": event["user"],
             },
         )
 
@@ -199,7 +205,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             total_message = r.incr(redis_id + ':count')
             frame = {
                     'user': self.scope['user'].id,
-                    'username': self.scope['user'].username,
+                    'username': self.scope['user'].first_name,
                     'message': message,
                     'created': str(datetime.datetime.now()),
                     'room_id': room.id,
@@ -261,11 +267,26 @@ class FileConsumer(AsyncWebsocketConsumer):
             print(text_data)
             await self.send(text_data="Hello world!")
         if bytes_data:
-            print('yes')
-            path = 'C:\\Users\\pc\\Desktop\\site\\trial\\social\\Our.png'
+            fili_ext = mimetypes.MimeTypes().types_map_inv[1][
+                magic.from_buffer(bytes_data[:50], mime=True)][0]
+            file_mame ='{}{}'.format(uuid.uuid4().hex[:9], fili_ext)
+            path = settings.BASE_DIR + '\\media\\chats\\local\\' + file_mame
             f = open(path, 'wb')
             f.write(bytes_data)
             f.close()
-            print('done')
+            img_id = database_sync_to_async(self.save_image(file_mame, path))
+            print('done: ' + path)
+            await self.send(text_data="OK")
+
     async def disconnect(self, code):
         pass
+
+
+    def save_image(self, title, image):
+        img = Image(user=self.scope['user'],
+            url='http://localhost:8001/chat/1/',
+            image=image, 
+            title=title,
+            is_public=False)
+        img.save()
+        return img.id

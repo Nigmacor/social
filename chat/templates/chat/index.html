@@ -14,7 +14,7 @@
         <div id="last_message_id" class='d-none'>{{ privious_id }}</div>
         <div class='messages'>
           {% for message in messages %}
-          {% if user.username != message.username %}
+          {% if user.id != message.user %}
             <div class="message">
                 <div class="photo">
                     <img src="{{message.user|user_avatar_url}}" alt="">
@@ -286,10 +286,12 @@
         $(function () {
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var ws_path = ws_scheme + '://' + window.location.host + "/chat/file/";
+            var ws_path = ws_scheme + '://' + window.location.host + "/chat/file/{{ rooms.id }}/";
             console.log("Connecting to " + ws_path);
             var file_socket = new ReconnectingWebSocket(ws_path);
             file_socket.binaryType = "arraybuffer";
+            var block_send = false
+
             // Handle incoming messages
             roomId = $("li.room-link").attr("data-room-id");
             file_socket.onmessage = function (message) {
@@ -299,19 +301,17 @@
 
                 }
                 $("#chat-form").on("submit", function () {
-                    if ($("#chat-file").val() ){
-                        console.log('1111111111111');
+                    if ($("#chat-file").val() &&block_send == false ){
+                        block_send = true
                         var file = document.getElementById('chat-file').files[0];
                         console.log(file.name);
                         console.log(file.type);
-                        var file_attrs = JSON.stringify({
-                            "name": file.name,
-                            "type": file.type,
-                            "room_id": roomId,
-                        });
                         var reader = new FileReader();
                         var rawData = new ArrayBuffer();
-                        reader.loadend = function(e) {};
+                        reader.loadend = function(e) {
+                            $("#chat-input").val("");
+                            console.log('!!!!!!!!!!!!');
+                        };
                         reader.onload = function(e) {
                             var rawData = e.target.result;
                             file_socket.send(rawData)
@@ -319,6 +319,8 @@
                             $("#image").attr("src", url);
                         };
                         reader.readAsArrayBuffer(file);
+                        block_send = false
+
 
                     }
                 });
