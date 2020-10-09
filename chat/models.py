@@ -1,6 +1,7 @@
 from django.db import models
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 
 
 class Room(models.Model):
@@ -33,6 +34,7 @@ class ChatMessage(models.Model):
     message = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    # pack = JSONField()
 
     def __str__(self):
         return self.message
@@ -49,3 +51,17 @@ class ChatMessagePack(models.Model):
 
     def __str__(self):
         return '{}:{}'.format(self.chat.id, self.id)
+
+# сделать, чтоб Attach по ForeignKey мог прикрепиться к ChatMessagePack
+class Attach(models.Model):
+    room = models.ForeignKey(Room, blank=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+class ImageAttach(models.Model):
+    attach = models.ForeignKey(Attach, related_name='image', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images/%Y/%m/%d/')
+
+class FileAttach(models.Model):
+    attach = models.ForeignKey(Attach, related_name='file', on_delete=models.CASCADE)
+    file = models.FileField(upload_to='images/%Y/%m/%d/')

@@ -10,7 +10,7 @@ import mimetypes
 
 from .exceptions import ClientError
 from .utils import get_room_or_error
-from .models import ChatMessage, ChatMessagePack
+from .models import ChatMessage, ChatMessagePack, Room, Attach, ImageAttach, FileAttach
 from images.models import Image
 
 
@@ -275,7 +275,7 @@ class FileConsumer(AsyncWebsocketConsumer):
             f.write(bytes_data)
             f.close()
             print(mime)
-            img_id = await database_sync_to_async(self.save_image)(file_mame, path)
+            img_id = await database_sync_to_async(self.save_attach)(file_mame, path, mime)
             print('done: ' + path)
             await self.send(img_id)
 
@@ -283,11 +283,17 @@ class FileConsumer(AsyncWebsocketConsumer):
         pass
 
 
-    def save_image(self, title, image):
-        img = Image(user=self.scope['user'],
-            url='http://localhost:8001/chat/1/',
-            image=image,
-            title=title,
-            is_public=False)
-        img.save()
-        return str(img.id)
+    def save_attach(self, title, path, mime):
+        room = Room.objects.get(id=self.scope['url_route']['kwargs']['id'])
+        attach = Attach.objects.create(user=self.scope['user'], room=room)
+        if mime.startswith('image'):
+            img = ImageAttach(
+                attach=attach,
+                image=path)
+            img.save()
+        else:
+            file = FileAttach(
+                attach=attach,
+                file=path)
+            file.save()
+        return str(attach.id)

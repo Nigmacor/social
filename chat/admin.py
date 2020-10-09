@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Room, ChatMessage, ChatMessagePack
+from .models import Room, ChatMessage, ChatMessagePack, ImageAttach, FileAttach
 
 
 admin.site.register(
@@ -18,6 +18,17 @@ admin.site.register(
     ChatMessagePack,
     list_display=['id', 'chat', 'pack', 'created', 'previous', 'next']
 
+)
+
+admin.site.register(
+    ImageAttach,
+    list_display=["id", "attach", "image"],
+    list_display_links=["id", "attach"],
+)
+admin.site.register(
+    FileAttach,
+    list_display=["id", "attach", "file"],
+    list_display_links=["id", "attach"],
 )
 
 # @admin.register(ChatMessage)
