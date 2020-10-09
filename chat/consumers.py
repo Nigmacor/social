@@ -276,7 +276,7 @@ class FileConsumer(AsyncWebsocketConsumer):
             f.close()
             img_id = database_sync_to_async(self.save_image(file_mame, path))
             print('done: ' + path)
-            await self.send(text_data="OK")
+            await self.send(img_id)
 
     async def disconnect(self, code):
         pass
@@ -285,7 +285,7 @@ class FileConsumer(AsyncWebsocketConsumer):
     def save_image(self, title, image):
         img = Image(user=self.scope['user'],
             url='http://localhost:8001/chat/1/',
-            image=image, 
+            image=image,
             title=title,
             is_public=False)
         img.save()
