@@ -43,7 +43,7 @@ class Reply(models.Model):
 
     def get_reply_delete_url(self):
         return reverse('reply_delete_url', kwargs={'id': self.id,
-                                                   'id_c': self.comment.id})
+                                                   'id_p': self.comment.id})
 
     def get_complaint_reply_url(self):
         return reverse('complaint_reply_url', kwargs={'id': self.id,

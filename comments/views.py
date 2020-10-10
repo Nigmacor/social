@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from .models import Comment, Reply, ImageComment, ComplaintComment, ComplaintReply
 from .forms import CommentForm, CommentAddForm, ReplyForm, ImageCommentForm, ComplaintCommentForm, ComplaintReplyForm
 from shops.models import ServiceType
+from .utils import ObjectDeleteMixin
 
 
 # Create your views here.
@@ -67,19 +68,11 @@ class CommentCreate(View):
 			return
 
 
-class CommentDelete(LoginRequiredMixin, View):
-	def get(self, request, id, id_p):
-		comment = Comment.objects.get(id=id)
-		comment_bound_form = CommentForm(instance=comment)
-		return render(request, 'comments/comment_delete_form.html',
-					  context={'comment_form': comment_bound_form,
-					  		   'comment': comment})
-
-	def post(self, request, id, id_p):
-		comment = Comment.objects.get(id=id)
-		comment_bound_form = CommentForm(request.POST, instance=comment)
-		comment.delete()
-		return redirect('shop')
+class CommentDelete(LoginRequiredMixin, ObjectDeleteMixin, View):
+    model = Comment
+    bound_form = CommentForm
+    template = 'comments/comment_delete_form.html'
+    url = 'shop'
 
 
 class CommentUpdate(LoginRequiredMixin, View):
@@ -127,19 +120,11 @@ class ReplyCreate(LoginRequiredMixin, View):
 					  		   'reply_form': reply_bound_form})
 
 
-class ReplyDelete(LoginRequiredMixin, View):
-	def get(self, request, id, id_c):
-		reply = Reply.objects.get(id=id)
-		reply_bound_form = ReplyForm(instance=reply)
-		return render(request, 'comments/reply_delete_form.html',
-					  context={'reply_form': reply_bound_form,
-					  		   'reply': reply})
-
-	def post(self, request, id, id_c):
-		reply = Reply.objects.get(id=id)
-		reply_bound_form = ReplyForm(request.POST, instance=reply)
-		reply.delete()
-		return redirect('shop')
+class ReplyDelete(LoginRequiredMixin, ObjectDeleteMixin, View):
+    model = Reply
+    bound_form = ReplyForm
+    template = 'comments/reply_delete_form.html'
+    url = 'shop'
 
 
 class ComplaintCommentCreate(LoginRequiredMixin, View):
