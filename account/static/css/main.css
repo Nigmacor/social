@@ -273,6 +273,10 @@ ul.messages li a.close {
 
 .image-detail {
   margin-top: 20px; }
+  .image-detail.thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: contain; }
 
 .image-info div {
   padding: 20px 0;
@@ -355,7 +359,6 @@ a.follow {
 
 #people-list img {
   width: 180px;
-  height: 180px;
   border-radius: 10px;
   margin-bottom: 20px; }
 
@@ -374,9 +377,6 @@ img.user-detail {
   float: left;
   overflow: auto;
   margin-right: 20px; }
-
-.image-container {
-  margin-top: 40px; }
 
 /* actions */
 .action {
@@ -413,19 +413,20 @@ img.user-detail {
   float: right;
   padding-top: 4px; }
 
-.recommendations.cart {
+.recommendations {
   width: 60%;
   float: left;
   overflow: auto; }
-
-.recommendations.cart h3 {
-  margin-top: 0; }
-
-.recommendations.cart .item {
-  margin-right: 10px; }
-
-.recommendations.cart img {
-  width: 120px; }
+  .recommendations > div {
+    display: flex; }
+  .recommendations h3 {
+    margin-top: 0; }
+  .recommendations .item {
+    margin-right: 10px; }
+  .recommendations img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain; }
 
 /* заказы */
 .order-form {
@@ -785,14 +786,15 @@ footer {
   padding: 20px 40px; }
   #chats .room {
     height: calc(100vh - 270px);
+    min-height: 300px;
     overflow: auto;
     padding: 10px; }
   #chats .message {
     display: flex;
     margin-top: 15px; }
     #chats .message .photo {
-      background-image: url("https://static4.depositphotos.com/1000605/297/i/450/depositphotos_2975699-stock-photo-style-beauty-guy.jpg");
       background-size: cover;
+      background-position: center;
       filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.25));
       border-radius: 5px;
       width: 40px;
@@ -854,3 +856,30 @@ footer {
         flex-direction: row-reverse; }
       #chats .message.my .text {
         background: #D5F9D9; }
+  #chats #chat-form {
+    border: 1px solid #6BA371;
+    display: flex;
+    border-radius: 5px; }
+    #chats #chat-form input {
+      border: 0;
+      margin: 0; }
+      #chats #chat-form input:focus {
+        box-shadow: none !important; }
+  #chats #chat-file {
+    font-size: 0;
+    background: no-repeat center url("/static/icons/attach.png"); }
+  #chats #attachments img {
+    width: 60px;
+    margin: 5px; }
+  #chats .send_input_wrapper {
+    width: calc(100% - 50px);
+    display: flex; }
+  #chats .chat_send {
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 15px;
+    color: rgba(0, 26, 52, 0.5);
+    display: flex;
+    align-items: center; }
+    #chats .chat_send img {
+      margin-right: 7px; }

@@ -1,23 +1,44 @@
 {% extends "base.html" %}
 {% load static %}
+{% load staticfiles %}
 {% load user_avatar_url %}
 {% block title %}chat{% endblock %}
 {% block header_text %}Chat obana{% endblock %}
 
 {% block content %}
-    <ul class="rooms d-none">
-      <li class="room-link" data-room-id="{{ rooms.id }}">Заказчик {{ user.username }}! Заказ № {{ rooms.id }}</li>
-    </ul>
-    <img id="image" />
+<div class="col-sm-12 col-xl-3">
+    <div id="sidebar" >
+      <div>
+        <img src="{% static 'icons/category.png'%}" alt="">
+        <h3>Диалоги</h3>
+      </div>
+      <ul>  
+        {% for r in rooms %}
+            <li class="room-link {%if room_id == r.id %}selected{% endif %}" >
+                <a href="/chat/{{ r.id }}">  
+                    {% for u in r.members.all %} 
+                        {% if user.username != u.username %}
+                            <span>{{u.first_name}} {{u.last_name}}</span>
+                        {% endif %}    
+                    {% endfor %}
+                    
+                </a>
+        </li>
+        {% empty %}
+            <p class="empty">У вас, пока, нет переписок </p>
+        {% endfor %}
+        </ul>
+    </div>
+  </div>
+  <div class="col-sm-12 col-xl-9">  
     <div id="chats">
-      <div class='room' id='room-{{ rooms.id }}'>
+      <div class='room' data-room-id="{{ room_id }}" id='room-{{ room_id }}'>
         <div id="last_message_id" class='d-none'>{{ privious_id }}</div>
         <div class='messages'>
           {% for message in messages %}
           {% if user.id != message.user %}
             <div class="message">
-                <div class="photo">
-                    <img src="{{message.user|user_avatar_url}}" alt="">
+                <div class="photo" style="background-image: url({{message.user|user_avatar_url}});">                    
                 </div>
                 <div class="message_right">
                     <div class="message_right_top">
@@ -35,8 +56,7 @@
             </div>
             {% else %}
                 <div class="message my">
-                    <div class="photo">
-                        <img src="{{message.user|user_avatar_url}}" alt="">
+                    <div class="photo" style="background-image: url({{message.user|user_avatar_url}});">                        
                     </div>
                     <div class="message_right">
                         <div class="message_right_top">
@@ -55,23 +75,94 @@
             {% endif %}
           {% endfor %}
         </div>
-        </div>
+        <div id="attachments"></div>
+        </div>        
         <form id="chat-form">
             {{form.file}}
-          <div class='input-group mb-3'>
+            <input class="d-none" id="image-input"/>
+          <div class='send_input_wrapper'>
+              <label for="chat-file">fdsf</label>
             {{form.chat}}
             <div class='input-group-append'>
-              <button type='submit' class='btn ' id='button-addon2'>&ensp;<i class='fa fa-angle-double-right'>&ensp;</i></button>
+              <button type='submit' class='btn chat_send' id='button-addon2'>
+                  <img src="{% static 'icons/send.png'%}"/>
+                  <span>Отправить</span>
+                </button>
             </div>
           </div>
-        </form>
+        </form>        
 
     </div>
+</div>
 {% endblock %}
 
 
 {% block extra_body %}
     <script>
+
+$(function () {
+            // Correctly decide between ws:// and wss://
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var lh_path = ws_scheme + '://' + window.location.host + "/chat/loadhistory/";
+            console.log("Connecting to " + lh_path);
+            var lh_socket = new ReconnectingWebSocket(lh_path);
+            var chat = $('.room');
+            var block_request = false
+            var last_message_id = $("#last_message_id")
+            lh_socket.onmessage = function (message) {
+                // Decode the JSON
+                console.log("Got history websocket message " + message.data);
+                var data = JSON.parse(message.data);
+                new_messages = data.messages;
+                last_id = data.privious_id;
+                console.log(last_id);
+                last_message_id.text(last_id);
+
+                for (var i = 0; i < new_messages.length; i++) {
+                    msg = `
+                            <div class="message ${new_messages[i].user == '{{ user.id }}' ? 'my' : ''}">
+                                <div class="photo">
+                                </div>
+                                <div class="message_right">
+                                    <div class="message_right_top">
+                                        <div class="name">
+                                            ${new_messages[i].username}
+                                        </div>
+                                        <div class="time">
+                                            ${new_messages[i].created.substr(11, 5)}
+                                        </div>
+                                    </div>
+                                    <div class="text">
+                                        ${new_messages[i].message}
+                                    </div>
+                                </div>
+                            </div>`;               
+                  chat.prepend(msg)
+                  block_request = false
+                }
+            };
+
+            chat.scroll(function() {
+              if (chat.scrollTop() < 300 && block_request == false && last_message_id.text() != '-1') {
+                block_request = true
+                console.log('тут сенд');
+                lh_socket.send(JSON.stringify({
+                  'last_message_id': last_message_id.text(),
+                  'room': $(".room").attr("data-room-id")
+                }));
+
+              }
+            });
+
+            lh_socket.onopen = function () {
+                console.log("Connected to history socket");
+            };
+            lh_socket.onclose = function () {
+                console.log("Disconnected from history socket");
+            }
+        });
+
+
         $(function () {
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
@@ -99,7 +190,8 @@
                         socket.send(JSON.stringify({
                             "command": "send",
                             "room": data.join,
-                            "message": $("#chat-input").val()
+                            "message": $("#chat-input").val(),
+                            "attach_id": $("#image-input").val()
                         }));
                         $("#chat-input").val("");
                         return false;
@@ -108,42 +200,36 @@
                     // Handle leaving
 
                 } else if (data.leave) {
-                    console.log("Leaving room " + data.leave);
+                    console.log("Leaving room " + data.leave);                   
                     $("#room-" + data.leave).remove();
                     // Обработка получения сообщения
                 } else if (data.message || data.msg_type != 0) {
                     var msgdiv = $("#room-" + data.room + " .messages");
                     var ok_msg = "";
-
+                    console.log("data",data)
                     switch (data.msg_type) {
                         case 0:
                             // Сообщения
+                            let date = new Date();
                             ok_msg = `
-                            <div class="message">
-                                <div class="photo">
+                            <div class="message ${data.user == '{{ user.id }}' ? 'my' : ''}">
+                                <div class="photo" style="background-image: url(${data.avatar});">                        
                                 </div>
                                 <div class="message_right">
                                     <div class="message_right_top">
-                                        <div class="username">
+                                        <div class="name">
                                             ${data.username}
                                         </div>
                                         <div class="time">
-                                        12:05
+                                            ${date.getHours()}:${date.getMinutes()}
                                         </div>
                                     </div>
                                     <div class="text">
-                                        Таким образом консультация с широким активом влечет за собой процесс внедрения и модернизации направлений прогрессивного развития.
+                                        ${data.message}                                        
                                     </div>
                                 </div>
-                            </div>`
-
-                            ok_msg = "<div class='message'>" +
-                                    "<div class='photo'>" +
-                                        "<img src='" + data.avatar + "'>" +
-                                    "</div>" +
-                                    "<span class='username'>" + data.username + "</span><br>" +
-                                    "<span class='body'><p style='margin-left:30px'>" + data.message + "</p></span>" +
-                                    "</div>";
+                            </div>
+                            `                          
                             break;
                         case 1:
                             // Предупреждение / Советы
@@ -178,7 +264,7 @@
                     }
                     msgdiv.append(ok_msg);
 
-                    msgdiv.scrollTop(msgdiv.prop("scrollHeight"));
+                    $(".room").scrollTop($(".room").prop("scrollHeight"));
                 } else {
                     console.log("Не удается обработать сообщение!");
                 }
@@ -190,12 +276,12 @@
             };
 
             // Room join/leave
-            roomId = $("li.room-link").attr("data-room-id");
+            roomId = $(".room").attr("data-room-id");
 
             // Helpful debugging
             socket.onopen = function () {
                 console.log("Connected to chat socket");
-                $("li.room-link").addClass("joined");
+                $(".room").addClass("joined");
                 socket.send(JSON.stringify({
                     "command": "join",
                     "room": roomId
@@ -210,97 +296,26 @@
             }
 
 
-        });
+        });       
 
         $(function () {
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var lh_path = ws_scheme + '://' + window.location.host + "/chat/loadhistory/";
-            console.log("Connecting to " + lh_path);
-            var lh_socket = new ReconnectingWebSocket(lh_path);
-            var chat = $('.messages');
-            var block_request = false
-            var last_message_id = $("#last_message_id")
-            lh_socket.onmessage = function (message) {
-                // Decode the JSON
-                console.log("Got history websocket message " + message.data);
-                var data = JSON.parse(message.data);
-
-                new_messages = data.messages;
-                last_id = data.privious_id;
-                console.log(last_id);
-                last_message_id.text(last_id);
-
-                for (var i = 0; i < new_messages.length; i++) {
-                    msg = `
-                            <div class="message">
-                                <div class="photo">
-                                </div>
-                                <div class="message_right">
-                                    <div class="message_right_top">
-                                        <div class="name">
-                                            ${new_messages[i].username}
-                                        </div>
-                                        <div class="time">
-                                            ${new_messages[i].created.substr(11, 5)}
-                                        </div>
-                                    </div>
-                                    <div class="text">
-                                        ${new_messages[i].message}
-                                    </div>
-                                </div>
-                            </div>`;
-                //   msg = "<div class='message'>" +
-                //           "<span class='username'>" + new_messages[i].username + "</span><br>" +
-                //           "<span class='text-muted'><pre>" + new_messages[i].created + "</pre></span>" +
-                //           "<span class='body'><p style='margin-left:30px'>" + new_messages[i].message + "</p></span>" +
-                //           "</div>";
-                  chat.prepend(msg)
-                  block_request = false
-                }
-            };
-
-            chat.scroll(function() {
-              if (chat.scrollTop() < 300 && block_request == false && last_message_id.text() != '-1') {
-                block_request = true
-                console.log('тут сенд');
-                lh_socket.send(JSON.stringify({
-                  'last_message_id': last_message_id.text(),
-                  'room': $("li.room-link").attr("data-room-id")
-                }));
-
-              }
-            });
-
-            lh_socket.onopen = function () {
-                console.log("Connected to history socket");
-
-
-            };
-            lh_socket.onclose = function () {
-                console.log("Disconnected from history socket");
-
-            }
-        });
-
-        $(function () {
-            // Correctly decide between ws:// and wss://
-            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var ws_path = ws_scheme + '://' + window.location.host + "/chat/file/{{ rooms.id }}/";
+            var ws_path = ws_scheme + '://' + window.location.host + "/chat/file/{{ room_id }}/";
             console.log("Connecting to " + ws_path);
             var file_socket = new ReconnectingWebSocket(ws_path);
             file_socket.binaryType = "arraybuffer";
             var block_send = false
 
             // Handle incoming messages
-            roomId = $("li.room-link").attr("data-room-id");
+            roomId = $(".room").attr("data-room-id");
             file_socket.onmessage = function (message) {
                 // Decode the JSON
                 if (message) {
-                    console.log(message.data);
-
+                    console.log("/chat/file/ message.data",message.data);
+                    $("#image-input").val(message.data);
                 }
-                $("#chat-form").on("submit", function () {
+                $("#chat-file").on("change", function () {
                     if ($("#chat-file").val() &&block_send == false ){
                         block_send = true
                         var file = document.getElementById('chat-file').files[0];
@@ -308,15 +323,16 @@
                         console.log(file.type);
                         var reader = new FileReader();
                         var rawData = new ArrayBuffer();
-                        reader.loadend = function(e) {
+                        reader.onloadend = function(e) {
                             $("#chat-input").val("");
                             console.log('!!!!!!!!!!!!');
                         };
                         reader.onload = function(e) {
                             var rawData = e.target.result;
-                            file_socket.send(rawData)
-                            var url = window.URL.createObjectURL(file)
-                            $("#image").attr("src", url);
+                            file_socket.send(rawData);
+                            var url = window.URL.createObjectURL(file);
+                            $("#attachments").append("<img id='image' src='"+url+"'/>");
+                            $(".room").scrollTop($(".room").prop("scrollHeight") + 60);
                         };
                         reader.readAsArrayBuffer(file);
                         block_send = false

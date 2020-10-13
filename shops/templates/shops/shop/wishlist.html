@@ -3,13 +3,67 @@
 {% load thumbnail %}
 
 {% block title %}
-  Желаемое
+  Избранное
 {% endblock %}
 
 {% block content %}
-    {% for w in wishlist.products.all %}
-        <h1>{{w.get_type_obj.title}}</h1>
-    {% empty %}
-        <h1>Пусто</h1>
-    {% endfor %}
+<div class="col-sm-12">
+    <h1>Избранное</h1>
+    <div class="cart">  
+      <div class="row">
+        <div class="col-sm-12">
+          {% if wishlist.products.all|length == 0 %}
+          <div>Список пуст</div>
+          {% endif %}
+          {% for item in wishlist.products.all %}  
+            {% with product=item.get_type_obj %}   
+              <div class="row cart_item">    
+                <div class="col-sm-2">
+                  <a href="{{ product.get_absolute_url }}">
+                    <img src="{% if product.service_type.galary.images %}{{ product.service_type.galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %}">
+                  </a>
+                </div>
+                <div class="col-sm-6">
+                  <div>{{ product.title }}</div>   
+                  <div class="card-desc">{{product.short_description}}</div>                
+                  <a href="" class="cart_controls delete_favorite" data-id="{{product.id}}" data-action="reverse_add">Удалить</a>
+                </div>
+                <div class="col-sm-2">
+                  <form action="{% url "cart:cart_add" product.id %}" id="id-{{product.id}}" method="post">
+                    {{ item.update_quantity_form.quantity }}
+                    {{ item.update_quantity_form.update }}
+                    <!-- <input type="submit" value="Обновить"> -->
+                    {% csrf_token %}
+                  </form>
+                </div>
+                <!-- <div class="col-sm-2 num" >{{ item.price }}₽</div> -->
+                <div class="col-sm-2 num">
+                    {{ product.total_price }} ₽
+                </div>
+            </div>       
+            {% endwith %}
+          {% endfor %}      
+        </div>        
+      </div>    
+  </div>
+  </div>    
+{% endblock %}
+
+{% block domready %}
+
+$('.delete_favorite').click(function(e){
+    e.preventDefault();
+    let el = $(this);
+    var args = {id: $(this).attr('data-id'), action: $(this).attr('data-action')}
+    $.post('{% url "wishlist_actions" %}',
+      args,
+      function(data){
+        if (data['status'] == 'ok')
+        {
+         el.closest('.cart_item').hide();
+        }
+      }
+    );
+  });
+
 {% endblock %}

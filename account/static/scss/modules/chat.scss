@@ -15,8 +15,8 @@
         margin-top: 15px;
         
         .photo{
-            background-image:url("https://static4.depositphotos.com/1000605/297/i/450/depositphotos_2975699-stock-photo-style-beauty-guy.jpg");
             background-size:cover;
+            background-position: center;
             filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.25));
             border-radius: 5px;
             width:40px;
@@ -99,7 +99,48 @@
         }
 
     }
+
+    #chat-form{
+        border: 1px solid #6BA371;
+        display: flex;
+        border-radius: 5px;
+        input{
+            border: 0;
+            margin: 0;
+            &:focus{                
+                box-shadow: none!important;
+            }
+        }
+    }
+
+    #chat-file{
+        font-size: 0;
+        background: no-repeat center url('/static/icons/attach.png');
+    }
+
+    #attachments {
+        img{
+            width: 60px;
+            margin: 5px;
+        }
+    }
+
+    .send_input_wrapper{
+        width: calc(100% - 50px);
+        display: flex;
+    }
     
+    .chat_send{
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 15px;
+        color: $grey-color2;
+        display: flex;
+        align-items: center;
+        img{
+            margin-right: 7px;
+        }
+    }
         
 
 }

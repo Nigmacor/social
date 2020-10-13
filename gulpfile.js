@@ -18,7 +18,7 @@ function watch() {
     proxy: {
       target: "127.0.0.1:8000",
       ws: true
-  }   
+    }, 
   });
   
   gulp.watch('./**/*.scss', style)

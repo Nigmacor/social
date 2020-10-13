@@ -8,64 +8,72 @@
 
 {% block content %}
 <div class="col-12">
-<div class="product-detail">
   {% for ans in product.category.get_ancestors %}
     <a href="{{ ans.get_absolute_url }}">{{ ans.name }}/</a>
   {% endfor %}
   <h1>{{ product.title }}</h1>
+<div class="product-detail row">
+  <div class="col-sm-5">  
   <div class="image-container">
     <a href="{{ product.service_type.galary.main_image }}">
       <img src="{{ product.service_type.galary.main_image }}" class="image-detail">
     </a>
     <div class="small-img">
-      {% for image in product.service_type.galary.images.all %}
-      {% thumbnail image.image "100" as im %}
-      <a href="{{ image.image.url }}">
-        <img src="{{ im.url }}" class="image-detail">
-      </a>
-      {% endthumbnail %}
-      {% endfor %}
+      {% if product.service_type.galary.images.all|length > 1 %}
+        {% for image in product.service_type.galary.images.all %}
+          {% thumbnail image.image "100" as im %}
+          <a href="{{ image.image.url }}">
+            <img src="{{ im.url }}" class="image-detail thumbnail">
+          </a>
+          {% endthumbnail %}
+        {% endfor %}
+      {% endif %}
     </div>
   </div>
   <!-- <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div> -->
   <div class="image-info">
     <span class="count">просмотров: {{ total_views }}</span>
   </div>
-  <h2><a href="{{ product.category.get_absolute_url }}">{{ product.category }}</a></h2>
-  <p class="price">{{ product.price }} руб.</p>
-  <form class="" action="{% url "cart:cart_add" product.service_type.id %}" method="post">
-    {{ cart_product_form }}
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary">в корзину</button>
-  </form>
-  <a href="#" data-id="{{ product.service_type.id }}" data-action="{% if product.service_type in request.user.wishlist.products.all %}reverse_{% endif %}add" class="wish button">
-      {% if product.service_type in request.user.wishlist.products.all %}
-        Убрать
-      {% else %}
-        Добавить
-      {% endif %}
-  </a>
+</div>
+  <div class="col-sm-7">    
+    <p class="price">{{ product.description }}</p>
+    <p class="price">{{ product.price }} ₽</p>
+    <form class="" action="{% url "cart:cart_add" product.service_type.id %}" method="post">
+      {{ cart_product_form }}
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">в корзину</button>
+    </form>
+    <a href="#" data-id="{{ product.service_type.id }}" data-action="{% if product.service_type in request.user.wishlist.products.all %}reverse_{% endif %}add" class="wish button">
+        {% if product.service_type in request.user.wishlist.products.all %}
+          Убрать
+        {% else %}
+          Добавить
+        {% endif %}
+    </a>
 
-  {{ product.body|linebreaks }}
-  {% if recommended_products %}
-    <div class="recommendations">
-      <h3>С этим часто берут</h3>
-      {% for p in recommended_products %}
-        <div class="item">
-          <a href="{{ p.get_type_obj.get_absolute_url }}">
+    {{ product.body|linebreaks }}
+    {% if recommended_products %}
+      <div class="recommendations">
+        <h3>С этим часто берут</h3>
+        <div>
+        {% for p in recommended_products %}
+          <div class="item">
+            <a href="{{ p.get_type_obj.get_absolute_url }}">
 
-              <img src="{% if p.galary %}
-                          {{ p.galary.main_image }}
-                        {% else %}
-                          {% static "img/fiz.png" %}
-                        {% endif %}">
+                <img src="{% if p.galary %}
+                            {{ p.galary.main_image }}
+                          {% else %}
+                            {% static "img/fiz.png" %}
+                          {% endif %}">
 
-          </a>
-          <p><a href="{{ p.get_type_obj.get_absolute_url }}">{{ p.get_type_obj.title }}</a></p>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
+            </a>
+            <p><a href="{{ p.get_type_obj.get_absolute_url }}">{{ p.get_type_obj.title }}</a></p>
+          </div>
+        {% endfor %}
+      </div>
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% include 'comments/comments.html' %}
 </div>

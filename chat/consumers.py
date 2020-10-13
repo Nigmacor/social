@@ -47,7 +47,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 # Покинуть комнату
                 await self.leave_room(content["room"])
             elif command == "send":
-                await self.send_room(content["room"], content["message"])
+                await self.send_room(content["room"], content["message"], content["attach_id"])
         except ClientError as e:
             # Ловит ошибки и отправляет их обратно
             await self.send_json({"error": e.code})
@@ -125,7 +125,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             "leave": str(room.id),
         })
 
-    async def send_room(self, room_id, message):
+    async def send_room(self, room_id, message, attach_id):
         """
         Called by receive_json when someone sends a message to a room.
         """
@@ -135,7 +135,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         # Get the room and send to the group about it
         room = await get_room_or_error(room_id, self.scope["user"])
         # database_sync_to_async(self.create_message(room=room, message=message))
-        await self.redis_message(room=room, message=message)
+        await self.redis_message(room=room, message=message, attach_id=attach_id)
         await self.channel_layer.group_send(
             room.group_name,
             {
@@ -145,6 +145,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "user": self.scope["user"].id,
                 "message": message,
                 "avatar": str(self.scope["user"].profile.photo.url),
+                "attach_id": attach_id,
             }
         )
 
@@ -198,7 +199,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         m = ChatMessage(user=self.scope['user'], chat=room, message=message)
         m.save()
 
-    async def redis_message(self, room, message):
+    async def redis_message(self, room, message, attach_id):
         if message:
             mes_in_frame = 20
             redis_id = 'room:{}'.format(room.id)
@@ -210,6 +211,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     'created': str(datetime.datetime.now()),
                     'room_id': room.id,
                     'message_id': str(total_message),
+                    'attach_id': attach_id
                     }
             str_frame = json.dumps(frame)
             r.set(redis_id + ':last_message', str_frame)

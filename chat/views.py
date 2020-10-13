@@ -21,9 +21,10 @@ def index(request, room_id):
     """
     # Получить список комнат, упорядоченных по алфавиту
     # rooms = Room.objects.order_by("title")
-    form = ChatInputForm()
+    form = ChatInputForm()    
     try:
         room = Room.objects.get(pk=room_id, members=request.user)
+        print(room)
     except:
         raise Http404
     # другой вариант
@@ -48,13 +49,27 @@ def index(request, room_id):
     except:
         privious_pack_id = -1
 
+    # Получить список комнат, упорядоченных по алфавиту
+    # rooms = Room.objects.order_by("title")
+    last_messages = []
+    try:       
+        rooms = Room.objects.filter(members=request.user)
+        for room in rooms:
+            last_message = json.loads(r.get('room:{}:last_message'.format(room.id)) or "{}")
+            last_messages.append(last_message)
+    except:
+        print('sssssssssssssssssssssaaapppp')
+
     return render(request, "chat/index.html", {
-        "rooms": room,
+        "room": room,
+        "room_id": room_id,
         "messages": messages,
         "privious_id": privious_pack_id,
         'user': request.user,
         'form': form,
+        "rooms": rooms,               
         'section': 'messages',
+        
     })
 
 
