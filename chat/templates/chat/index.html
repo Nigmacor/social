@@ -2,6 +2,8 @@
 {% load static %}
 {% load staticfiles %}
 {% load user_avatar_url %}
+{% load chat_attach_url %}
+
 {% block title %}chat{% endblock %}
 {% block header_text %}Chat obana{% endblock %}
 
@@ -52,6 +54,7 @@
                     <div class="text">
                         {{message.message}}
                     </div>
+                     <img src="{{message.attach_id|chat_attach_url}}"/>
                 </div>
             </div>
             {% else %}
@@ -70,6 +73,7 @@
                         <div class="text">
                             {{message.message}}
                         </div>
+                        <img src="{{message.attach_id|chat_attach_url}}"/>
                     </div>
                 </div>
             {% endif %}
@@ -227,6 +231,8 @@ $(function () {
                                     <div class="text">
                                         ${data.message}                                        
                                     </div>
+                                    <img src="${data.attach}"/>
+
                                 </div>
                             </div>
                             `                          

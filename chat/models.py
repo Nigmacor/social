@@ -58,6 +58,15 @@ class Attach(models.Model):
     user = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
+    def get_attach_url(self):
+        try:
+            return self.image.first().image.url
+        except:
+            return self.file.first().file.url
+        else:
+            print('bag')
+
+
 class ImageAttach(models.Model):
     attach = models.ForeignKey(Attach, related_name='image', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images/%Y/%m/%d/')

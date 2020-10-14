@@ -90,6 +90,8 @@ TEMPLATES = [
             ],
             'libraries':{
                 'user_avatar_url': 'chat.templatetags.user_avatar_url',
+                'chat_attach_url': 'chat.templatetags.chat_attach_url',
+
             }
         },
     },

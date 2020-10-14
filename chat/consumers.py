@@ -134,8 +134,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             raise ClientError("ROOM_ACCESS_DENIED")
         # Get the room and send to the group about it
         room = await get_room_or_error(room_id, self.scope["user"])
-        # database_sync_to_async(self.create_message(room=room, message=message))
+        attach = await database_sync_to_async(Attach.objects.get)(id=attach_id)
         await self.redis_message(room=room, message=message, attach_id=attach_id)
+        print(str(attach.get_attach_url()))
         await self.channel_layer.group_send(
             room.group_name,
             {
@@ -145,7 +146,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "user": self.scope["user"].id,
                 "message": message,
                 "avatar": str(self.scope["user"].profile.photo.url),
-                "attach_id": attach_id,
+                "attach": str(attach.get_attach_url()),
             }
         )
 
@@ -191,6 +192,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "message": event["message"],
                 "avatar": event["avatar"],
                 "user": event["user"],
+                "attach": event["attach"],
             },
         )
 
@@ -277,7 +279,7 @@ class FileConsumer(AsyncWebsocketConsumer):
             f.write(bytes_data)
             f.close()
             print(mime)
-            img_id = await database_sync_to_async(self.save_attach)(file_mame, path, mime)
+            img_id = await database_sync_to_async(self.save_attach)(file_mame, '\\chats\\local\\' + file_mame, mime)
             print('done: ' + path)
             await self.send(img_id)
 
