@@ -6,7 +6,6 @@ register = template.Library()
 @register.filter
 def chat_attach_url(id):
     try:
-        return Attach.objects.get(id=id).get_attach_url()
-
+        return Attach.objects.get(id=id).get_attach_list()
     except:
         return None

@@ -4,8 +4,9 @@ from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Room, ChatMessage, ChatMessagePack
+from .models import Room, ChatMessagePack, Attach
 from .forms import ChatInputForm
 
 
@@ -21,7 +22,8 @@ def index(request, room_id):
     """
     # Получить список комнат, упорядоченных по алфавиту
     # rooms = Room.objects.order_by("title")
-    form = ChatInputForm()    
+    form = ChatInputForm()
+
     try:
         room = Room.objects.get(pk=room_id, members=request.user)
         print(room)
@@ -29,6 +31,7 @@ def index(request, room_id):
         raise Http404
     # другой вариант
     pack_in_cach = r.lrange('room:{}'.format(room.id), 0, -1)
+    print(r.llen('room:{}'.format(room.id)))
     last_pack = r.get('room:{}:last_pack'.format(room.id))
     messages = []
     try:
@@ -37,13 +40,14 @@ def index(request, room_id):
         for m in messages_in_p:
             message = json.loads(m)
             messages.append(message)
-        for m in pack_in_cach:
-            message = json.loads(m.decode('utf-8'))
-            messages.append(message)
+    except ObjectDoesNotExist:
+        print('Нет паков')
+    else:
+        print('passssssssss')
 
-    except:
-        print('passsssssssssssssssssss')
-
+    for m in pack_in_cach:
+        message = json.loads(m.decode('utf-8'))
+        messages.append(message)
     try:
         privious_pack_id = messages_pack.previous.id
     except:
@@ -52,7 +56,7 @@ def index(request, room_id):
     # Получить список комнат, упорядоченных по алфавиту
     # rooms = Room.objects.order_by("title")
     last_messages = []
-    try:       
+    try:
         rooms = Room.objects.filter(members=request.user)
         for room in rooms:
             last_message = json.loads(r.get('room:{}:last_message'.format(room.id)) or "{}")
@@ -67,9 +71,9 @@ def index(request, room_id):
         "privious_id": privious_pack_id,
         'user': request.user,
         'form': form,
-        "rooms": rooms,               
+        "rooms": rooms,
         'section': 'messages',
-        
+
     })
 
 

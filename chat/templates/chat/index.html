@@ -54,7 +54,11 @@
                     <div class="text">
                         {{message.message}}
                     </div>
-                     <img src="{{message.attach_id|chat_attach_url}}"/>
+                    {% if message.attach_id%}
+                        {% for i in message.attach_id|chat_attach_url %}
+                            <img src="{{i}}"/>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             {% else %}
@@ -73,7 +77,11 @@
                         <div class="text">
                             {{message.message}}
                         </div>
-                        <img src="{{message.attach_id|chat_attach_url}}"/>
+                        {% if message.attach_id%}
+                            {% for i in message.attach_id|chat_attach_url %}
+                                <img src="{{i}}"/>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}
@@ -209,6 +217,11 @@ $(function () {
                     // Обработка получения сообщения
                 } else if (data.message || data.msg_type != 0) {
                     var msgdiv = $("#room-" + data.room + " .messages");
+                    var attach = data.attach
+                    var img = ''
+                    for (i = 0; i < attach.length; i++){
+                        img = img + '<img src="' + attach[i] + '"/>'
+                    };
                     var ok_msg = "";
                     console.log("data",data)
                     switch (data.msg_type) {
@@ -231,7 +244,7 @@ $(function () {
                                     <div class="text">
                                         ${data.message}                                        
                                     </div>
-                                    <img src="${data.attach}"/>
+                                    ${img}
 
                                 </div>
                             </div>

@@ -52,19 +52,21 @@ class ChatMessagePack(models.Model):
     def __str__(self):
         return '{}:{}'.format(self.chat.id, self.id)
 
+
 # сделать, чтоб Attach по ForeignKey мог прикрепиться к ChatMessagePack
 class Attach(models.Model):
     room = models.ForeignKey(Room, blank=True, on_delete=models.CASCADE)
     user = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
-    def get_attach_url(self):
+    def get_attach_list(self):
         try:
-            return self.image.first().image.url
-        except:
-            return self.file.first().file.url
-        else:
-            print('bag')
+            return [item.image.url for item in self.image.all()]
+        except AttributeError:
+            return [item.file.url for item in self.file.all()]
+
+
+
 
 
 class ImageAttach(models.Model):
