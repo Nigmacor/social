@@ -74,9 +74,17 @@
       </div>
     {% endif %}
   </div>
+  <div>
+    <h1>Тут шок контент</h1>
+    {% for content in contents %}
+      <p>{{ content.item.text }}</p>
+      <img src="{{ content.item }}" alt="">
+    {% endfor %}
+  </div>
 </div>
 {% include 'comments/comments.html' %}
 </div>
+
 {% endblock %}
 
 {% block domready %}
