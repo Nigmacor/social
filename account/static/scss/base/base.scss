@@ -64,7 +64,7 @@ h1 {
         z-index: 1;        
         border-radius: 1px;
         margin-bottom: -5px;
-        background: linear-gradient(90deg, #145C08 0%, #6BA371 100%);
+        background: linear-gradient(90deg, #145C08 0%, $main-color 100%);
     }
 }
 
@@ -74,6 +74,15 @@ h2 {
 
 ol {
     line-height:1.5;
+}
+
+.btn-primary{
+    background-color: $main-color;
+    border-color: $main-color;
+    &:hover, &:focus, &:active{
+        background-color: $main-color;
+        border-color: $main-color;
+    }
 }
 
 
@@ -575,7 +584,7 @@ form div.field {
                 z-index: 1;
                 margin: -5px; /* !importanté */
                 border-radius: 1px; /* !importanté */
-                background: linear-gradient(90deg, #145C08 0%, #6BA371 100%);
+                background: linear-gradient(90deg, #145C08 0%, $main-color 100%);
               }
         }
 
@@ -642,4 +651,59 @@ form div.field {
 
         
     }
+}
+
+.product{
+    &__details{
+        .card-footer{
+            display: flex;
+            form{
+                display: flex;
+                margin-left: 13px;
+                select{
+                    height: 30px;
+                }
+            }
+        }
+        .card-price{
+            width: 73px;
+            height: 30px;
+            background: $main-color;
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+            padding: 7px 0 0 0;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+        }
+        .cart_btn, .favorites_btn, .views_btn{
+            width: 30px;
+            min-width: 30px;
+            height: 30px;
+            background: $main-color;
+            border-radius: 5px;
+            padding: 0;
+            overflow: hidden;
+            margin-left: 13px;
+        }
+        .views_btn{
+            min-width: 50px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: default;
+            img{
+                width: 18px;
+                height: 14px;
+                filter: brightness(0) invert(1);
+                margin-right: 3px;
+            }
+        }
+    }
+    
 }

@@ -67,6 +67,13 @@ h2 {
 ol {
   line-height: 1.5; }
 
+.btn-primary {
+  background-color: #6BA371;
+  border-color: #6BA371; }
+  .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: #6BA371;
+    border-color: #6BA371; }
+
 #content {
   padding: 30px 0; }
   #content #sidebar {
@@ -561,6 +568,52 @@ form div.field {
       .products__container .card-footer .favorites_btn {
         padding: 0; }
 
+.product__details .card-footer {
+  display: flex; }
+  .product__details .card-footer form {
+    display: flex;
+    margin-left: 13px; }
+    .product__details .card-footer form select {
+      height: 30px; }
+
+.product__details .card-price {
+  width: 73px;
+  height: 30px;
+  background: #6BA371;
+  border-radius: 5px;
+  color: white;
+  text-align: center;
+  padding: 7px 0 0 0;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 17px; }
+
+.product__details .cart_btn, .product__details .favorites_btn, .product__details .views_btn {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  background: #6BA371;
+  border-radius: 5px;
+  padding: 0;
+  overflow: hidden;
+  margin-left: 13px; }
+
+.product__details .views_btn {
+  min-width: 50px;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: default; }
+  .product__details .views_btn img {
+    width: 18px;
+    height: 14px;
+    filter: brightness(0) invert(1);
+    margin-right: 3px; }
+
 .top-menu {
   background-color: #D5F9D9;
   color: #001A34;
@@ -827,6 +880,17 @@ footer {
       line-height: 15px;
       letter-spacing: 0em;
       text-align: left; }
+      #chats .message .text .attachments {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 10px; }
+        #chats .message .text .attachments img {
+          max-width: 200px;
+          height: 150px;
+          object-fit: contain;
+          object-position: left;
+          margin-right: 10px;
+          margin-bottom: 10px; }
     #chats .message .layer {
       background: #FAFFFA;
       position: relative;
@@ -858,21 +922,33 @@ footer {
         background: #D5F9D9; }
   #chats #chat-form {
     border: 1px solid #6BA371;
+    background-color: white;
     display: flex;
     border-radius: 5px; }
     #chats #chat-form input {
       border: 0;
-      margin: 0; }
+      margin: 0;
+      font-weight: 500;
+      font-size: 12px; }
       #chats #chat-form input:focus {
         box-shadow: none !important; }
   #chats #chat-file {
+    display: none; }
+  #chats #chat-file-label {
     font-size: 0;
-    background: no-repeat center url("/static/icons/attach.png"); }
-  #chats #attachments img {
-    width: 60px;
-    margin: 5px; }
+    background: no-repeat center url("/static/icons/attach.png");
+    width: 50px;
+    padding: 6px 10px;
+    cursor: pointer;
+    margin: 0; }
+  #chats #attachments {
+    height: max-content;
+    margin-top: 10px; }
+    #chats #attachments img {
+      width: 60px;
+      margin: 5px; }
   #chats .send_input_wrapper {
-    width: calc(100% - 50px);
+    width: calc(100% - 20px);
     display: flex; }
   #chats .chat_send {
     font-weight: 600;
@@ -882,4 +958,54 @@ footer {
     display: flex;
     align-items: center; }
     #chats .chat_send img {
+      margin-right: 7px; }
+
+#comments {
+  width: 100%;
+  background-color: #FAFFFA;
+  border-radius: 5px;
+  padding: 20px 40px; }
+  #comments #comments-form {
+    border: 1px solid #6BA371;
+    background-color: white;
+    display: flex;
+    border-radius: 5px; }
+    #comments #comments-form input {
+      border: 0;
+      margin: 0;
+      height: 40px;
+      font-weight: 500;
+      font-size: 14px; }
+      #comments #comments-form input:focus {
+        box-shadow: none !important; }
+  #comments .main-comment .attachments {
+    display: flex; }
+    #comments .main-comment .attachments img {
+      max-width: 200px;
+      margin: 5px; }
+  #comments #comments-file-label {
+    font-size: 0;
+    background: no-repeat center url("/static/icons/attach.png");
+    width: 50px;
+    padding: 6px 10px;
+    cursor: pointer;
+    margin: 0; }
+  #comments #attachments {
+    height: max-content;
+    margin-top: 10px; }
+    #comments #attachments img {
+      width: 60px;
+      margin: 5px; }
+  #comments .send_input_wrapper {
+    width: calc(100% - 20px);
+    height: 40px;
+    display: flex; }
+  #comments .chat_send {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 15px;
+    color: rgba(0, 26, 52, 0.5);
+    display: flex;
+    align-items: center; }
+    #comments .chat_send img {
       margin-right: 7px; }

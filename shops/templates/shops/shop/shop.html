@@ -80,11 +80,21 @@
                     <input name="product_id" type="hidden" value="{{ product.id }}" >
                     {% csrf_token %}
                     {% if product.id|stringformat:"i" in cart.product_ids %}
-                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" id="submit_btn_{{ product.id }}" data-title ="{{product.get_type_obj.title}}" data-price ="{{ product.get_type_obj.price }}">
+                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" 
+                        id="submit_btn_{{ product.id }}" 
+                        data-title ="{{product.get_type_obj.title}}"
+                        data-price ="{{ product.get_type_obj.price }}"
+                        data-action="delete"
+                        >
                         <img src="{% static 'icons/cart_delete.png'%}" alt="">
                       </button>
                     {%else%}
-                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
+                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn"
+                       id="submit_btn_{{ product.id }}" 
+                       data-title ="{{product.title}}" 
+                       data-price ="{{ product.price }}"
+                       data-action="add"
+                       >
                         <img src="{% static 'icons/cart.png'%}" alt="">
                       </button>
                     {%endif%}
@@ -149,7 +159,9 @@ $('[data-selector="main-slider"]').slick();
         } else {
           count = parseInt($(".badge_cart").text());
         }
-
+        var previous_action = submit_btn.attr('data-action');
+        submit_btn.attr('data-action', previous_action == 'add' ? 'delete' : 'add');
+        submit_btn.find('img').attr('src', previous_action == 'add' ? '{% static 'icons/cart_delete.png'%}' : '{% static 'icons/cart.png'%}')
 
         count++;
         console.log(count)

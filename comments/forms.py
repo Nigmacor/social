@@ -10,8 +10,8 @@ class CommentForm(forms.ModelForm):
         CHOICES = (('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'))
 
         widgets = {
-            'rating': forms.Select(choices=CHOICES, attrs={'class': 'form-control'}),
-            'text': forms.TextInput(attrs={'class': 'form-control'}),
+            'rating': forms.Select(choices=CHOICES, attrs={'class': 'd-none'}),
+            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Введите комментарий', 'autocomplete':'off'}),
         }
 
 
@@ -22,7 +22,7 @@ class CommentAddForm(forms.ModelForm):
         CHOICES = (('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'))
 
         widgets = {
-            'rating': forms.Select(choices=CHOICES, attrs={'class': 'form-control'}),
+            'rating': forms.Select(choices=CHOICES, attrs={'class': 'd-none'}),
             'add_text': forms.TextInput(attrs={'class': 'form-control'}),
         }
 

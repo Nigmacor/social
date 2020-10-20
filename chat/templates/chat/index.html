@@ -53,12 +53,14 @@
                     </div>
                     <div class="text">
                         {{message.message}}
-                    </div>
-                    {% if message.attach_id%}
-                        {% for i in message.attach_id|chat_attach_url %}
-                            <img src="{{i}}"/>
-                        {% endfor %}
-                    {% endif %}
+                        {% if message.attach_id%}
+                        <div class="attachments">                                
+                            {% for i in message.attach_id|chat_attach_url %}
+                                <img src="{{i}}"/>
+                            {% endfor %}                       
+                        </div>
+                        {% endif %}
+                    </div>                   
                 </div>
             </div>
             {% else %}
@@ -76,12 +78,16 @@
                         </div>
                         <div class="text">
                             {{message.message}}
+
+                            {% if message.attach_id%}
+                            <div class="attachments">                                
+                                {% for i in message.attach_id|chat_attach_url %}
+                                    <img src="{{i}}"/>
+                                {% endfor %}                       
+                            </div>
+                            {% endif %}
                         </div>
-                        {% if message.attach_id%}
-                            {% for i in message.attach_id|chat_attach_url %}
-                                <img src="{{i}}"/>
-                            {% endfor %}
-                        {% endif %}
+                        
                     </div>
                 </div>
             {% endif %}
@@ -93,7 +99,7 @@
             {{form.file}}
             <input class="d-none" id="image-input"/>
           <div class='send_input_wrapper'>
-              <label for="chat-file">fdsf</label>
+              <label id="chat-file-label" for="chat-file">fdsf</label>
             {{form.chat}}
             <div class='input-group-append'>
               <button type='submit' class='btn chat_send' id='button-addon2'>
@@ -129,11 +135,19 @@ $(function () {
                 last_id = data.privious_id;
                 console.log(last_id);
                 last_message_id.text(last_id);
+                
 
                 for (var i = 0; i < new_messages.length; i++) {
+                    var attach = new_messages[i].attach
+                    var img = ''
+                    if (attach) {
+                        for (i = 0; i < attach.length; i++){
+                            img = img + '<img src="' + attach[i] + '"/>'
+                        };
+                    }
                     msg = `
                             <div class="message ${new_messages[i].user == '{{ user.id }}' ? 'my' : ''}">
-                                <div class="photo">
+                                <div class="photo" style="background-image: url(${new_messages[i].avatar});">
                                 </div>
                                 <div class="message_right">
                                     <div class="message_right_top">
@@ -145,7 +159,12 @@ $(function () {
                                         </div>
                                     </div>
                                     <div class="text">
-                                        ${new_messages[i].message}
+                                        ${new_messages[i].message}` 
+                                        if (img)`
+                                        <div class="attachments">                                
+                                            ${img}             
+                                        </div> ` 
+                                        `
                                     </div>
                                 </div>
                             </div>`;               
@@ -206,11 +225,14 @@ $(function () {
                             "attach_id": $("#image-input").val()
                         }));
                         $("#chat-input").val("");
+                        $("#image-input").val("");
+                        $("#attachments").html("")
+
                         return false;
                     });
 
                     // Handle leaving
-
+                    console.log("hello", data)
                 } else if (data.leave) {
                     console.log("Leaving room " + data.leave);                   
                     $("#room-" + data.leave).remove();
@@ -241,11 +263,12 @@ $(function () {
                                             ${date.getHours()}:${date.getMinutes()}
                                         </div>
                                     </div>
-                                    <div class="text">
-                                        ${data.message}                                        
-                                    </div>
-                                    ${img}
-
+                                    <div class="text">   
+                                        ${data.message}                                     
+                                        <div class="attachments">                                
+                                            ${img}             
+                                        </div>                                                                            
+                                    </div>  
                                 </div>
                             </div>
                             `                          
@@ -313,8 +336,6 @@ $(function () {
                     "room": roomId
                 }));
             }
-
-
         });       
 
         $(function () {
@@ -331,50 +352,44 @@ $(function () {
             file_socket.onmessage = function (message) {
                 // Decode the JSON
                 if (message) {
-                    console.log("/chat/file/ message.data",message.data);
+                    console.log("message.data", message.data)
                     $("#image-input").val(message.data);
-                }
-                $("#chat-file").on("change", function () {
-                    if ($("#chat-file").val() &&block_send == false ){
+                    $(".room").scrollTop($(".room").prop("scrollHeight"));
+                }                
+            }
+
+            $("#chat-file").on("change", function () {
+                    if ($("#chat-file").val() && block_send == false ){
                         block_send = true
                         var file = document.getElementById('chat-file').files[0];
-                        console.log(file.name);
-                        console.log(file.type);
+                        console.log(file)
                         var reader = new FileReader();
                         var rawData = new ArrayBuffer();
-                        reader.onloadend = function(e) {
-                            $("#chat-input").val("");
-                            console.log('!!!!!!!!!!!!');
-                        };
+                        // reader.onloadend = function(e) {
+                        //     $("#chat-input").val("");
+                        //     console.log('!!!!!!!!!!!!');
+                        // };
                         reader.onload = function(e) {
+                            console.log("there", e.target.result)
                             var rawData = e.target.result;
                             file_socket.send(rawData);
                             var url = window.URL.createObjectURL(file);
-                            $("#attachments").append("<img id='image' src='"+url+"'/>");
-                            $(".room").scrollTop($(".room").prop("scrollHeight") + 60);
+                            $("#attachments").append("<img id='image' src='"+url+"'/>");                            
                         };
                         reader.readAsArrayBuffer(file);
                         block_send = false
-
-
                     }
                 });
-            }
 
 
             // Helpful debugging
             file_socket.onopen = function () {
                 console.log("Connected to file socket");
                 file_socket.send('Hello World')
-
-
             };
             file_socket.onclose = function () {
                 console.log("Disconnected from chat socket");
-
             }
-
-
         });
 
     </script>
