@@ -9,6 +9,7 @@ from .models import Comment, Reply, ImageComment, ComplaintComment, ComplaintRep
 from .forms import CommentForm, CommentAddForm, ReplyForm, ImageCommentForm, ComplaintCommentForm, ComplaintReplyForm
 from shops.models import ServiceType
 from .utils import ObjectDeleteMixin
+from orders.models import OrderItem
 
 
 # Create your views here.
@@ -16,8 +17,16 @@ class CommentCreate(View):
 	def get_comment(self, request, product):
 		comments_objects = Comment.objects.filter(product_or_service=product).order_by('-date')
 		amount_of_comments = comments_objects.count()
-		comment_form = CommentForm()
-		images_form = ImageCommentForm()
+		context = {}
+
+		order_objects = OrderItem.objects.filter(order__user=request.user)
+		for order in order_objects:
+			if order.product==product:
+				comment_form = CommentForm()
+				images_form = ImageCommentForm()
+				context_forms = {'comment_form': comment_form,
+						   	     'images_form': images_form}
+				context.update(context_forms)
 
 		paginator = Paginator(comments_objects, 5)
 		page_number = request.GET.get('page', 1)
@@ -44,28 +53,30 @@ class CommentCreate(View):
 		else:
 			overall_rating = 0
 
-		context = {'page_object': page,
-				   'is_paginated': is_paginated,
-				   'next_url': next_url,
-				   'prev_url': prev_url,
-				   'comment_form': comment_form,
-				   'amount_of_comments': amount_of_comments,
-				   'rating': overall_rating,
-				   'images_form': images_form}
+		context_all = {'page_object': page,
+				   	   'is_paginated': is_paginated,
+				       'next_url': next_url,
+				       'prev_url': prev_url,
+				       'amount_of_comments': amount_of_comments,
+				       'rating': overall_rating}
 
+		context.update(context_all)
 		return context
 
 	def post_comment(self, request, product):
 		comment_bound_form = CommentForm(request.POST, request.FILES)
 		images_bound_form = ImageCommentForm(request.POST, request.FILES)
-		if comment_bound_form.is_valid() and images_bound_form.is_valid():
-			cd = comment_bound_form.cleaned_data
-			new_comment = Comment.objects.create(product_or_service=product, author=request.user, rating=cd['rating'], text=cd['text'])
 
-			for image in request.FILES.getlist('images_comment'):
-				new_image = ImageComment(comment=new_comment, images_comment=image)
-				new_image.save()
-			return
+		order_objects = OrderItem.objects.filter(order__user=request.user)
+		for order in order_objects:
+			if order.product==product and comment_bound_form.is_valid() and images_bound_form.is_valid():
+				cd = comment_bound_form.cleaned_data
+				new_comment = Comment.objects.create(product_or_service=product, author=request.user, rating=cd['rating'], text=cd['text'])
+
+				for image in request.FILES.getlist('images_comment'):
+					new_image = ImageComment(comment=new_comment, images_comment=image)
+					new_image.save()
+				return
 
 
 class CommentDelete(LoginRequiredMixin, ObjectDeleteMixin, View):
