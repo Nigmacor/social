@@ -19,14 +19,15 @@ class CommentCreate(View):
 		amount_of_comments = comments_objects.count()
 		context = {}
 
-		order_objects = OrderItem.objects.filter(order__user=request.user)
-		for order in order_objects:
-			if order.product==product:
-				comment_form = CommentForm()
-				images_form = ImageCommentForm()
-				context_forms = {'comment_form': comment_form,
-						   	     'images_form': images_form}
-				context.update(context_forms)
+		if request.user.is_authenticated:
+			order_objects = OrderItem.objects.filter(order__user=request.user)
+			for order in order_objects:
+				if order.product==product:
+					comment_form = CommentForm()
+					images_form = ImageCommentForm()
+					context_forms = {'comment_form': comment_form,
+						   	     	 'images_form': images_form}
+					context.update(context_forms)
 
 		paginator = Paginator(comments_objects, 5)
 		page_number = request.GET.get('page', 1)
