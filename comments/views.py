@@ -22,11 +22,13 @@ class CommentCreate(View):
 		if request.user.is_authenticated:
 			order_objects = OrderItem.objects.filter(order__user=request.user)
 			for order in order_objects:
-				if order.product==product:
+				if order.product==product and order.order.paid==True:
+					button = True
 					comment_form = CommentForm()
 					images_form = ImageCommentForm()
 					context_forms = {'comment_form': comment_form,
-						   	     	 'images_form': images_form}
+						   	     	 'images_form': images_form,
+									 'button': button}
 					context.update(context_forms)
 
 		paginator = Paginator(comments_objects, 5)
