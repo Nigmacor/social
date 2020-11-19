@@ -49,7 +49,6 @@ class CommentCreate(View):
 				   'next_url': next_url,
 				   'prev_url': prev_url,
 				   'comment_form': comment_form,
-				   'amount_of_comments': amount_of_comments,
 				   'rating': overall_rating,
 				   'images_form': images_form}
 
