@@ -84,33 +84,37 @@ def product_search(request):
                                                       'results': results})
 
 
+def total_views_count(id, product):
+	total_views = r.incr('products:{}:views'.format(product.id))
+	return total_views
+
 
 class ProductDetail(View):
-    def get(self, request, id, slug):
-        product = service_type_filter(id, slug)
-        cart_product_form = CartAddProductForm()
-        recomm = Recommender()
-        recommended_products = recomm.suggest_products_for([product], 4)
-        #увеличение числа просмотров на 1
-        total_views = r.incr('products:{}:views'.format(product.id))
-        r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
-        #выпилил из render 'total_views': total_views}
+	def get(self, request, id, slug):
+		product = service_type_filter(id, slug)
+		cart_product_form = CartAddProductForm()
+		recomm = Recommender()
+		recommended_products = recomm.suggest_products_for([product], 4)
+		#увеличение числа просмотров на 1
+		total_views = total_views_count(id, product)
+		r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
+		#выпилил из render 'total_views': total_views}
 
-        context_product_detail = {'product': product.get_type_obj(),
-        		 				  'cart_product_form': cart_product_form,
-        		 			  	  'total_views': total_views,
-        		 			  	  'recommended_products': recommended_products}
+		context_product_detail = {'product': product.get_type_obj(),
+		'cart_product_form': cart_product_form,
+		'total_views': total_views,
+		'recommended_products': recommended_products}
 
-        context_comment = CommentCreate.get_comment(self, request, product)
-        context_product_detail.update(context_comment)
+		context_comment = CommentCreate.get_comment(self, request, product)
+		context_product_detail.update(context_comment)
 
-        return render(request, 'shops/shop/product_detail.html',
-        			  context= context_product_detail)
+		return render(request, 'shops/shop/product_detail.html',
+		context= context_product_detail)
 
-    def post(self, request, slug, id):
-        product = service_type_filter(id, slug)
-        CommentCreate.post_comment(self, request, product)
-        return redirect('product_detail_url', product.id, product.get_type_obj().slug)
+	def post(self, request, slug, id):
+		product = service_type_filter(id, slug)
+		CommentCreate.post_comment(self, request, product)
+		return redirect('product_detail_url', product.id, product.get_type_obj().slug)
 
 
 def shop_detail(request, id):
