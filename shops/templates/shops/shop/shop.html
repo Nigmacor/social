@@ -65,28 +65,42 @@
             </div>
             <div class="card-footer">
               <div>
-                <div class="card-price">{{product.get_type_obj.price|floatformat:"0" }} ₽</div>
-                  <div class="card-buttons">
-                    <button type="submit" name="submit_btn" class="btn favorites_btn submit_btn" >
+                {% if product.get_type_obj.price %}<div class="card-price">{{product.get_type_obj.price|floatformat:"0" }} ₽</div>{% endif %}
+                <div class="card-buttons">
+                  <button type="submit" name="submit_btn" class="btn favorites_btn submit_btn" data-id="{{ product.id }}" data-action="{% if product in request.user.wishlist.products.all %}reverse_{% endif %}add">
+                    {% if product in request.user.wishlist.products.all %}                      
+                    <img src="{% static 'icons/favorites_delete.png'%}" alt="">
+                    {% else %}
                       <img src="{% static 'icons/favorites.png'%}" alt="">
-                    </button>
-                    <form id="form-{{ product.id }}" class="product-card-views" action="{% url "cart:cart_add" product.id %}" method="post"" method="post" >
-                      {{ cart_product_form.quantity }}
-                      {{ cart_product_form.update }}
-                      <input name="product_id" type="hidden" value="{{ product.id }}" >
-                      {% csrf_token %}
-                      {% if product.id|stringformat:"i" in cart.product_ids %}
-                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" id="submit_btn_{{ product.id }}" data-title ="{{product.get_type_obj.title}}" data-price ="{{ product.get_type_obj.price }}">
+                    {% endif %}
+                  </button>
+                  <form id="form-{{ product.id }}" class="product-card-views" action="{% url "cart:cart_add" product.id %}" method="post"" method="post" >
+                    {{ cart_product_form.quantity }}
+                    {{ cart_product_form.update }}
+                    <input name="product_id" type="hidden" value="{{ product.id }}" >
+                    {% csrf_token %}
+                    {% if product.id|stringformat:"i" in cart.product_ids %}
+                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" 
+                        id="submit_btn_{{ product.id }}" 
+                        data-title ="{{product.get_type_obj.title}}"
+                        data-price ="{{ product.get_type_obj.price }}"
+                        data-action="delete"
+                        >
+                        <img src="{% static 'icons/cart_delete.png'%}" alt="">
+                      </button>
+                    {%else%}
+                      <button type="submit" name="submit_btn" class="btn cart_btn submit_btn"
+                       id="submit_btn_{{ product.id }}" 
+                       data-title ="{{product.title}}" 
+                       data-price ="{{ product.price }}"
+                       data-action="add"
+                       >
+                        <img src="{% static 'icons/cart.png'%}" alt="">
+                      </button>
+                    {%endif%}
 
-                        </button>
-                      {%else%}
-                        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn" id="submit_btn_{{ product.id }}" data-title ="{{product.title}}" data-price ="{{ product.price }}">
-                          <img src="{% static 'static/icons/cart.png'%}" alt="">
-                        </button>
-                      {%endif%}
-
-                    </form>
-                  </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -145,7 +159,9 @@ $('[data-selector="main-slider"]').slick();
         } else {
           count = parseInt($(".badge_cart").text());
         }
-
+        var previous_action = submit_btn.attr('data-action');
+        submit_btn.attr('data-action', previous_action == 'add' ? 'delete' : 'add');
+        submit_btn.find('img').attr('src', previous_action == 'add' ? '{% static 'icons/cart_delete.png'%}' : '{% static 'icons/cart.png'%}')
 
         count++;
         console.log(count)
@@ -162,6 +178,24 @@ $('[data-selector="main-slider"]').slick();
 
   })
 
+
+  $('.favorites_btn').click(function(e){
+    e.preventDefault();
+    let el = $(this);
+    var args = {id: $(this).attr('data-id'), action: $(this).attr('data-action')}
+    $.post('{% url "wishlist_actions" %}',
+      args,
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = el.attr('data-action');
+          console.log(previous_action)
+          el.attr('data-action', previous_action == 'add' ? 'reverse_add' : 'add');
+          el.find('img').attr('src', previous_action == 'add' ? '{% static 'icons/favorites_delete.png'%}' : '{% static 'icons/favorites.png'%}')
+        }
+      }
+    );
+  });
 
   $(document).on('click', '.delete-item', function (e) {
     e.preventDefault();

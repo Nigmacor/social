@@ -19,7 +19,6 @@ urlpatterns = [
          ContentCreateUpdateView.as_view(),
          name='product_content_update'),
     path('product/<str:id>/<slug:slug>', ProductDetail.as_view(), name='product_detail_url'),
-    path('service/<str:id>/<slug:slug>', ProductDetail.as_view(), name='service_detail_url'),
     path('content/<int:id>/delete/', ContentDeleteView.as_view(), name='product_content_delete'),
     path('content/order/', ContentOrderView.as_view(), name='content_order'),
     path('product/<int:product_id>/', ProductContentListView.as_view(), name='product_content_list'),
@@ -29,4 +28,5 @@ urlpatterns = [
     path('product/delete_comment/<str:id_p>/<str:id>', CommentDelete.as_view(), name='comment_delete_url'),
     path('product/reply/<str:id_p>/<str:id>', ReplyCreate.as_view(), name='reply_url'),
     path('product/delete_reply/<str:id_c>/<str:id>', ReplyDelete.as_view(), name='reply_delete_url'),
+    path('search/', product_search, name='search'),
 ]

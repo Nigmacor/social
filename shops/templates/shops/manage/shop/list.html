@@ -3,6 +3,7 @@
 {% block title %}Мои Магазины{% endblock %}
 
 {% block content %}
+<div class="col-12">
   <h1>Мои Магазины</h1>
   <div class="mine-shop">
     {% for shop in object_list %}
@@ -26,4 +27,5 @@
       <a href="{% url "shop_create" %}" class="button">Открыть магазин</a>
     </p>
   </div>
+</div>
 {% endblock %}

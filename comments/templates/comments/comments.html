@@ -1,17 +1,21 @@
 {% load thumbnail %}
+{% load static %}
 
-<br><br><br><br>
+<div id="comments">
 Рейтинг: {{ rating }}
 <hr>
 <p>Комментариев: {{ amount_of_comments }}</p>
 <br>
 
 {% if request.user.is_authenticated %}
-  <form method="post" enctype="multipart/form-data">
+<div class="my-rating"></div>
+  <form method="post" enctype="multipart/form-data" id="comments-form">
     {% csrf_token %}
-
-    {% for field in comment_form %}
-      <div class="form-group">
+    
+    <div class='send_input_wrapper'>
+      <label id="comments-file-label" for="id_images_comment"></label>
+      {% for field in images_form %}
+      <div class="form-group d-none">
           {% if field.errors %}
             <div class="alert alert-danger">
               {{ field.errors }}
@@ -21,23 +25,22 @@
             {{ field.label }}:
             {{ field }}
       </div>
-    {% endfor %}
-    <br>
-    {% for field in images_form %}
-      <div class="form-group">
+    {% endfor %}    
+    {% for field in comment_form %}  
           {% if field.errors %}
             <div class="alert alert-danger">
               {{ field.errors }}
             </div>
             {% endif %}
-
-            {{ field.label }}:
+           
             {{ field }}
-      </div>
     {% endfor %}
-
-    <br>
-    &nbsp <button type="submit" class="btn btn-primary">Оставить комментарий</button>
+    <br>    
+    <button type='submit' class='btn chat_send' id='button-addon2'>
+      <img src="{% static 'icons/send.png'%}"/>
+      <span>Отправить</span>
+    </button>
+  </div>
   </form>
 {% endif %}
 
@@ -50,20 +53,21 @@
 </style>
 
 {% for comment in page_object.object_list %}
-  <div class="card" style="width: 50rem;">
+  <div class="card">
     <div class="card-body">
       <div class="main-comment">
         <h7 class="card-subtitle mb-2">{{ comment.author }}</h7>
         <h8 class="card-subtitle mb-2 text-muted">{{ comment.date }}</h8>
         <h7 class="card-subtitle">Оценка: {{ comment.rating }}</h7>
         <p class="card-text">{{ comment.text }}</p>
+        <div class="attachments">
+          {% if comment.images %}
+            {% for image in comment.images.all %}
+              <img src="{{ image.images_comment.url }}">
+            {% endfor %}
 
-        {% if comment.images %}
-          {% for image in comment.images.all %}
-            <p><img src="{{ image.images_comment.url }}"></p>
-          {% endfor %}
-
-        {% endif %}
+          {% endif %}
+        </div>
         <!-- <div class="image-container">
           <a href="{{ comment.image }}">
             <img src="{{ comment.image }}" class="image-detail">
@@ -105,7 +109,7 @@
 
       <div class="reply-comments">
         {% for reply in comment.reply.all %}
-          <div class="card" style="width: 25rem;">
+          <div class="card">
             <div class="card-body">
               <h8 class="card-title">{{ reply.author }}</h8>
               <h9 class="card-subtitle mb-2 text-muted">{{ reply.date }}</h9>
@@ -184,4 +188,31 @@
     </ul>
   </nav>
 {% endif %}
-<br>
+</div>
+
+<script src="{% static 'js/jquery.star-rating-svg.js'%}" type="text/javascript"> </script>
+<script>  
+    var head = document.getElementsByTagName('HEAD')[0]; 
+    var link = document.createElement('link'); 
+    link.rel = 'stylesheet';  
+    link.type = 'text/css'; 
+    link.href = '{% static "css/star-rating-svg.css"%}';  
+    head.appendChild(link); 
+    $("#id_rating").val(5);
+    $(".my-rating").starRating({      
+      initialRating: 5,
+      hoverColor: '#6BA371!important',
+      activeColor: '#6BA371!important',
+      ratedColor: '#6BA371!important',
+      strokeColor: '#6BA371',
+      strokeWidth: 10,
+      starSize: 25,
+      disableAfterRate: false,
+      useFullStars: true,
+      
+      callback: function(currentRating, $el){
+        $("#id_rating").val(currentRating)
+      }
+    });
+ 
+</script>

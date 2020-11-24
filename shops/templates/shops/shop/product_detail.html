@@ -3,88 +3,194 @@
 {% load thumbnail %}
 
 {% block title %}
-  {% if category %}{{ category.title }}{% else %}Products{% endif %}
+  {% if category %}{{ category.title }}{% else %}Товар{% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="col-12">
-<div class="product-detail">
   {% for ans in product.category.get_ancestors %}
     <a href="{{ ans.get_absolute_url }}">{{ ans.name }}/</a>
   {% endfor %}
   <h1>{{ product.title }}</h1>
+<div class="product-detail row">
+  <div class="col-sm-5">  
   <div class="image-container">
     <a href="{{ product.service_type.galary.main_image }}">
       <img src="{{ product.service_type.galary.main_image }}" class="image-detail">
     </a>
     <div class="small-img">
-      {% for image in product.service_type.galary.images.all %}
-      {% thumbnail image.image "100" as im %}
-      <a href="{{ image.image.url }}">
-        <img src="{{ im.url }}" class="image-detail">
-      </a>
-      {% endthumbnail %}
-      {% endfor %}
+      {% if product.service_type.galary.images.all|length > 1 %}
+        {% for image in product.service_type.galary.images.all %}
+          {% thumbnail image.image "100" as im %}
+          <a href="{{ image.image.url }}">
+            <img src="{{ im.url }}" class="image-detail thumbnail">
+          </a>
+          {% endthumbnail %}
+        {% endfor %}
+      {% endif %}
     </div>
   </div>
   <!-- <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div> -->
-  <div class="image-info">
-    <span class="count">просмотров: {{ total_views }}</span>
-  </div>
-  <h2><a href="{{ product.category.get_absolute_url }}">{{ product.category }}</a></h2>
-  <p class="price">{{ product.price }} руб.</p>
-  <form class="" action="{% url "cart:cart_add" product.service_type.id %}" method="post">
-    {{ cart_product_form }}
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary">в корзину</button>
-  </form>
-  <a href="#" data-id="{{ product.service_type.id }}" data-action="{% if product.service_type in request.user.wishlist.products.all %}reverse_{% endif %}add" class="wish button">
-      {% if product.service_type in request.user.wishlist.products.all %}
-        Убрать
-      {% else %}
-        Добавить
-      {% endif %}
-  </a>
-
-  {{ product.body|linebreaks }}
-  {% if recommended_products %}
-    <div class="recommendations">
-      <h3>С этим часто берут</h3>
-      {% for p in recommended_products %}
-        <div class="item">
-          <a href="{{ p.get_type_obj.get_absolute_url }}">
-
-              <img src="{% if p.galary %}
-                          {{ p.galary.main_image }}
-                        {% else %}
-                          {% static "img/fiz.png" %}
-                        {% endif %}">
-
-          </a>
-          <p><a href="{{ p.get_type_obj.get_absolute_url }}">{{ p.get_type_obj.title }}</a></p>
-        </div>
-      {% endfor %}
+  
+</div>
+  <div class="col-sm-7 product__details">   
+    <div class="card-header"> 
+      <p>{{ product.description }}</p>
     </div>
-  {% endif %}
+    <div class="card-footer">
+    <div class="card-price">{{ product.price|floatformat:"0" }} ₽</div>
+    <form class="" action="{% url "cart:cart_add" product.service_type.id %}" method="post">
+      {{ cart_product_form }}
+      {% csrf_token %}
+      {% if product.id|stringformat:"i" in cart.product_ids %}
+        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn added" 
+          id="submit_btn_{{ product.id }}" 
+          data-title ="{{product.get_type_obj.title}}"
+          data-price ="{{ product.get_type_obj.price }}"
+          data-action="delete"
+          >
+          <img src="{% static 'icons/cart_delete.png'%}" alt="">
+        </button>
+      {%else%}
+        <button type="submit" name="submit_btn" class="btn cart_btn submit_btn"
+          id="submit_btn_{{ product.id }}" 
+          data-title ="{{product.title}}" 
+          data-price ="{{ product.price }}"
+          data-action="add"
+          >
+          <img src="{% static 'icons/cart.png'%}" alt="">
+        </button>
+      {%endif%}
+    </form>
+    <button data-id="{{ product.service_type.id }}" data-action="{% if product.service_type in request.user.wishlist.products.all %}reverse_{% endif %}add" class="favorites_btn btn">
+      {% if product in request.user.wishlist.products.all %}                      
+      <img src="{% static 'icons/favorites_delete.png'%}" alt="">
+      {% else %}
+        <img src="{% static 'icons/favorites.png'%}" alt="">
+      {% endif %}
+    </button>
+    <div class="views_btn btn">
+      <img src="{% static 'icons/view.png'%}">
+      <span class="total">{{ total_views }}</span>
+    </div>
+  </div> 
+
+    {{ product.body|linebreaks }}
+    {% if recommended_products %}
+      <div class="recommendations">
+        <h3>С этим часто берут</h3>
+        <div>
+        {% for p in recommended_products %}
+          <div class="item">
+            <a href="{{ p.get_type_obj.get_absolute_url }}">
+
+                <img src="{% if p.galary %}
+                            {{ p.galary.main_image }}
+                          {% else %}
+                            {% static "img/fiz.png" %}
+                          {% endif %}">
+
+            </a>
+            <p><a href="{{ p.get_type_obj.get_absolute_url }}">{{ p.get_type_obj.title }}</a></p>
+          </div>
+        {% endfor %}
+      </div>
+      </div>
+    {% endif %}
+  </div>
+  <div class="col-sm-12">
+    {% if contents|length > 0 %}
+    <h1>Описание</h1>
+    {% endif %}
+    <div class="product__content">
+      {% for content in contents %}
+        <p>{{ content.item.text }}</p>
+        <img src="{{ content.item }}" alt="">
+      {% endfor %}
+    </div>  
+  </div>
 </div>
 {% include 'comments/comments.html' %}
 </div>
+
 {% endblock %}
 
 {% block domready %}
-  $('a.wish').click(function(e){
+var form = $('.product-card-views');
+  var button = $('.btn');
+
+  function show_cart() {
+    // $('.cart-items').toggleClass('d-none');
+    $('.cart-items').removeClass('d-none');
+  }
+
+  $('.cart-container').on('click', function(e){
     e.preventDefault();
+    show_cart();
+  })
+
+
+  form.on('submit', function(e) {
+    e.preventDefault();
+    var cur_form = this;
+    var product_id = cur_form.id.slice(5);
+    var submit_btn = $(`#submit_btn_${product_id}`);
+    var quant = cur_form.quantity.value;
+    var delete_url = $('.delete-url').val();
+    var title = submit_btn.data("title");
+    var price = submit_btn.data("price");
+    var url = $(`#${cur_form.id}`).attr("action");
+    var update = cur_form.update.value;
+    var csrf_token = cur_form.csrfmiddlewaretoken.value;
+    var data = {};
+    data.quantity = quant;
+    data.update = update;
+    data["csrfmiddlewaretoken"] = csrf_token;
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: data,
+      cache: true,
+      success: function (data) {
+        let count = 0;
+        if (parseInt($(".badge_cart").text()) == 0){
+           count =  0;
+           $(".badge_cart").toggleClass('d-none');
+        } else {
+          count = parseInt($(".badge_cart").text());
+        }
+        var previous_action = submit_btn.attr('data-action');
+        submit_btn.attr('data-action', previous_action == 'add' ? 'delete' : 'add');
+        submit_btn.find('img').attr('src', previous_action == 'add' ? '{% static 'icons/cart_delete.png'%}' : '{% static 'icons/cart.png'%}')
+
+        count++;
+        console.log(count)
+        $(".badge_cart").text(count);
+      },
+      error: function () {
+        console.log('error');
+      },
+    })
+
+    $('.cart-items ul').append('<li>'+title+', '+quant+'шт. '+'по ' + price +' руб. ' +
+    `<a class="delete-item" href="${delete_url}${product_id}"> x</a>` +
+    '</li>')
+
+  })
+
+  $('.favorites_btn').click(function(e){
+    e.preventDefault();
+    let el = $(this);
     var args = {id: $(this).attr('data-id'), action: $(this).attr('data-action')}
     $.post('{% url "wishlist_actions" %}',
       args,
       function(data){
         if (data['status'] == 'ok')
         {
-          var previous_action = $('a.wish').attr('data-action');
+          var previous_action = el.attr('data-action');
           console.log(previous_action)
-          $('a.wish').attr('data-action', previous_action == 'add' ? 'reverse_add' : 'add')
-          $('a.wish').text(previous_action == 'add' ? 'Убрать' : 'Добавить');
-
+          el.attr('data-action', previous_action == 'add' ? 'reverse_add' : 'add');
+          el.find('img').attr('src', previous_action == 'add' ? '{% static 'icons/favorites_delete.png'%}' : '{% static 'icons/favorites.png'%}')
         }
       }
     );

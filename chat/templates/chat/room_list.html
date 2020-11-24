@@ -1,16 +1,33 @@
 {% extends "base.html" %}
-
-{% block title %}chat{% endblock %}
+{% load static %}
+{% block title %}Чат{% endblock %}
 {% block header_text %}Chat obana{% endblock %}
 
 {% block content %}
-    <ul class="rooms">
-        {% for room in rooms %}
-            <li class="room-link" data-room-id="{{ room.id }}"><a href="{{ room.get_absolute_url }}">Заказчик {{ user.username }}! Последнее сообщение {{ room.messages.last.id }}</a></li>
+  <!-- <h1>{% if category %}{{ category.name }}{% else %}Продукты{% endif %}</h1> -->
+
+  <div class="col-sm-12 col-xl-3">
+    <div id="sidebar" >
+      <div>
+        <img src="{% static 'icons/category.png'%}" alt="">
+        <h3>Диалоги</h3>
+      </div>
+      <ul>  
+        {% for r in rooms %}
+            <li class="room-link {%if room_id == r.id %}selected{% endif %}" >
+                <a href="/chat/{{ r.id }}">  
+                    {% for u in r.members.all %} 
+                        {% if user.username != u.username %}
+                            <span>{{u.first_name}} {{u.last_name}}</span>
+                        {% endif %}    
+                    {% endfor %}
+                </a>
+        </li>
         {% empty %}
             <p class="empty">У вас, пока, нет переписок </p>
         {% endfor %}
-    </ul>
-    <div id="chats">
+        </ul>
     </div>
+  </div>
+
 {% endblock %}

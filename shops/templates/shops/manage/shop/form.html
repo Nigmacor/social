@@ -9,19 +9,20 @@
 {% endblock %}
 
 {% block content %}
-  <h1>
-    {% if object %}
-      Редактирование магазина "{{ object.title }}"
-    {% else %}
-      Открытие магазина
-    {% endif %}
-  </h1>
-  <div class="mine-shop">
-    <h2>Информация о магазине</h2>
-    <form action="." method="post">
-      {{ form.as_p }}
-      {% csrf_token %}
-      <p><input type="submit" value="Сохранить"></p>
-    </form>
+  <div class="col-12">
+    <h1>
+      {% if object %}
+        Редактирование магазина "{{ object.title }}"
+      {% else %}
+        Открытие магазина
+      {% endif %}
+    </h1>
+    <div class="mine-shop">     
+      <form action="." method="post">
+        {{ form.as_p }}
+        {% csrf_token %}
+        <p><input type="submit" value="Сохранить"></p>
+      </form>
+    </div>
   </div>
 {% endblock %}

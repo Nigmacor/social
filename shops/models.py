@@ -18,6 +18,7 @@ def gen_slug(s):
     new_slug = slugify(s, allow_unicode=True)
     return new_slug + '-' + str(int(time()))
 
+
 # Добавить модель персонала
 class Shop(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -99,8 +100,7 @@ class AbstractService(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name='Изменено')
 
     def get_absolute_url(self):
-        url_name = '{}_detail_url'.format(self._meta.model_name)
-        return reverse(url_name, kwargs={'id': self.service_type.id, 'slug': self.slug})
+        return reverse('product_detail_url', kwargs={'id': self.service_type.id, 'slug': self.slug})
     def get_content_list_url(self):
         return reverse('product_content_list', kwargs={'product_id': self.service_type.id})
     def __str__(self):
@@ -119,6 +119,7 @@ class Product(AbstractService):
         ordering = ['-price']
         index_together = (('id', 'slug'),)
 
+
 class Service(AbstractService):
 
     class Meta:
@@ -128,8 +129,6 @@ class Service(AbstractService):
         index_together = (('id', 'slug'),)
 
 
-
-# переделать через ContentType
 class ProductGalary(models.Model):
     service = models.OneToOneField(ServiceType,
                                    on_delete=models.CASCADE,
@@ -145,6 +144,7 @@ class ProductGalary(models.Model):
     class Meta:
         verbose_name_plural = 'Галереи товаров'
         verbose_name = 'Галерея товаров'
+
 
 class ProductImage(abs_Image):
     galary = models.ForeignKey(ProductGalary,
@@ -189,15 +189,26 @@ class AbstractItem(models.Model):
     class Meta:
         abstract = True
 
-    def __str__(self):
-        return self.title
 
 class Text(AbstractItem):
     text = models.TextField()
+
+    def __str__(self):
+        return self.text
+
+
 class File(AbstractItem):
     file = models.FileField(upload_to='product/files/%Y/%m/%d/')
+
+    def __str__(self):
+        return self.file.url
+
+
 class Image(AbstractItem):
     image = models.ImageField(upload_to='product/images/%Y/%m/%d/')
+
+    def __str__(self):
+        return self.image.url
 
 
 class Wishlist(models.Model):

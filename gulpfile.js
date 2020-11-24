@@ -8,13 +8,17 @@ function style() {
   return gulp.src('account/static/scss/*.scss')
   .pipe(sass().on('error',sass.logError))
   .pipe(gulp.dest('account/static/css'))
-  .pipe(browserSync.stream());
+  // .pipe(browserSync.stream());
 }
 function watch() {
   browserSync.init({
+    ghostMode: false,
     notify: false,
     port: 8000,
-    proxy: '127.0.0.1:8000'
+    proxy: {
+      target: "127.0.0.1:8000",
+      ws: true
+    }, 
   });
   
   gulp.watch('./**/*.scss', style)

@@ -13,6 +13,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.contrib.postgres.search import TrigramSimilarity, SearchVector, SearchQuery, SearchRank
+from django.db.models.functions import Greatest
 
 import redis
 from braces.views import JsonRequestResponseMixin
@@ -22,7 +24,7 @@ from .models import Category, Shop, Product, Service, ProductContent, ServiceTyp
 
 from cart.forms import CartAddProductForm
 from .recommender import Recommender
-from .forms import ProductFormSet
+from .forms import ProductFormSet, SearchForm
 from comments.models import Comment
 from comments.forms import CommentForm
 from comments.views import CommentCreate
@@ -35,6 +37,7 @@ r = redis.StrictRedis(host=settings.REDIS_HOST,
 def shop(request, category_slug=None):
     category = None
     ancestors = None
+    search_form = SearchForm()
     categories = Category.objects.filter(parent=None)
     products = ServiceType.objects.filter(available=True)
     cart_product_form = CartAddProductForm()
@@ -56,7 +59,30 @@ def shop(request, category_slug=None):
     	'cart_product_form': cart_product_form,
     	'slider': slides,
     	'ancestors': ancestors,
+        'search_form': search_form,
     	})
+
+def product_search(request):
+    search_form = SearchForm()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        search_form = SearchForm(request.GET)
+    if search_form.is_valid():
+        query = search_form.cleaned_data['query']
+        search =Greatest(
+            TrigramSimilarity('product__title', query),
+            TrigramSimilarity('service__title', query),
+            TrigramSimilarity('product__short_description', query),
+            TrigramSimilarity('service__short_description', query)
+        )
+        results = ServiceType.objects.annotate(
+            similarity=search
+            ).filter(similarity__gt=0.2).filter(available=True).order_by('-similarity')
+    return render(request, 'shops/shop/search.html', {'search_form': search_form,
+                                                      'query': query,
+                                                      'results': results})
+
 
 
 class ProductDetail(View):
@@ -65,21 +91,20 @@ class ProductDetail(View):
         cart_product_form = CartAddProductForm()
         recomm = Recommender()
         recommended_products = recomm.suggest_products_for([product], 4)
-        #увеличение числа просмотров на 1
+        # увеличение числа просмотров на 1
         total_views = r.incr('products:{}:views'.format(product.id))
         r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
-        #выпилил из render 'total_views': total_views}
 
         context_product_detail = {'product': product.get_type_obj(),
         		 				  'cart_product_form': cart_product_form,
         		 			  	  'total_views': total_views,
-        		 			  	  'recommended_products': recommended_products}
+        		 			  	  'recommended_products': recommended_products,
+								  'contents': product.contents.all()}
 
         context_comment = CommentCreate.get_comment(self, request, product)
         context_product_detail.update(context_comment)
 
-        return render(request, 'shops/shop/product_detail.html',
-        			  context= context_product_detail)
+        return render(request, 'shops/shop/product_detail.html', context=context_product_detail)
 
     def post(self, request, slug, id):
         product = service_type_filter(id, slug)
@@ -234,7 +259,7 @@ class ContentCreateUpdateView(PermissionRequiredMixin, TemplateResponseMixin, Vi
 class ContentDeleteView(PermissionRequiredMixin, View):
 	permission_required = 'shops.delete_productcontent'
 	def post(self, request, id):
-		content = get_object_or_404(ProductContent,id=id)
+		content = get_object_or_404(ProductContent, id=id)
 		if request.user in content.product.get_type_obj().shop.employes.all():
 			product = content.product
 			content.item.delete()

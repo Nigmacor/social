@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
     'images.apps.ImagesConfig',
     'sorl.thumbnail',
     'actions.apps.ActionsConfig',
@@ -87,6 +88,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processor.cart',
             ],
+            'libraries':{
+                'user_avatar_url': 'chat.templatetags.user_avatar_url',
+                'chat_attach_url': 'chat.templatetags.chat_attach_url',
+
+            }
         },
     },
 ]
