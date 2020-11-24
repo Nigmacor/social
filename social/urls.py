@@ -23,6 +23,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
+    path('accounts/', include('allauth.urls')),
     path('images/', include('images.urls', namespace='images')),
     path('cart/', include('cart.urls')),
     path('payment/', include('payment.urls', namespace='payment')),

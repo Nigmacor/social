@@ -56,12 +56,13 @@ class CommentCreate(View):
 		else:
 			overall_rating = 0
 
-		context_all = {'page_object': page,
-				   	   'is_paginated': is_paginated,
-				       'next_url': next_url,
-				       'prev_url': prev_url,
-				       'amount_of_comments': amount_of_comments,
-				       'rating': overall_rating}
+		context = {'page_object': page,
+				   'is_paginated': is_paginated,
+				   'next_url': next_url,
+				   'prev_url': prev_url,
+				   'comment_form': comment_form,
+				   'rating': overall_rating,
+				   'images_form': images_form}
 
 		context.update(context_all)
 		return context

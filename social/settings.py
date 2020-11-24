@@ -40,12 +40,13 @@ INSTALLED_APPS = [
     'django_sass',
     'account.apps.AccountConfig',
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+    'django.contrib.auth',
+    'django.contrib.sites',
     'images.apps.ImagesConfig',
     'sorl.thumbnail',
     'actions.apps.ActionsConfig',
@@ -60,6 +61,9 @@ INSTALLED_APPS = [
     'chat',
     'psycopg2',
     'comments.apps.CommentsConfig',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount'
 
 ]
 
@@ -167,6 +171,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'account.authentication.EmailAuthBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 ABSOLUTE_URL_OVERRIDES = {
@@ -233,3 +238,5 @@ MESSAGE_TYPES_LIST = [
     MSG_TYPE_ENTER,
     MSG_TYPE_LEAVE,
 ]
+
+SITE_ID = 1
