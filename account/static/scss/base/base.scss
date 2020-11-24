@@ -703,7 +703,10 @@ form div.field {
                 filter: brightness(0) invert(1);
                 margin-right: 3px;
             }
-        }
+        }       
+    }
+    &__content{
+        margin: auto;
     }
     
 }

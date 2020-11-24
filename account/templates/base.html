@@ -18,15 +18,18 @@
     <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
   </head>
   <body>
-    {% if request.path == account or user_list in request.path or request.path == notifications or "/chat" in request.path%}
+    {% if request.path == account or user_list in request.path or request.path == notifications or "/chat" in request.path or "/shop" in request.path%}
     <div class="container">
     <div class="menu">
       <div class="row">
           <a class="logo col-sm-12 col-xl-3" href="{% url "shop" %}">Mаркетплейс</a>
           <div class="right_submenu col-sm-12 col-xl-9 row">
-                  <div class="col-sm-12 col-xl-8">
+                  <div class="col-sm-12 col-xl-9">
                     <a href="{% url 'dashboard' %}" class="btn">
                       <img src="{% static 'icons/tasks.png'%}"><div>Заказы</div>
+                    </a>
+                    <a href="/shop/mine" class="btn">
+                      <img src="{% static 'icons/shops.png'%}"><div>Магазины</div>
                     </a>
                     <a href="/chat/room_list" class="btn">
                       <img src="{% static 'icons/chat.png'%}"/>
@@ -40,7 +43,7 @@
                       <img src="{% static 'icons/notification.png'%}"><div>Уведомления</div>
                     </a>
                   </div>
-                  <div class="col-sm-12 col-xl-4 profile_block">
+                  <div class="col-sm-12 col-xl-3 profile_block">
                     <div class="dropdown">
                       <button class="btn profile_btn" id="dropdownMenu2">
                         <div style="background: center / cover no-repeat url({{request.user.profile.photo.url}})"></div>

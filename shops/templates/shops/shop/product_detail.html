@@ -98,12 +98,16 @@
       </div>
     {% endif %}
   </div>
-  <div>
-    <h1>Тут шок контент</h1>
-    {% for content in contents %}
-      <p>{{ content.item.text }}</p>
-      <img src="{{ content.item }}" alt="">
-    {% endfor %}
+  <div class="col-sm-12">
+    {% if contents|length > 0 %}
+    <h1>Описание</h1>
+    {% endif %}
+    <div class="product__content">
+      {% for content in contents %}
+        <p>{{ content.item.text }}</p>
+        <img src="{{ content.item }}" alt="">
+      {% endfor %}
+    </div>  
   </div>
 </div>
 {% include 'comments/comments.html' %}

@@ -614,6 +614,9 @@ form div.field {
     filter: brightness(0) invert(1);
     margin-right: 3px; }
 
+.product__content {
+  margin: auto; }
+
 .top-menu {
   background-color: #D5F9D9;
   color: #001A34;
@@ -885,8 +888,7 @@ footer {
         flex-wrap: wrap;
         margin-top: 10px; }
         #chats .message .text .attachments img {
-          max-width: 200px;
-          height: 150px;
+          max-height: 200px;
           object-fit: contain;
           object-position: left;
           margin-right: 10px;
@@ -945,7 +947,7 @@ footer {
     height: max-content;
     margin-top: 10px; }
     #chats #attachments img {
-      width: 60px;
+      height: 60px;
       margin: 5px; }
   #chats .send_input_wrapper {
     width: calc(100% - 20px);
@@ -1009,3 +1011,9 @@ footer {
     align-items: center; }
     #comments .chat_send img {
       margin-right: 7px; }
+  #comments .page-link {
+    color: #6BA371; }
+  #comments .page-item.active .page-link {
+    background-color: #6BA371;
+    border-color: #6BA371;
+    color: white; }
