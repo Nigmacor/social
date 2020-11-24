@@ -27,6 +27,9 @@ class Comment(models.Model):
         return reverse('reply_url', kwargs={'id': self.id,
                                             'id_p': self.product_or_service.id})
 
+    def get_complaint_comment_url(self):
+        return reverse('complaint_comment_url', kwargs={'id': self.id,
+                                                    'id_p': self.product_or_service.id})
 
     class Meta:
         ordering = ['-date']
@@ -40,9 +43,35 @@ class Reply(models.Model):
 
     def get_reply_delete_url(self):
         return reverse('reply_delete_url', kwargs={'id': self.id,
-                                                   'id_c': self.comment.id})
+                                                   'id_p': self.comment.id})
+
+    def get_complaint_reply_url(self):
+        return reverse('complaint_reply_url', kwargs={'id': self.id,
+                                                      'id_c': self.comment.id})
 
 
 class ImageComment(models.Model):
     comment = models.ForeignKey(Comment, related_name='images', on_delete=models.CASCADE, verbose_name='Комментарий')
     images_comment = models.ImageField(upload_to='comments/%Y/%m/%d/', verbose_name='Изображения', blank=True, null=True)
+
+
+class CommentType(models.Model):
+    def get_type_obj(self):
+        try:
+            return self.comment
+        except:
+            return self.reply
+        else:
+            print('bag')
+
+
+class ComplaintComment(models.Model):
+    comment = models.ForeignKey(Comment, related_name='complaints', on_delete=models.CASCADE, verbose_name='Комментарий', blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='complaint_comment_author', on_delete=models.CASCADE, verbose_name='Автор жалобы')
+    complaint = models.CharField(max_length=50, verbose_name='Жалоба')
+
+
+class ComplaintReply(models.Model):
+    reply = models.ForeignKey(Reply, related_name='complaints', on_delete=models.CASCADE, verbose_name='Ответ', blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='complaint_reply_author', on_delete=models.CASCADE, verbose_name='Автор жалобы')
+    complaint = models.CharField(max_length=50, verbose_name='Жалоба')

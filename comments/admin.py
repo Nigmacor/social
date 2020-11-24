@@ -1,7 +1,7 @@
 from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 
-from .models import Comment, Reply, ImageComment
+from .models import Comment, Reply, ImageComment, ComplaintComment, ComplaintReply
 
 # Register your models here.
 @admin.register(Comment)
@@ -15,3 +15,11 @@ class ReplyAdmin(admin.ModelAdmin):
 @admin.register(ImageComment)
 class ImageCommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'comment', 'images_comment')
+
+@admin.register(ComplaintComment)
+class ComplaintCommentAdmin(admin.ModelAdmin):
+    list_display = ('comment', 'author', 'complaint')
+
+@admin.register(ComplaintReply)
+class ComplaintReplyAdmin(admin.ModelAdmin):
+    list_display = ('reply', 'author', 'complaint')
