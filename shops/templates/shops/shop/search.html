@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Search{% endblock %}
+{% block title %}Поиск{% endblock %}
 
 {% block content %}
+<div class="col-12">
     {% if query %}
         <div>
             <h1>По запросу "{{ query }}"</h1>
@@ -21,7 +22,7 @@
                               {{ product.galary.main_image }}
                           {% else %}
                               {% static 'img/fiz.png' %}
-                          {% endif %})"
+                          {% endif %})">
                     </div>
                 </a>
                 <h4><a href="{{ product.get_type_obj.get_absolute_url }}">{{ product.get_type_obj.title }}</a></h4>
@@ -34,4 +35,5 @@
     {% else %}
         <h1>Искать товары</h1>
     {% endif %}
+</div>
 {% endblock %}
