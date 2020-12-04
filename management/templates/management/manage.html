@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+  Управление
+  <br>
+  Магазины:
+  {% for sh in shops %}
+    <a href="{{ sh.get_shop_info_url }}">{{ sh.shop.name }}</a>
+  {% endfor %}
+  <br>
+  Товары и услуги:
+  {% for pr in products %}
+    <a href="{{ pr.get_product_info_url }}">{{ pr.product_or_service.product.title }}</a>
+  {% endfor %}
+  <br>
+  <a href="{% url 'statistics_url' %}">Общая статистика</a>
+  {% endblock %}
+</div>

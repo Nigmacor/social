@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+  Ссылка: <a href="{{ product.product_or_service.product.get_absolute_url }}">{{ product.product_or_service.product.title }}</a>
+  <br>
+  Редактировать: <a href="{{ product.product_or_service.product.get_content_list_url }}">Контент</a>
+  <br>
+  <a href="{{ product.get_product_stat_url }}">Cтатистика</a>
+  <br>
+  <a href="{{ product.get_comments_stat_url }}">Комментарии</a>
+</div>
+{% endblock %}

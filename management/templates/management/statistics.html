@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+  Общая стоимость: {{ overall_price }}
+  <br>
+  Общее количество товаров на складе: {{ overall_county }}
+  <br>
+  Список продуктов:
+  {% for pr in products %}
+    <p>{{ pr.product_or_service.product.shop.name }}:
+    <br>
+    <a href="{{ pr.product_or_service.product.get_absolute_url }}">{{ pr.product_or_service.product.title }}</a>
+    <br>
+    Описание: {{ pr.product_or_service.product.description }}
+    <br>
+    Доступность: {{ pr.product_or_service.product.available }}
+    <br>
+    Редактировать: <a href="{{ pr.product_or_service.product.get_content_list_url }}">Контент</a>
+    <br>
+    Стоимость единицы: <td class="num">{{ pr.product_or_service.product.price }}руб.</td>
+    <br>
+    Всего на складе: <td class="num">{{ pr.product_or_service.product.county }} шт.</td>
+    <br>
+    Комментариев: {{ pr.amount_of_comments }}
+    <br>
+    Просмотров: {{ pr.views }}
+    <br>
+    Заказов: {{ pr.orders }}
+    <br>
+    Стоимость заказов: {{ pr.orders_cost }} руб.
+    <br>
+    Оплаченные заказы: {{ pr.paid_orders }}
+    <br>
+    Стоимость оплаченных заказов: {{ pr.paid_orders_cost }} руб.
+    </p>
+  {% endfor %}
+</div>
+{% endblock %}
