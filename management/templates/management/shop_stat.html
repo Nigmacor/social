@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+  <p>Название: {{ shop.shop.name }}:
+    <br>
+    email: {{ shop.shop.contact_email }}
+    <br>
+    Телефон: {{ shop.shop.contact_phone }}
+    <br>
+    Владелец: {{ shop.shop.owner }}
+    <br>
+    Продукты:
+    <br>
+    {% for product in products %}
+      -<a href="{{ product.get_product_stat_url }}">{{ product.product_or_service.product.title }}</a>
+      <br>
+    {% endfor %}
+    Общая стоимость товаров: <td class="num">{{ overall_price }} руб.</td>
+    <br>
+    Общее количество товаров на складе: <td class="num">{{ overall_county }} шт.</td>
+    <br>
+    Средний рейтинг: {{ shop.rating }}
+    <br>
+    Всего комментариев: {{ shop.amount_of_comments }}
+    <br>
+    Всего просмотров: {{ shop.views }}
+    <br>
+    Всего заказов: {{ shop.orders }}
+    <br>
+    Общая стоимость заказов: {{ shop.orders_cost }} руб.
+    <br>
+    Количество оплаченных заказов: {{ shop.paid_orders }}
+    <br>
+    Стоимость оплаченных заказов: {{ shop.paid_orders_cost }} руб.
+    <br>
+    Бестселлер: {{ bestseller.product_or_service.product.title }}
+    <br>
+    Меньше всего продаж: {{ leastseller.product_or_service.product.title }}
+  </p>
+</div>
+{% endblock %}

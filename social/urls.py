@@ -31,6 +31,7 @@ urlpatterns = [
     path('coupons/', include('coupons.urls', namespace='coupons')),
     path('projects/', include('projects.urls')),
     path('chat/', include('chat.urls', namespace='chats')),
+    path('manage/', include('management.urls')),
     path('', include('shops.urls')),
 ]
 if settings.DEBUG:

@@ -103,15 +103,6 @@ class AbstractService(models.Model):
         return reverse('product_detail_url', kwargs={'id': self.service_type.id, 'slug': self.slug})
     def get_content_list_url(self):
         return reverse('product_content_list', kwargs={'product_id': self.service_type.id})
-    def get_amount_of_comments(self):
-        comments_objects = self.service_type.comment_product_or_service.filter(product_or_service=self.service_type)
-        amount_of_this_comments = comments_objects.count()
-        amount_of_replys = 0
-        for comment in comments_objects:
-            replys = comment.reply.count()
-            amount_of_replys += replys
-        amount_of_comments = amount_of_this_comments + amount_of_replys
-        return amount_of_comments
     def __str__(self):
         return self.title
     class Meta:

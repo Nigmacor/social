@@ -4,7 +4,7 @@
 <div id="comments">
 Рейтинг: {{ rating }}
 <hr>
-<p>Комментариев: {{ product.get_amount_of_comments }}</p>
+<p>Комментариев: {{ amount_of_comments }}</p>
 <br>
 
 {% if request.user.is_authenticated %}

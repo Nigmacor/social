@@ -9,40 +9,44 @@ from .models import Comment, Reply, ImageComment, ComplaintComment, ComplaintRep
 from .forms import CommentForm, CommentAddForm, ReplyForm, ImageCommentForm, ComplaintCommentForm, ComplaintReplyForm
 from shops.models import ServiceType
 from .utils import ObjectDeleteMixin
-from orders.models import OrderItem
+from management.models import Statistics
 
 
 # Create your views here.
+def get_amount_of_comments(comments_objects):
+	amount_of_this_comments = comments_objects.count()
+	amount_of_replys = 0
+	for comment in comments_objects:
+		replys = comment.reply.count()
+		amount_of_replys += replys
+	amount_of_comments = amount_of_this_comments + amount_of_replys
+	return amount_of_comments
+
+
+def paginate_comments(request, comments_objects):
+	paginator = Paginator(comments_objects, 5)
+	page_number = request.GET.get('page', 1)
+	page = paginator.get_page(page_number)
+	is_paginated = page.has_other_pages()
+	if page.has_previous():
+		prev_url = '?page={}'.format(page.previous_page_number())
+	else:
+		prev_url = ''
+	if page.has_next():
+		next_url = '?page={}'.format(page.next_page_number())
+	else:
+		next_url = ''
+	return page, is_paginated, next_url, prev_url
+
+
 class CommentCreate(View):
 	def get_comment(self, request, product):
 		comments_objects = Comment.objects.filter(product_or_service=product).order_by('-date')
-		amount_of_comments = comments_objects.count()
-		context = {}
-
-		if request.user.is_authenticated:
-			order_objects = OrderItem.objects.filter(order__user=request.user)
-			for order in order_objects:
-				if order.product==product and order.order.paid==True:
-					button = True
-					comment_form = CommentForm()
-					images_form = ImageCommentForm()
-					context_forms = {'comment_form': comment_form,
-						   	     	 'images_form': images_form,
-									 'button': button}
-					context.update(context_forms)
-
-		paginator = Paginator(comments_objects, 5)
-		page_number = request.GET.get('page', 1)
-		page = paginator.get_page(page_number)
-		is_paginated = page.has_other_pages()
-		if page.has_previous():
-			prev_url = '?page={}'.format(page.previous_page_number())
-		else:
-			prev_url = ''
-		if page.has_next():
-			next_url = '?page={}'.format(page.next_page_number())
-		else:
-			next_url = ''
+		amount_of_comments = get_amount_of_comments(comments_objects)
+		Statistics.objects.filter(product_or_service=product).update(amount_of_comments=amount_of_comments)
+		comment_form = CommentForm()
+		images_form = ImageCommentForm()
+		page, is_paginated, next_url, prev_url = paginate_comments(request, comments_objects)
 
 		summ_rating = 0
 		for com in Comment.objects.filter(product_or_service=product):
@@ -52,11 +56,12 @@ class CommentCreate(View):
 		if amount_of_comments != 0:
 			overall_rating = summ_rating/amount_of_comments
 			overall_rating = round(overall_rating, 2)
-
+			Statistics.objects.filter(product_or_service=product).update(rating=overall_rating)
 		else:
 			overall_rating = 0
 
 		context = {'page_object': page,
+				   'amount_of_comments': amount_of_comments,
 				   'is_paginated': is_paginated,
 				   'next_url': next_url,
 				   'prev_url': prev_url,

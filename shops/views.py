@@ -29,6 +29,8 @@ from comments.models import Comment
 from comments.forms import CommentForm
 from comments.views import CommentCreate
 from .utils import service_type_filter
+from management.models import Statistics
+
 # Create your views here.
 r = redis.StrictRedis(host=settings.REDIS_HOST,
 					  port=settings.REDIS_PORT,
@@ -84,7 +86,7 @@ def product_search(request):
                                                       'results': results})
 
 
-def total_views_count(id, product):
+def total_views_count(product):
 	total_views = r.incr('products:{}:views'.format(product.id))
 	return total_views
 
@@ -96,20 +98,21 @@ class ProductDetail(View):
 		recomm = Recommender()
 		recommended_products = recomm.suggest_products_for([product], 4)
 		#увеличение числа просмотров на 1
-		total_views = total_views_count(id, product)
+		total_views = total_views_count(product)
+		Statistics.objects.filter(product_or_service__product__slug=slug).update(views=total_views)
 		r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
 		#выпилил из render 'total_views': total_views}
 
 		context_product_detail = {'product': product.get_type_obj(),
-		'cart_product_form': cart_product_form,
-		'total_views': total_views,
-		'recommended_products': recommended_products}
+								  'cart_product_form': cart_product_form,
+								  'total_views': total_views,
+								  'recommended_products': recommended_products}
 
 		context_comment = CommentCreate.get_comment(self, request, product)
 		context_product_detail.update(context_comment)
 
 		return render(request, 'shops/shop/product_detail.html',
-		context= context_product_detail)
+					  context= context_product_detail)
 
 	def post(self, request, slug, id):
 		product = service_type_filter(id, slug)
