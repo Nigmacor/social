@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'comments.apps.CommentsConfig',
     'allauth',
     'allauth.account',
-    'allauth.socialaccount'
+    'allauth.socialaccount',
+    'management.apps.ManagementConfig',
 
 ]
 
