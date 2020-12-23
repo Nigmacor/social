@@ -41,6 +41,9 @@ class Shop(models.Model):
     template_prefix = models.SlugField(max_length=92, help_text="obana.ru/THIS/...", unique=True)
     def __str__(self):
         return self.name
+    def get_absolute_url(self):
+        url_name = '{}_detail_url'.format(self._meta.model_name)
+        return reverse(url_name, kwargs={'id': self.id})
 
 
 class Category(MPTTModel):
@@ -83,6 +86,16 @@ class ServiceType(models.Model):
         except:
             pass
         return 'Нет ссылки на товар id:{}'.format(self.id)
+
+    def define_type(self):
+        try:
+            product = self.product
+            type = 'Продукт'
+            return type
+        except:
+            product = self.service
+            type = 'Услуга'
+            return type
 
 
 class AbstractService(models.Model):

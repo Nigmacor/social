@@ -7,33 +7,33 @@
 
 {% block content %}
 <div>
-  <p>{{ product.product_or_service.product.title }}
-    <!-- услуга или товар в скобках после названия -->
-    :
+  <p>{{ product.product_or_service.product.title }}{{ service.product_or_service.service.title }}:
     <br>
-    Описание: {{ product.product_or_service.product.description }}
+    Описание: {{ product.product_or_service.product.description }}{{ service.product_or_service.service.description }}
     <br>
-    Доступность: {{ product.product_or_service.product.available }}
+    Доступность: {{ product.product_or_service.product.available }}{{ service.product_or_service.service.available }}
     <br>
-    Стоимость единицы: <td class="num">{{ product.product_or_service.product.price }}руб.</td>
+    {% if product %}
+      Стоимость единицы: <td class="num">{{ product.product_or_service.product.price }} руб.</td>
+      <br>
+      Всего на складе: <td class="num">{{ product.product_or_service.product.county }} шт.</td>
+      <br>
+      Стоимость товаров на складе: <td class="num">{{ overall_price }}руб.</td>
+      <br>
+    {% endif %}
+    Рейтинг: {{ product.rating }}{{ service.rating }}
     <br>
-    Всего на складе: <td class="num">{{ product.product_or_service.product.county }} шт.</td>
+    Комментариев: {{ product.amount_of_comments }}{{ service.amount_of_comments }}
     <br>
-    Стоимость товаров на складе: <td class="num">{{ overall_price }}руб.</td>
+    Просмотров: {{ product.views }}{{ service.views }}
     <br>
-    Рейтинг: {{ product.rating }}
+    Заказов: {{ product.orders }}{{ service.orders }}
     <br>
-    Комментариев: {{ product.amount_of_comments }}
+    Стоимость заказов: {{ product.orders_cost }}{{ service.orders_cost }} руб.
     <br>
-    Просмотров: {{ product.views }}
+    Оплаченные заказы: {{ product.paid_orders }}{{ service.paid_orders }}
     <br>
-    Заказов: {{ product.orders }}
-    <br>
-    Стоимость заказов: {{ product.orders_cost }} руб.
-    <br>
-    Оплаченные заказы: {{ product.paid_orders }}
-    <br>
-    Стоимость оплаченных заказов: {{ product.paid_orders_cost }} руб.
+    Стоимость оплаченных заказов: {{ product.paid_orders_cost }}{{ service.paid_orders_cost }} руб.
   </p>
 </div>
 {% endblock %}

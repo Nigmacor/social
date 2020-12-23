@@ -7,38 +7,142 @@
 
 {% block content %}
 <div>
-  Общая стоимость: {{ overall_price }}
+  Общая стоимость продуктов (не услуг) во всех магазинах: {{ overall_price }}
   <br>
-  Общее количество товаров на складе: {{ overall_county }}
+  Общее количество продуктов (не услуг) на складе во всех магазинах: {{ overall_county }}
   <br>
-  Список продуктов:
-  {% for pr in products %}
-    <p>{{ pr.product_or_service.product.shop.name }}:
+  {% for shop in shops %}
+    <b>{{ shop.shop.name }}:</b>
     <br>
-    <a href="{{ pr.product_or_service.product.get_absolute_url }}">{{ pr.product_or_service.product.title }}</a>
     <br>
-    Описание: {{ pr.product_or_service.product.description }}
-    <br>
-    Доступность: {{ pr.product_or_service.product.available }}
-    <br>
-    Редактировать: <a href="{{ pr.product_or_service.product.get_content_list_url }}">Контент</a>
-    <br>
-    Стоимость единицы: <td class="num">{{ pr.product_or_service.product.price }}руб.</td>
-    <br>
-    Всего на складе: <td class="num">{{ pr.product_or_service.product.county }} шт.</td>
-    <br>
-    Комментариев: {{ pr.amount_of_comments }}
-    <br>
-    Просмотров: {{ pr.views }}
-    <br>
-    Заказов: {{ pr.orders }}
-    <br>
-    Стоимость заказов: {{ pr.orders_cost }} руб.
-    <br>
-    Оплаченные заказы: {{ pr.paid_orders }}
-    <br>
-    Стоимость оплаченных заказов: {{ pr.paid_orders_cost }} руб.
-    </p>
+    {% for pr in shop.stats_shop.all %}
+      {% if pr.type == 'Продукт' %}
+        <a href="{{ pr.product_or_service.product.get_absolute_url }}">{{ pr.product_or_service.product.title }}</a>
+        <br>
+        Тип: {{ pr.type }}
+        <br>
+        Описание: {{ pr.product_or_service.product.description }}
+        <br>
+        Доступность: {{ pr.product_or_service.product.available }}
+        <br>
+        Редактировать: <a href="{{ pr.product_or_service.product.get_content_list_url }}">Контент</a>
+        <br>
+        Стоимость единицы: <td class="num">{{ pr.product_or_service.product.price }} руб.</td>
+        <br>
+        Всего на складе: <td class="num">{{ pr.product_or_service.product.county }} шт.</td>
+        <br>
+        Комментариев: {{ pr.amount_of_comments }}
+        <br>
+        Просмотров: {{ pr.views }}
+        <br>
+        Заказов: {{ pr.orders }}
+        <br>
+        Стоимость заказов: {{ pr.orders_cost }} руб.
+        <br>
+        Оплаченные заказы: {{ pr.paid_orders }}
+        <br>
+        Стоимость оплаченных заказов: {{ pr.paid_orders_cost }} руб.
+        <br>
+        <br>
+      {% endif %}
+      {% if pr.type == 'Услуга' %}
+        <a href="{{ pr.product_or_service.service.get_absolute_url }}">{{ pr.product_or_service.service.title }}</a>
+        <br>
+        Тип: {{ pr.type }}
+        <br>
+        Описание: {{ pr.product_or_service.service.description }}
+        <br>
+        Доступность: {{ pr.product_or_service.service.available }}
+        <br>
+        Редактировать: <a href="{{ pr.product_or_service.service.get_content_list_url }}">Контент</a>
+        <br>
+        Комментариев: {{ pr.amount_of_comments }}
+        <br>
+        Просмотров: {{ pr.views }}
+        <br>
+        Заказов: {{ pr.orders }}
+        <br>
+        Стоимость заказов: {{ pr.orders_cost }} руб.
+        <br>
+        Оплаченные заказы: {{ pr.paid_orders }}
+        <br>
+        Стоимость оплаченных заказов: {{ pr.paid_orders_cost }} руб.
+        <br>
+        <br>
+      {% endif %}
+    {% endfor %}
   {% endfor %}
+
+  {% for shop in shops %}
+    <b>{{ shop.shop.name }}:</b>
+    <table id="example" class="display" style="width:100%">
+          <thead>
+              <tr>
+                  <th>Товар</th>
+                  <th>Тип</th>
+                  <th>Описание</th>
+                  <th>Доступность</th>
+                  <th>Редактировать</th>
+                  <th>Стоимость единицы</th>
+                  <th>Всего на складе</th>
+                  <th>Комментариев</th>
+                  <th>Просмотров</th>
+                  <th>Заказов</th>
+                  <th>Стоимость заказов</th>
+                  <th>Оплаченные заказы</th>
+                  <th>Стоимость оплаченных заказов</th>
+              </tr>
+          </thead>
+          <tbody>
+            {% for pr in shop.stats_shop.all %}
+              {% if pr.type == 'Продукт' %}
+                <tr>
+                    <td><a href="{{ pr.product_or_service.product.get_absolute_url }}">{{ pr.product_or_service.product.title }}</a></td>
+                    <td>{{ pr.type }}</td>
+                    <td>{{ pr.product_or_service.product.description }}</td>
+                    <td>{{ pr.product_or_service.product.available }}</td>
+                    <td><a href="{{ pr.product_or_service.product.get_content_list_url }}">Контент</a></td>
+                    <td>{{ pr.product_or_service.product.price }} руб.</td>
+                    <td>{{ pr.product_or_service.product.county }} шт.</td>
+                    <td>{{ pr.amount_of_comments }}</td>
+                    <td>{{ pr.views }}</td>
+                    <td>{{ pr.orders }}</td>
+                    <td>{{ pr.orders_cost }} руб.</td>
+                    <td>{{ pr.paid_orders }}</td>
+                    <td>{{ pr.paid_orders_cost }} руб.</td>
+                </tr>
+              {% endif %}
+              {% if pr.type == 'Услуга' %}
+                <tr>
+                    <td><a href="{{ pr.product_or_service.service.get_absolute_url }}">{{ pr.product_or_service.service.title }}</a></td>
+                    <td>{{ pr.type }}</td>
+                    <td>{{ pr.product_or_service.service.description }}</td>
+                    <td>{{ pr.product_or_service.service.available }}</td>
+                    <td><a href="{{ pr.product_or_service.service.get_content_list_url }}">Контент</a></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>{{ pr.amount_of_comments }}</td>
+                    <td>{{ pr.views }}</td>
+                    <td>{{ pr.orders }}</td>
+                    <td>{{ pr.orders_cost }} руб.</td>
+                    <td>{{ pr.paid_orders }}</td>
+                    <td>{{ pr.paid_orders_cost }} руб.</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          </tbody>
+      </table>
+  {% endfor %}
+
 </div>
+{% endblock %}
+{% block js_stuff %}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js">
+  <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#example').DataTable();
+    } );
+  </script>
 {% endblock %}

@@ -7,9 +7,10 @@
 
 {% block content %}
 <div>
-  Ссылка: <a href="{{ product.product_or_service.product.get_absolute_url }}">{{ product.product_or_service.product.title }}</a>
+  Ссылка: <a href="{{ product.product_or_service.product.get_absolute_url }}">{{ product.product_or_service.product.title }}
+  <a href="{{ service.product_or_service.service.get_absolute_url }}">{{ service.product_or_service.service.title }}</a>
   <br>
-  Редактировать: <a href="{{ product.product_or_service.product.get_content_list_url }}">Контент</a>
+  Редактировать: <a href="{{ product.product_or_service.product.get_content_list_url }}{{ service.product_or_service.service.get_content_list_url }}">Контент</a>
   <br>
   <a href="{{ product.get_product_stat_url }}">Cтатистика</a>
   <br>

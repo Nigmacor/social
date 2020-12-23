@@ -10,15 +10,23 @@
   Управление
   <br>
   Магазины:
+  <br>
+  <ul>
   {% for sh in shops %}
-    <a href="{{ sh.get_shop_info_url }}">{{ sh.shop.name }}</a>
+    <li><a href="{{ sh.get_shop_info_url }}">{{ sh.shop.name }}</a></li>
+    Товары и услуги:
+    <ol>
+    {% for pr in sh.stats_shop.all %}
+      {% if pr.product_or_service.product %}
+        <li><a href="{{ pr.get_product_info_url }}">{{ pr.product_or_service.product.title }}(Продукт)</a></li>
+      {% endif %}
+      {% if pr.product_or_service.service %}
+        <li><a href="{{ pr.get_product_info_url }}">{{ pr.product_or_service.service.title }}(Услуга)</a></li>
+      {% endif %}
+    {% endfor %}
+    </ol>
   {% endfor %}
-  <br>
-  Товары и услуги:
-  {% for pr in products %}
-    <a href="{{ pr.get_product_info_url }}">{{ pr.product_or_service.product.title }}</a>
-  {% endfor %}
-  <br>
+  </ul>
   <a href="{% url 'statistics_url' %}">Общая статистика</a>
   {% endblock %}
 </div>

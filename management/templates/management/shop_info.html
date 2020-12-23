@@ -7,9 +7,10 @@
 
 {% block content %}
 <div>
-  Ссылка: {{ shop.shop.name }}
+  Ссылка:<a href="{{ shop.shop.get_absolute_url }}">{{ shop.shop.name }}</a>
   <br>
   Редактировать: Контент
+  <!-- Нужно понять, что такое pk в урлах -->
   <br>
   <a href="{{ shop.get_shop_stat_url }}">Cтатистика</a>
 </div>

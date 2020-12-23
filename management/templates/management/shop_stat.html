@@ -19,12 +19,15 @@
     <br>
     {% for product in products %}
       -<a href="{{ product.get_product_stat_url }}">{{ product.product_or_service.product.title }}</a>
+      <a href="{{ product.get_product_stat_url }}">{{ product.product_or_service.service.title }}</a>
       <br>
     {% endfor %}
-    Общая стоимость товаров: <td class="num">{{ overall_price }} руб.</td>
-    <br>
-    Общее количество товаров на складе: <td class="num">{{ overall_county }} шт.</td>
-    <br>
+    {% if product.type == 'Продукт' %}
+      Общая стоимость товаров: <td class="num">{{ overall_price }} руб.</td>
+      <br>
+      Общее количество товаров на складе: <td class="num">{{ overall_county }} шт.</td>
+      <br>
+    {% endif %}
     Средний рейтинг: {{ shop.rating }}
     <br>
     Всего комментариев: {{ shop.amount_of_comments }}
@@ -39,9 +42,9 @@
     <br>
     Стоимость оплаченных заказов: {{ shop.paid_orders_cost }} руб.
     <br>
-    Бестселлер: {{ bestseller.product_or_service.product.title }}
+    Бестселлер: {{ bestseller.product_or_service.product.title }}{{ bestseller.product_or_service.service.title }}
     <br>
-    Меньше всего продаж: {{ leastseller.product_or_service.product.title }}
+    Меньше всего продаж: {{ leastseller.product_or_service.product.title }}{{ leastseller.product_or_service.service.title }}
   </p>
 </div>
 {% endblock %}

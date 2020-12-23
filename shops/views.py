@@ -99,7 +99,10 @@ class ProductDetail(View):
 		recommended_products = recomm.suggest_products_for([product], 4)
 		#увеличение числа просмотров на 1
 		total_views = total_views_count(product)
-		Statistics.objects.filter(product_or_service__product__slug=slug).update(views=total_views)
+		if product.define_type() == 'Продукт':
+			Statistics.objects.filter(product_or_service__product__slug=slug).update(views=total_views)
+		if product.define_type() == 'Услуга':
+			Statistics.objects.filter(product_or_service__service__slug=slug).update(views=total_views)
 		r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
 		#выпилил из render 'total_views': total_views}
 

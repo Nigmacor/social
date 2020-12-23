@@ -2,89 +2,29 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 from .models import Statistics, Statistics_shop
 from orders.models import OrderItem
 from shops.models import Shop, ServiceType
 from comments.models import Comment
 from comments.views import paginate_comments
+from .utils import overall_county_and_price_in_shop, overall_county_and_price
 
 # Create your views here.
-def overall_county_and_price_in_shop(products):
-    overall_price_in_shop=0
-    overall_county_in_shop=0
-    for product in products:
-        price=product.product_or_service.product.price
-        county=product.product_or_service.product.county
-        overall_price_of_products=county*price
-        overall_price_in_shop+=overall_price_of_products
-        overall_county_in_shop+=county
-    return overall_price_in_shop, overall_county_in_shop
-
-def overall_county_and_price(shops):
-    # overall_price=0
-    # overall_price_of_products=0
-    # overall_price_in_shop = 0
-    # overall_county=0
-    # overall_county_in_shop=0
-    # for shop in shops:
-    #     for product in products:
-    #         price=product.product_or_service.product.price
-    #         overall_price_of_products=county*price
-    #         overall_price_in_shop+=overall_price_of_products
-    #         county=product.product_or_service.product.county
-    #         overall_county_in_shop+=county
-    #     overall_price+=overall_price_in_shop
-    #     overall_county+=overall_county_in_shop
-    # return overall_price, overall_county
-
-    overall_price=0
-    overall_county=0
-    for shop in shops:
-        products = Statistics.objects.filter(st_shop=shop)
-        overall_price_in_shop, overall_county_in_shop = overall_county_and_price_in_shop(products)
-        overall_price+=overall_price_in_shop
-        overall_county+=overall_county_in_shop
-    return overall_price, overall_county
-
-
 class Manage(LoginRequiredMixin, View):
     def get(self, request):
-        products = Statistics.objects.filter(product_or_service__product__shop__employes=request.user)
-        shops = Statistics_shop.objects.filter(shop__employes=request.user)
         shops_origin = Shop.objects.filter(employes=request.user)
-        products_origin = ServiceType.objects.filter(product__shop__employes=request.user)
 
         for shop_or in shops_origin:
             Statistics_shop.objects.update_or_create(shop=shop_or)
-        for product_or in products_origin:
-            shop=Statistics_shop.objects.get(shop=product_or.product.shop)
-            Statistics.objects.update_or_create(product_or_service=product_or, st_shop=shop)
+            shop = Statistics_shop.objects.get(shop=shop_or)
+            for product_or in shop_or.product.all():
+                Statistics.objects.update_or_create(product_or_service=product_or.service_type, st_shop=shop, type='Продукт')
+            for service_or in shop_or.service.all():
+                Statistics.objects.update_or_create(product_or_service=service_or.service_type, st_shop=shop, type='Услуга')
 
-        for product in products:
-            quantity=0
-            total_cost=0
-            paid_quantity=0
-            paid_total_cost=0
-            orders = OrderItem.objects.filter(product=product.product_or_service)
-
-            for order in orders:
-                this_quantity = order.quantity
-                quantity=quantity+this_quantity
-                this_cost = order.get_cost()
-                total_cost= total_cost+this_cost
-
-                if order.order.paid == True:
-                    paid_this_quantity = order.quantity
-                    paid_quantity=paid_quantity+paid_this_quantity
-                    paid_this_cost = order.get_cost()
-                    paid_total_cost= paid_total_cost+paid_this_cost
-
-            Statistics.objects.filter(product_or_service=product.product_or_service).update(orders=quantity,
-                                                                                            orders_cost=total_cost,
-                                                                                            paid_orders=paid_quantity,
-                                                                                            paid_orders_cost=paid_total_cost,
-                                                                                            )
+        shops = Statistics_shop.objects.filter(shop__employes=request.user)
 
         for shop in shops:
             products_in_shop = Statistics.objects.filter(st_shop=shop)
@@ -110,7 +50,32 @@ class Manage(LoginRequiredMixin, View):
                 quantity_of_products_and_services+=1
                 sum_rating+=product.rating
 
-            rating_in_shop=sum_rating/quantity_of_products_and_services
+                quantity=0
+                total_cost=0
+                paid_quantity=0
+                paid_total_cost=0
+                orders = OrderItem.objects.filter(product=product.product_or_service)
+                for order in orders:
+                    this_quantity=order.quantity
+                    quantity+=this_quantity
+                    this_cost=order.get_cost()
+                    total_cost=total_cost+this_cost
+
+                    if order.order.paid == True:
+                        paid_this_quantity=order.quantity
+                        paid_quantity+=paid_this_quantity
+                        paid_this_cost=order.get_cost()
+                        paid_total_cost=paid_total_cost+paid_this_cost
+
+                Statistics.objects.filter(product_or_service=product.product_or_service).update(orders=quantity,
+                                                                                                orders_cost=total_cost,
+                                                                                                paid_orders=paid_quantity,
+                                                                                                paid_orders_cost=paid_total_cost,
+                                                                                                )
+
+            if quantity_of_products_and_services != 0:
+                rating_in_shop=sum_rating/quantity_of_products_and_services
+
             Statistics_shop.objects.filter(shop=shop.shop).update(orders=quantity_in_shop,
                                                                   orders_cost=total_cost_in_shop,
                                                                   paid_orders=paid_quantity_in_shop,
@@ -124,7 +89,6 @@ class Manage(LoginRequiredMixin, View):
 
         return render(request, 'management/manage.html',
 					  context={'shops': shops,
-                               'products': products,
                                })
 
     def post(self, request, id):
@@ -133,12 +97,10 @@ class Manage(LoginRequiredMixin, View):
 
 class Statistic(LoginRequiredMixin, View):
     def get(self, request):
-        products = Statistics.objects.filter(product_or_service__product__shop__employes=request.user)
         shops = Statistics_shop.objects.filter(shop__employes=request.user)
-        # products = Statistics.objects.filter(st_shop=shop)
         overall_price, overall_county = overall_county_and_price(shops)
         return render(request, 'management/statistics.html',
-					  context={'products': products,
+					  context={'shops': shops,
                                'overall_price': overall_price,
                                'overall_county': overall_county,
                                })
@@ -166,7 +128,7 @@ class Shop_stat(LoginRequiredMixin, View):
         products = Statistics.objects.filter(st_shop=shop)
 
         # В идеале сделать сортировку по заказам, цене и т.д.
-        bestsellers_orders=0
+        bestsellers_orders=-1
         bestseller=None
         leastseller_orders=9999999
         leastseller=None
@@ -195,9 +157,17 @@ class Shop_stat(LoginRequiredMixin, View):
 
 class Prod_info(LoginRequiredMixin, View):
     def get(self, request, id):
-        product = Statistics.objects.get(id=id)
+        product = 0
+        service = 0
+        pr_or_serv = Statistics.objects.get(id=id)
+        if pr_or_serv.product_or_service.define_type() == 'Продукт':
+            product = pr_or_serv
+            overall_price=product.product_or_service.product.price*product.product_or_service.product.county
+        if pr_or_serv.product_or_service.define_type() == 'Услуга':
+            service = pr_or_serv
         return render(request, 'management/prod_info.html',
 					  context={'product': product,
+                               'service': service,
                                })
 
     def post(self, request, id):
@@ -206,12 +176,18 @@ class Prod_info(LoginRequiredMixin, View):
 
 class Prod_stat(LoginRequiredMixin, View):
     def get(self, request, id):
-        product = Statistics.objects.get(id=id)
-        # определить услуга или товар
-
-        overall_price=product.product_or_service.product.price*product.product_or_service.product.county
+        product = 0
+        service = 0
+        overall_price = 0
+        pr_or_serv = Statistics.objects.get(id=id)
+        if pr_or_serv.product_or_service.define_type() == 'Продукт':
+            product = pr_or_serv
+            overall_price=product.product_or_service.product.price*product.product_or_service.product.county
+        if pr_or_serv.product_or_service.define_type() == 'Услуга':
+            service = pr_or_serv
         return render(request, 'management/prod_stat.html',
 					  context={'product': product,
+                               'service': service,
                                'overall_price': overall_price,
                                })
 
