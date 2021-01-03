@@ -35,12 +35,16 @@ class Statistics(models.Model):
     in_cart = models.DecimalField(max_digits=999, decimal_places=0, default=0, verbose_name='В корзине')
     rating = models.DecimalField(max_digits=999, decimal_places=2, default=0, verbose_name='Рейтинг')
     type = models.CharField(max_length=100, verbose_name='Тип', blank=True, null=True)
+    views_per_day = models.CharField(max_length=100000, verbose_name='Просмотры за день', default={})
 
     def get_product_info_url(self):
         return reverse('prod_info_url', kwargs={'id': self.id})
 
     def get_product_stat_url(self):
         return reverse('prod_stat_url', kwargs={'id': self.id})
+
+    def get_product_stat_daily_url(self):
+        return reverse('prod_stat_daily_url', kwargs={'id': self.id})
 
     def get_comments_stat_url(self):
         return reverse('comments_stat_url', kwargs={'id': self.id})

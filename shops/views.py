@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
@@ -17,6 +17,7 @@ from django.contrib.postgres.search import TrigramSimilarity, SearchVector, Sear
 from django.db.models.functions import Greatest
 
 import redis
+import json
 from braces.views import JsonRequestResponseMixin
 from common.decorators import ajax_required
 
@@ -99,10 +100,28 @@ class ProductDetail(View):
 		recommended_products = recomm.suggest_products_for([product], 4)
 		#увеличение числа просмотров на 1
 		total_views = total_views_count(product)
+
 		if product.define_type() == 'Продукт':
 			Statistics.objects.filter(product_or_service__product__slug=slug).update(views=total_views)
 		if product.define_type() == 'Услуга':
 			Statistics.objects.filter(product_or_service__service__slug=slug).update(views=total_views)
+
+		prod_stats = Statistics.objects.get(product_or_service=product)
+		views_per_day = prod_stats.views_per_day
+		str_views_per_day = json.loads(views_per_day)
+		new_views_per_day = {}
+		today = date.today()
+		str_today = today.strftime("%d/%m/%Y")
+		if str_today in str_views_per_day:
+			views_today = str_views_per_day[str_today] + 1
+			str_views_per_day.update({str_today: views_today})
+			new_views_per_day = json.dumps(str_views_per_day)
+		if str_today not in str_views_per_day:
+			views_today = 1
+			str_views_per_day.update({str_today: views_today})
+			new_views_per_day = json.dumps(str_views_per_day)
+		Statistics.objects.filter(product_or_service=product).update(views_per_day=new_views_per_day)
+
 		r.set('products:{}:{}'.format(product.id, request.user.id), ''.format(datetime.now()))
 		#выпилил из render 'total_views': total_views}
 

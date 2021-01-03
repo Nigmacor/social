@@ -7,13 +7,13 @@
 
 {% block content %}
 <div>
-  <p>{{ product.product_or_service.product.title }}{{ service.product_or_service.service.title }}:
+  <p>{{ product.product_or_service.product.title }}{{ product.product_or_service.service.title }}:
     <br>
-    Описание: {{ product.product_or_service.product.description }}{{ service.product_or_service.service.description }}
+    Описание: {{ product.product_or_service.product.description }}{{ product.product_or_service.service.description }}
     <br>
-    Доступность: {{ product.product_or_service.product.available }}{{ service.product_or_service.service.available }}
+    Доступность: {{ product.product_or_service.product.available }}{{ product.product_or_service.service.available }}
     <br>
-    {% if product %}
+    {% if product.type == "Продукт" %}
       Стоимость единицы: <td class="num">{{ product.product_or_service.product.price }} руб.</td>
       <br>
       Всего на складе: <td class="num">{{ product.product_or_service.product.county }} шт.</td>
@@ -21,19 +21,19 @@
       Стоимость товаров на складе: <td class="num">{{ overall_price }}руб.</td>
       <br>
     {% endif %}
-    Рейтинг: {{ product.rating }}{{ service.rating }}
+    Рейтинг: {{ product.rating }}
     <br>
-    Комментариев: {{ product.amount_of_comments }}{{ service.amount_of_comments }}
+    Комментариев: {{ product.amount_of_comments }}
     <br>
     Просмотров: {{ product.views }}{{ service.views }}
     <br>
     Заказов: {{ product.orders }}{{ service.orders }}
     <br>
-    Стоимость заказов: {{ product.orders_cost }}{{ service.orders_cost }} руб.
+    Стоимость заказов: {{ product.orders_cost }} руб.
     <br>
-    Оплаченные заказы: {{ product.paid_orders }}{{ service.paid_orders }}
+    Оплаченные заказы: {{ product.paid_orders }}
     <br>
-    Стоимость оплаченных заказов: {{ product.paid_orders_cost }}{{ service.paid_orders_cost }} руб.
+    Стоимость оплаченных заказов: {{ product.paid_orders_cost }} руб.
   </p>
 </div>
 {% endblock %}

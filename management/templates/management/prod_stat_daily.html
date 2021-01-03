@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+<div>
+  <p>{{ product.product_or_service.product.title }}{{ product.product_or_service.service.title }}
+    <br>
+    Всего просмотров: {{ product.views }}
+  </p>
+  <table id="daily" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Просмотры</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in views_per_day %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+{% block js_stuff %}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js">
+  <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#daily').DataTable();
+    } );
+  </script>
+{% endblock %}

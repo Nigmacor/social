@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -157,17 +158,14 @@ class Shop_stat(LoginRequiredMixin, View):
 
 class Prod_info(LoginRequiredMixin, View):
     def get(self, request, id):
-        product = 0
-        service = 0
+        pos = 0
         pr_or_serv = Statistics.objects.get(id=id)
         if pr_or_serv.product_or_service.define_type() == 'Продукт':
-            product = pr_or_serv
-            overall_price=product.product_or_service.product.price*product.product_or_service.product.county
+            pos = pr_or_serv
         if pr_or_serv.product_or_service.define_type() == 'Услуга':
-            service = pr_or_serv
+            pos = pr_or_serv
         return render(request, 'management/prod_info.html',
-					  context={'product': product,
-                               'service': service,
+					  context={'product': pos,
                                })
 
     def post(self, request, id):
@@ -176,19 +174,35 @@ class Prod_info(LoginRequiredMixin, View):
 
 class Prod_stat(LoginRequiredMixin, View):
     def get(self, request, id):
-        product = 0
-        service = 0
+        pos = 0
         overall_price = 0
         pr_or_serv = Statistics.objects.get(id=id)
         if pr_or_serv.product_or_service.define_type() == 'Продукт':
-            product = pr_or_serv
-            overall_price=product.product_or_service.product.price*product.product_or_service.product.county
+            pos = pr_or_serv
+            overall_price=pos.product_or_service.product.price*pos.product_or_service.product.county
         if pr_or_serv.product_or_service.define_type() == 'Услуга':
-            service = pr_or_serv
+            pos = pr_or_serv
         return render(request, 'management/prod_stat.html',
-					  context={'product': product,
-                               'service': service,
+					  context={'product': pos,
                                'overall_price': overall_price,
+                               })
+
+    def post(self, request, id):
+        return
+
+
+class Prod_stat_daily(LoginRequiredMixin, View):
+    def get(self, request, id):
+        pos = 0
+        pr_or_serv = Statistics.objects.get(id=id)
+        if pr_or_serv.product_or_service.define_type() == 'Продукт':
+            pos = pr_or_serv
+        if pr_or_serv.product_or_service.define_type() == 'Услуга':
+            pos = pr_or_serv
+        views_per_day = json.loads(pos.views_per_day).items()
+        return render(request, 'management/prod_stat_daily.html',
+					  context={'product': pos,
+                               'views_per_day': views_per_day,
                                })
 
     def post(self, request, id):

@@ -6,7 +6,7 @@ from .models import Statistics, Statistics_shop
 # Register your models here.
 @admin.register(Statistics)
 class StatisticsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product_or_service', 'st_shop', 'views', 'amount_of_comments', 'orders', 'orders_cost', 'paid_orders', 'paid_orders_cost', 'in_cart', 'rating', 'type')
+    list_display = ('id', 'product_or_service', 'st_shop', 'views', 'amount_of_comments', 'orders', 'orders_cost', 'paid_orders', 'paid_orders_cost', 'in_cart', 'rating', 'type', 'views_per_day')
 
 @admin.register(Statistics_shop)
 class Statistics_shopAdmin(admin.ModelAdmin):
