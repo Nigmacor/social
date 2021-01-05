@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
@@ -105,7 +105,6 @@ class ProductDetail(View):
 			Statistics.objects.filter(product_or_service__product__slug=slug).update(views=total_views)
 		if product.define_type() == 'Услуга':
 			Statistics.objects.filter(product_or_service__service__slug=slug).update(views=total_views)
-
 		prod_stats = Statistics.objects.get(product_or_service=product)
 		views_per_day = prod_stats.views_per_day
 		str_views_per_day = json.loads(views_per_day)
@@ -117,6 +116,15 @@ class ProductDetail(View):
 			str_views_per_day.update({str_today: views_today})
 			new_views_per_day = json.dumps(str_views_per_day)
 		if str_today not in str_views_per_day:
+			dt_today = datetime.strptime(str_today, '%d/%m/%Y')
+			str_last_day = sorted(str_views_per_day.keys())[-1]
+			dt_last = datetime.strptime(str_last_day, '%d/%m/%Y')
+			dt_prev = dt_last+timedelta(days=1)
+			if dt_today > dt_prev:
+				while dt_today > dt_prev:
+					str_prev = dt_prev.strftime("%d/%m/%Y")
+					str_views_per_day.update({str_prev: 0})
+					dt_prev = dt_prev+timedelta(days=1)
 			views_today = 1
 			str_views_per_day.update({str_today: views_today})
 			new_views_per_day = json.dumps(str_views_per_day)
