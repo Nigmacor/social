@@ -101,10 +101,8 @@ class ProductDetail(View):
 		#увеличение числа просмотров на 1
 		total_views = total_views_count(product)
 
-		if product.define_type() == 'Продукт':
-			Statistics.objects.filter(product_or_service__product__slug=slug).update(views=total_views)
-		if product.define_type() == 'Услуга':
-			Statistics.objects.filter(product_or_service__service__slug=slug).update(views=total_views)
+		Statistics.objects.update_or_create(product_or_service=product)
+		Statistics.objects.filter(product_or_service=product).update(views=total_views)
 		prod_stats = Statistics.objects.get(product_or_service=product)
 		views_per_day = prod_stats.views_per_day
 		str_views_per_day = json.loads(views_per_day)
