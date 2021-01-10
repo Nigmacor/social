@@ -31,6 +31,7 @@ from comments.forms import CommentForm
 from comments.views import CommentCreate
 from .utils import service_type_filter
 from management.models import Statistics
+from management.utils import add_empty_views
 
 # Create your views here.
 r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -114,15 +115,7 @@ class ProductDetail(View):
 			str_views_per_day.update({str_today: views_today})
 			new_views_per_day = json.dumps(str_views_per_day)
 		if str_today not in str_views_per_day:
-			dt_today = datetime.strptime(str_today, '%d/%m/%Y')
-			str_last_day = sorted(str_views_per_day.keys())[-1]
-			dt_last = datetime.strptime(str_last_day, '%d/%m/%Y')
-			dt_prev = dt_last+timedelta(days=1)
-			if dt_today > dt_prev:
-				while dt_today > dt_prev:
-					str_prev = dt_prev.strftime("%d/%m/%Y")
-					str_views_per_day.update({str_prev: 0})
-					dt_prev = dt_prev+timedelta(days=1)
+			str_views_per_day = add_empty_views(str_today, str_views_per_day)
 			views_today = 1
 			str_views_per_day.update({str_today: views_today})
 			new_views_per_day = json.dumps(str_views_per_day)
