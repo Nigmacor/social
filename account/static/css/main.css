@@ -523,9 +523,18 @@ form div.field {
     display: flex;
     flex-direction: row;
     width: 100%;
-    border: none; }
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
+    border: none;
+    padding: 10px; }
     .products__container .card-img-top {
       border-radius: 5px; }
+    .products__container .card__image {
+      height: 200px;
+      width: 200px;
+      border-radius: 5px;
+      background-size: contain;
+      background-position: center center;
+      background-repeat: no-repeat; }
     .products__container .card-title {
       font-weight: 500;
       font-size: 18px;
@@ -616,6 +625,29 @@ form div.field {
 
 .product__content {
   margin: auto; }
+
+.slick-slider {
+  display: flex !important;
+  align-items: center; }
+
+.slick-arrow {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-top: 5px solid #6BA371;
+  border-right: 5px solid #6BA371;
+  margin-right: 60px;
+  font-size: 0;
+  background: none; }
+
+.slick-next {
+  transform: rotate(45deg);
+  right: -60px; }
+
+.slick-prev {
+  transform: rotate(-135deg);
+  left: -20px; }
 
 .top-menu {
   background-color: #D5F9D9;

@@ -37,53 +37,53 @@ r = redis.StrictRedis(host=settings.REDIS_HOST,
 					  db=settings.REDIS_DB)
 
 def shop(request, category_slug=None):
-    category = None
-    ancestors = None
-    search_form = SearchForm()
-    categories = Category.objects.filter(parent=None)
-    products = ServiceType.objects.filter(available=True)
-    cart_product_form = CartAddProductForm()
-    slider = Slider.objects.filter(main=True).first()
-    slides = Slide.objects.filter(slider=slider)
-    if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
-        cats = category.get_descendants(include_self=True)
-        ancestors = list(category.get_ancestors())[:-1]
-        products = products.filter(
-            Q(product__category__in=[cat for cat in cats]) |
-            Q(service__category__in=[cat for cat in cats]))
-        categories = category.get_leafnodes(include_self=False)
+	category = None
+	ancestors = None
+	search_form = SearchForm()
+	categories = Category.objects.filter(parent=None)
+	products = ServiceType.objects.filter(available=True)
+	cart_product_form = CartAddProductForm()
+	slider = Slider.objects.filter(main=True).first()
+	slides = Slide.objects.filter(slider=slider)
+	if category_slug:
+		category = get_object_or_404(Category, slug=category_slug)
+		cats = category.get_descendants(include_self=True)
+		ancestors = list(category.get_ancestors())[:-1]
+		products = products.filter(
+			Q(product__category__in=[cat for cat in cats]) |
+			Q(service__category__in=[cat for cat in cats]))
+		categories = category.get_leafnodes(include_self=False)
 
-    return render(request, 'shops/shop/shop.html', context={
-    	'products_list': products,
-    	'category': category,
-    	'categories': categories,
-    	'cart_product_form': cart_product_form,
-    	'slider': slides,
-    	'ancestors': ancestors,
-        'search_form': search_form,
-    	})
+	return render(request, 'shops/shop/shop.html', context={
+		'products_list': products,
+		'category': category,
+		'categories': categories,
+		'cart_product_form': cart_product_form,
+		'slider': slides,
+		'ancestors': ancestors,
+		'search_form': search_form,
+		})
 
 def product_search(request):
-    search_form = SearchForm()
-    query = None
-    results = []
-    if 'query' in request.GET:
-        search_form = SearchForm(request.GET)
-    if search_form.is_valid():
-        query = search_form.cleaned_data['query']
-        search =Greatest(
-            TrigramSimilarity('product__title', query),
-            TrigramSimilarity('service__title', query),
-            TrigramSimilarity('product__short_description', query),
-            TrigramSimilarity('service__short_description', query)
-        )
-        results = ServiceType.objects.annotate(
-            similarity=search
-            ).filter(similarity__gt=0.2).filter(available=True).order_by('-similarity')
-    return render(request, 'shops/shop/search.html', {'search_form': search_form,
-                                                      'query': query,
-                                                      'results': results})
+	search_form = SearchForm()
+	query = None
+	results = []
+	if 'query' in request.GET:
+		search_form = SearchForm(request.GET)
+	if search_form.is_valid():
+		query = search_form.cleaned_data['query']
+		search =Greatest(
+			TrigramSimilarity('product__title', query),
+			TrigramSimilarity('service__title', query),
+			TrigramSimilarity('product__short_description', query),
+			TrigramSimilarity('service__short_description', query)
+		)
+		results = ServiceType.objects.annotate(
+			similarity=search
+			).filter(similarity__gt=0.2).filter(available=True).order_by('-similarity')
+	return render(request, 'shops/shop/search.html', {'search_form': search_form,
+													  'query': query,
+													  'results': results})
 
 
 def total_views_count(product):
@@ -106,7 +106,8 @@ class ProductDetail(View):
 		context_product_detail = {'product': product.get_type_obj(),
 								  'cart_product_form': cart_product_form,
 								  'total_views': total_views,
-								  'recommended_products': recommended_products}
+								  'recommended_products': recommended_products,
+								  'contents': product.contents.all()}
 
 		context_comment = CommentCreate.get_comment(self, request, product)
 		context_product_detail.update(context_comment)
@@ -131,62 +132,63 @@ def shop_detail(request, id):
 @login_required
 @require_POST
 def wishlist_actions(request):
-    product_id = request.POST.get('id')
-    action = request.POST.get('action')
-    if product_id and action:
-        try:
-            product = ServiceType.objects.get(id=product_id)
-            wishlist = Wishlist.objects.get_or_create(owner=request.user)
-            if action == 'add':
-                print(wishlist)
-                wishlist[0].products.add(product)
-            else:
-                print(wishlist)
-                wishlist[0].products.remove(product)
-            return JsonResponse({'status': 'ok'})
-        except:
-            pass
-    return JsonResponse({'status': 'ok'})
+	product_id = request.POST.get('id')
+	action = request.POST.get('action')
+	if product_id and action:
+		try:
+			product = ServiceType.objects.get(id=product_id)
+			wishlist = Wishlist.objects.get_or_create(owner=request.user)
+			if action == 'add':
+				print(wishlist)
+				wishlist[0].products.add(product)
+			else:
+				print(wishlist)
+				wishlist[0].products.remove(product)
+			return JsonResponse({'status': 'ok'})
+		except:
+			pass
+	return JsonResponse({'status': 'ok'})
 
 @login_required
 def wishlist(request):
-    wishlist = Wishlist.objects.get_or_create(owner=request.user)
-    return render(request, 'shops/shop/wishlist.html', {'wishlist': wishlist[0]})
+	wishlist = Wishlist.objects.get_or_create(owner=request.user)
+	cart_product_form = CartAddProductForm()
+	return render(request, 'shops/shop/wishlist.html', {'wishlist': wishlist[0], 'cart_product_form': cart_product_form})
 
 class OwnerMixin(object):
-    def get_queryset(self):
-        qs = super(OwnerMixin, self).get_queryset()
-        return qs.filter(owner=self.request.user)
+	def get_queryset(self):
+		qs = super(OwnerMixin, self).get_queryset()
+		return qs.filter(owner=self.request.user)
 
 class OwnerEditMixin(object):
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        return super(OwnerEditMixin, self).form_valid(form)
+	def form_valid(self, form):
+		form.instance.owner = self.request.user
+		return super(OwnerEditMixin, self).form_valid(form)
 
 class OwnerShopMixin(OwnerMixin, LoginRequiredMixin):
-    model = Shop
-    fields = ['name', 'slug', 'contact_email', 'contact_phone', 'template_prefix']
-    success_url = reverse_lazy('manage_shop_list')
+	model = Shop
+	fields = ['name', 'slug', 'contact_email', 'contact_phone', 'template_prefix']
+	success_url = reverse_lazy('manage_shop_list')
 
 class OwnerShopEditMixin(OwnerShopMixin, OwnerEditMixin):
-    fields = ['name', 'slug', 'title', 'contact_email', 'contact_phone', 'template_prefix']
-    success_url = reverse_lazy('manage_shop_list')
-    template_name = 'shops/manage/shop/form.html'
+	fields = ['name', 'slug', 'title', 'contact_email', 'contact_phone', 'template_prefix']
+	success_url = reverse_lazy('manage_shop_list')
+	template_name = 'shops/manage/shop/form.html'
 
 class ManageShopListView(OwnerShopMixin, ListView):
-    template_name = 'shops/manage/shop/list.html'
+	template_name = 'shops/manage/shop/list.html'
 
 
 class ShopCreateViev(PermissionRequiredMixin, OwnerShopEditMixin, CreateView):
-    permission_required = 'shops.add_shop'
+	permission_required = 'shops.add_shop'
 
 class ShopUpdateViev(PermissionRequiredMixin, OwnerShopEditMixin, UpdateView):
-    permission_required = 'shops.change_shop'
+	permission_required = 'shops.change_shop'
 
 class ShopDeleteView(PermissionRequiredMixin, OwnerShopMixin, DeleteView):
-    permission_required = 'shops.delete_shop'
-    template_name = 'shops/manage/shop/delete.html'
-    success_url = reverse_lazy('manage_shop_list')
+	permission_required = 'shops.delete_shop'
+	template_name = 'shops/manage/shop/delete.html'
+	success_url = reverse_lazy('manage_shop_list')
 
 class ShopProductUpdateView(PermissionRequiredMixin, TemplateResponseMixin, View):
 	permission_required = 'shops.change_product'

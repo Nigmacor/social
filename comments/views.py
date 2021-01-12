@@ -69,7 +69,7 @@ class CommentCreate(View):
 				   'rating': overall_rating,
 				   'images_form': images_form}
 
-		context.update(context_all)
+		# context.update(context_all)
 		return context
 
 	def post_comment(self, request, product):

@@ -29,16 +29,34 @@
                   <a href="" class="cart_controls delete_favorite" data-id="{{product.id}}" data-action="reverse_add">Удалить</a>
                 </div>
                 <div class="col-sm-2">
-                  <form action="{% url "cart:cart_add" product.id %}" id="id-{{product.id}}" method="post">
+
+                  <!-- <form action="{% url "cart:cart_add" item.id %}" id="id-{{item.id}}" method="post">
                     {{ item.update_quantity_form.quantity }}
                     {{ item.update_quantity_form.update }}
-                    <!-- <input type="submit" value="Обновить"> -->
+                    <input type="submit" value="Купить">
                     {% csrf_token %}
+                  </form> -->
+                  <form id="form-{{ item.id }}" class="product-card-views" action="{% url "cart:cart_add" item.id %}" method="post"  >
+                    {{ cart_product_form.quantity }}
+                    {{ cart_product_form.update }}
+                    <input name="product_id" type="hidden" value="{{ item.id }}" >
+                    {% csrf_token %}
+                    <button type="submit" name="submit_btn" class="btn cart_btn submit_btn"
+                      id="submit_btn_{{ item.id }}" 
+                      data-title ="{{item.title}}" 
+                      data-price ="{{ item.price }}"
+                      data-action="add"
+                      >
+                      <img src="{% static 'icons/cart.png'%}" alt="">
+                      Купить
+                    </button>
                   </form>
                 </div>
                 <!-- <div class="col-sm-2 num" >{{ item.price }}₽</div> -->
                 <div class="col-sm-2 num">
-                    {{ product.total_price }} ₽
+                  {% if product.price %}
+                    {{ product.price }} ₽
+                  {% endif %}
                 </div>
             </div>       
             {% endwith %}
@@ -65,5 +83,71 @@ $('.delete_favorite').click(function(e){
       }
     );
   });
+
+  var form = $('.product-card-views');
+  var button = $('.btn');
+
+  function show_cart() {
+    // $('.cart-items').toggleClass('d-none');
+    $('.cart-items').removeClass('d-none');
+  }
+
+  $('.cart-container').on('click', function(e){
+    e.preventDefault();
+    show_cart();
+  })
+
+
+  form.on('submit', function(e) {
+    console.log("hi");
+    e.preventDefault();
+    var cur_form = this;
+    console.log(cur_form);
+    var product_id = cur_form.id.slice(5);
+    var submit_btn = $(`#submit_btn_${product_id}`);
+    console.log(cur_form.quantity);
+    var quant = cur_form.quantity.value;
+    console.log(quant);
+    var delete_url = $('.delete-url').val();
+    var title = submit_btn.data("title");
+    var price = submit_btn.data("price");
+    var url = $(`#${cur_form.id}`).attr("action");
+    var update = cur_form.update.value;
+    var csrf_token = cur_form.csrfmiddlewaretoken.value;
+    var data = {};
+    data.quantity = quant;
+    data.update = update;
+    data["csrfmiddlewaretoken"] = csrf_token;
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: data,
+      cache: true,
+      success: function (data) {
+        let count = 0;
+        if (parseInt($(".badge_cart").text()) == 0){
+           count =  0;
+           $(".badge_cart").toggleClass('d-none');
+        } else {
+          count = parseInt($(".badge_cart").text());
+        }
+        var previous_action = submit_btn.attr('data-action');
+        submit_btn.attr('data-action', previous_action == 'add' ? 'delete' : 'add');
+        submit_btn.find('img').attr('src', previous_action == 'add' ? '{% static 'icons/cart_delete.png'%}' : '{% static 'icons/cart.png'%}')
+
+        count++;
+        console.log(count)
+        $(".badge_cart").text(count);
+      },
+      error: function () {
+        console.log('error');
+      },
+    })
+    
+    $('.cart-items ul').append('<li>'+title+', '+quant+'шт. '+'по ' + price +' руб. ' +
+      `<a class="delete-item" href="${delete_url}${product_id}"> x</a>` +
+      '</li>')
+  
+    })
 
 {% endblock %}

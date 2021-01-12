@@ -3,8 +3,12 @@
 {% block title %}chat{% endblock %}
 
 {% block content %}
-    <ul class="rooms d-none">
+    <ul class="rooms ">
       <li class="room-link" data-profession-id="{{ profession.id }}">Заказчик {{ user.username }}! Заказ № {{ profession.id }}</li>
+      {% for p in all_professions %}
+        <li>{{p.title}}</li>
+      {% endfor %}
+
     </ul>
     <div id="chats">
       <div class='room' id='professions-{{ profession.id }}'>

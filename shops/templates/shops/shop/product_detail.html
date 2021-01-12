@@ -13,27 +13,40 @@
   {% endfor %}
   <h1>{{ product.title }}</h1>
 <div class="product-detail row">
-  <div class="col-sm-5">  
+  <div class="col-sm-4">  
   <div class="image-container">
-    <a href="{{ product.service_type.galary.main_image }}">
+    <!-- <a href="{{ product.service_type.galary.main_image }}">
       <img src="{{ product.service_type.galary.main_image }}" class="image-detail">
-    </a>
+    </a> -->
     <div class="small-img">
-      {% if product.service_type.galary.images.all|length > 1 %}
+      <div class="slider-for">
+        {% if product.service_type.galary.images.all|length > 1 %}
+          {% for image in product.service_type.galary.images.all %}                
+            {% thumbnail image.image "1000" as im %}
+              <div class="product_image" style="height: 300px;">
+                  <img src="{{ im.url }}" alt="">
+              </div>
+              <!-- <div class="product_image" style="background-image: url('{{ im.url }}'); height: 300px; background-position: center; background-repeat: no-repeat; background-size: contain;"></div> -->
+              <!-- <img src="{{ im.url }}" class="image-detail"> -->
+            {% endthumbnail %}
+          {% endfor %}
+        {% endif %}
+      </div>     
+      <div class="slider-nav">
+        {% if product.service_type.galary.images.all|length > 1 %}
         {% for image in product.service_type.galary.images.all %}
           {% thumbnail image.image "100" as im %}
-          <a href="{{ image.image.url }}">
             <img src="{{ im.url }}" class="image-detail thumbnail">
-          </a>
           {% endthumbnail %}
         {% endfor %}
       {% endif %}
+      </div>         
     </div>
   </div>
   <!-- <div style="height:200px; width: 200px; background-size:cover; background-image:url({% if product.product_galary.images %}{{ product.product_galary.main_image }}{% else %}{% static "img/fiz.png" %}{% endif %})" class="image-detail card-img-top rounded-top"></div> -->
   
 </div>
-  <div class="col-sm-7 product__details">   
+  <div class="col-sm-8 product__details">   
     <div class="card-header"> 
       <p>{{ product.description }}</p>
     </div>
@@ -195,4 +208,21 @@ var form = $('.product-card-views');
       }
     );
   });
+
+  $('.slider-for').slick({
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    fade: true,
+    asNavFor: '.slider-nav'
+  });
+  $('.slider-nav').slick({
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    asNavFor: '.slider-for',    
+    focusOnSelect: true
+  });
+
+  $('.product_image').zoom();
+
 {% endblock %}

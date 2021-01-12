@@ -31,7 +31,7 @@ def order_create(request):
                                          price=item['price'],
                                          quantity=item['quantity'])
             cart.clean()
-            order_created.delay(order.id)
+            # order_created.delay(order.id)
             # Сохраненяю заказ в сессии
             request.session['order_id'] = order.id
             return redirect(reverse('payment:process'))

@@ -26,6 +26,8 @@ def index(request, profession_id):
     except Profession.DoesNotExist:
         raise Http404
     profession = Profession.objects.get(pk=profession_id)
+    all_professions = Profession.objects.filter(rel_to_worker__worker=request.user.profile,
+                                           rel_to_worker__confirmed=True).order_by("title")
     job_queryset = profession.modules.order_by('-id')[:10]
     job_message_count = len(job_queryset)
     if job_message_count > 0:
@@ -43,6 +45,7 @@ def index(request, profession_id):
     # Визуализируйте это в шаблоне индекса
     return render(request, "projects/project/index.html", {
         "profession": profession,
+        "all_professions": all_professions,
         "messages": job_messages,
         "privious_id": privious_id,
         "first_message_id": first_message_id,
